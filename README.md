@@ -10,25 +10,35 @@ tag `v1.0`.
 
 ## Layout
 
-```
-run.sh                      entry point (selftest / env / check / analyze)
-src/vuln_agent/             implementation
-  run.py                    CLI entry point
-  config.py  state.py  graph.py
-  nodes/                    pipeline stages
-  tools/                    deterministic verifier and its analysers
-  knowledge/  llm/          CWE family registry, budgeted LLM client
-  bench.py  project.py      file-mode and project-mode drivers
-  metrics.py                scorer behind the reported numbers
-src/data/cwe_agent_kb/      96 CWE cards + family index
-src/models/clf_select/      family classifier: config, tokenizer, metrics
-results/predictions/        frozen per-file predictions
-results/logs/               per-file reasoning traces
-results/audit/              blinded audit packets + reviewer tables
-results/statistics/         frozen aggregates
-results/baselines/          direct-prompting control outputs
-results/datasets/           project snapshots
-```
+**Entry point**
+
+| Path | Content |
+| :--- | :--- |
+| `run.sh` | `selftest` · `env` · `check` · `analyze` |
+
+**Implementation — `src/`**
+
+| Path | Content |
+| :--- | :--- |
+| `vuln_agent/run.py` | CLI entry point |
+| `vuln_agent/graph.py` · `state.py` · `config.py` | pipeline graph, state, budgets and paths |
+| `vuln_agent/nodes/` | pipeline stages |
+| `vuln_agent/tools/` | deterministic verifier and its analysers |
+| `vuln_agent/knowledge/` · `llm/` | CWE family registry, budgeted LLM client |
+| `vuln_agent/bench.py` · `project.py` · `metrics.py` | file-mode and project-mode drivers, scorer |
+| `data/cwe_agent_kb/` | 96 CWE cards + family index |
+| `models/clf_select/` | family classifier config, tokenizer and metrics (weights not shipped) |
+
+**Results — `results/`**
+
+| Path | Content |
+| :--- | :--- |
+| `predictions/` | frozen per-file predictions |
+| `logs/` | per-file reasoning traces |
+| `audit/` | blinded audit packets + reviewer tables |
+| `statistics/` | frozen aggregates |
+| `baselines/` | direct-prompting control outputs |
+| `datasets/` | project snapshots |
 
 ## Quick start
 
@@ -59,10 +69,3 @@ export LLM_MODEL=...      # optional
 
 The CFG-based stages additionally need
 `pip install langgraph tree_sitter_languages openai requests`.
-
-## Notes
-
-- `src/models/clf_select/model.pt` (≈ 500 MB) is not shipped.
-- The alias → file mapping behind `results/audit/` is not shipped.
-- Code is MIT (see `LICENSE`); the released data files are CC BY 4.0. Source
-  files under `results/datasets/` stay under their original projects' licenses.
