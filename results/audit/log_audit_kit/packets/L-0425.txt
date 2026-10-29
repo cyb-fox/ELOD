@@ -1,0 +1,240 @@
+=== 待审推理日志 L-0425 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 10 个；未决 10 个。
+
+【推理轨迹】共 27 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:3
+  引证行: 3
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("input_indices", &indices_t));
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext *ctx) override {
+      2 |     const Tensor *indices_t, *values_t, *shape_t, *reduction_axes_t;
+      3 |     OP_REQUIRES_OK(ctx, ctx->input("input_indices", &indices_t));
+      4 |     OP_REQUIRES_OK(ctx, ctx->input("input_values", &values_t));
+      5 |     OP_REQUIRES_OK(ctx, ctx->input("input_shape", &shape_t));
+      6 |     OP_REQUIRES_OK(ctx, ctx->input("reduction_axes", &reduction_axes_t));
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:4
+  引证行: 4
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("input_values", &values_t));
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext *ctx) override {
+      2 |     const Tensor *indices_t, *values_t, *shape_t, *reduction_axes_t;
+      3 |     OP_REQUIRES_OK(ctx, ctx->input("input_indices", &indices_t));
+      4 |     OP_REQUIRES_OK(ctx, ctx->input("input_values", &values_t));
+      5 |     OP_REQUIRES_OK(ctx, ctx->input("input_shape", &shape_t));
+      6 |     OP_REQUIRES_OK(ctx, ctx->input("reduction_axes", &reduction_axes_t));
+      7 | 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:6
+  引证行: 6
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("reduction_axes", &reduction_axes_t));
+  初判倾向: VIOLATED
+  上下文源码:
+      3 |     OP_REQUIRES_OK(ctx, ctx->input("input_indices", &indices_t));
+      4 |     OP_REQUIRES_OK(ctx, ctx->input("input_values", &values_t));
+      5 |     OP_REQUIRES_OK(ctx, ctx->input("input_shape", &shape_t));
+      6 |     OP_REQUIRES_OK(ctx, ctx->input("reduction_axes", &reduction_axes_t));
+      7 | 
+      8 |     OP_REQUIRES_OK(ctx, ValidateInputs(shape_t, reduction_axes_t));
+      9 | 
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:15
+  引证行: 15
+  引证内容: const auto shape_vec = shape_t->vec<int64>();
+  初判倾向: VIOLATED
+  上下文源码:
+     12 |     // surprises of this kernel being stateful, we work around the above by
+     13 |     // making deep copies here.  Remove this if/when we change Reorder()'s
+     14 |     // semantics.
+     15 |     const auto shape_vec = shape_t->vec<int64>();
+     16 |     SparseTensor sp;
+     17 |     OP_REQUIRES_OK(ctx, SparseTensor::Create(
+     18 |         tensor::DeepCopy(*indices_t), tensor::DeepCopy(*values_t),
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:18
+  引证行: 18
+  引证内容: tensor::DeepCopy(*indices_t), tensor::DeepCopy(*values_t),
+  初判倾向: VIOLATED
+  上下文源码:
+     15 |     const auto shape_vec = shape_t->vec<int64>();
+     16 |     SparseTensor sp;
+     17 |     OP_REQUIRES_OK(ctx, SparseTensor::Create(
+     18 |         tensor::DeepCopy(*indices_t), tensor::DeepCopy(*values_t),
+     19 |                     TensorShape(shape_vec), &sp));
+     20 |     ReduceDetails reduction = SparseTensorReduceHelper(
+     21 |         sp, reduction_axes_t->flat<int32>(), keep_dims_);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:25
+  引证行: 25
+  引证内容: ctx, ctx->allocate_output(0, reduction.reduced_shape, &out_values));
+  初判倾向: VIOLATED
+  上下文源码:
+     22 | 
+     23 |     Tensor *out_values;
+     24 |     OP_REQUIRES_OK(
+     25 |         ctx, ctx->allocate_output(0, reduction.reduced_shape, &out_values));
+     26 |     auto out_flat = out_values->flat<T>();
+     27 |     out_flat.setZero();
+     28 | 
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:30
+  引证行: 30
+  引证内容: OP_REQUIRES_OK(ctx, ctx->allocate_temp(DataTypeToEnum<T>::value,
+  初判倾向: VIOLATED
+  上下文源码:
+     27 |     out_flat.setZero();
+     28 | 
+     29 |     Tensor tmp_reduced_val;
+     30 |     OP_REQUIRES_OK(ctx, ctx->allocate_temp(DataTypeToEnum<T>::value,
+     31 |                                            TensorShape({}), &tmp_reduced_val));
+     32 |     auto reduced_val = tmp_reduced_val.scalar<T>();
+     33 | 
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:3
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:4
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:5
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:6
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:15
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:18
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:21
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:25
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:26
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:30
+  命中信号: gethostbyaddr/getenv/fopen/dlopen/dlsym return value dereferenced or passed to a dereferencing API before NULL check
+  筛选: keep
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:3
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

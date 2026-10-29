@@ -1,0 +1,72 @@
+=== 待审推理日志 L-0820 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 0 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: send_response_data:116
+  引证行: 116
+  引证内容: response_attrs[p->http_attr] = val;
+  初判倾向: VIOLATED
+  上下文源码:
+    113 | 	  return -ERR_INVALID_REQUEST;
+    114 | 	}
+    115 | 	if (strcmp(p->param, "response-content-type") != 0) {
+    116 | 	  response_attrs[p->http_attr] = val;
+    117 | 	} else {
+    118 | 	  content_type_str = val;
+    119 | 	  content_type = content_type_str.c_str();
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: send_response_data:137
+  引证行: 137
+  引证内容: response_attrs[aiter->second] = s;
+  初判倾向: VIOLATED
+  上下文源码:
+    134 |             --len;
+    135 |             s.resize(len);
+    136 |           }
+    137 |           response_attrs[aiter->second] = s;
+    138 |         }
+    139 |       } else if (iter->first.compare(RGW_ATTR_CONTENT_TYPE) == 0) {
+    140 |         /* Special handling for content_type. */
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: send_response_data:116
+  命中信号: C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: send_response_data:137
+  命中信号: strlen(buf), printf("%s", buf), strcpy(dst, buf), or strcmp(buf, x) on a buffer that may lack a NUL within its allocated size
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: send_response_data:116
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: send_response_data:137
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+【最终结论】
+  分析器判定: underdetermined

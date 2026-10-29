@@ -1,0 +1,88 @@
+{
+  "cwe_id": "CWE-703",
+  "name": "Improper Check or Handling of Exceptional Conditions",
+  "abstraction": "Pillar",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [],
+    "parent_of": [
+      "CWE-228",
+      "CWE-248",
+      "CWE-391",
+      "CWE-392",
+      "CWE-393",
+      "CWE-397",
+      "CWE-754",
+      "CWE-755",
+      "CWE-1384"
+    ]
+  },
+  "principle": "The product fails to anticipate, check, report, or handle rare error conditions. Continuing after an exceptional condition can cause crashes, unexpected state, data exposure, or unsafe fallback behavior.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "C fgets()/fread()/read()/recv()/scanf() return value ignored before using the destination buffer",
+    "C fopen()/malloc()/calloc()/realloc()/new(std::nothrow) result used without NULL check",
+    "C ftell()/fseek()/lseek() return value ignored before casting or using size/offset",
+    "C strcpy()/strlen()/memcpy() called on a buffer populated by an unchecked I/O call",
+    "Java method declaration uses throws Exception or throws Throwable",
+    "Java catch (Exception e) or catch (Throwable t) block is empty or only logs then continues",
+    "C++ catch (...) block is empty or continues normal control flow"
+  ],
+  "negative_signals": [
+    "Failure-prone call result is checked with if (ret == NULL), if (ret < 0), or if (ret != expected) before use",
+    "Error branch returns, throws, goto cleanup, or otherwise prevents use of invalid output",
+    "Java method declares specific exceptions such as throws IOException, SQLException",
+    "Java/C++ catch blocks handle distinct exception types with retry, rollback, fail-closed, or rethrow",
+    "C++ RAII or Java try-with-resources guarantees cleanup on exception paths",
+    "Security decision code explicitly denies on error, e.g. return false, return 403, or throw AccessDeniedException"
+  ],
+  "false_defense_traps": [
+    "Checking errno without checking the failing function return value",
+    "catch (Exception e) { log(e); } followed by normal success path",
+    "throws Exception hides new exception types from callers",
+    "Initializing a buffer once but later trusting an unchecked fgets()/read() to refresh it",
+    "Default success values such as authenticated=true before a failing check"
+  ],
+  "verification_focus": "Does every operation that can fail have its result or exception checked before dependent state, buffers, handles, or security decisions are used?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-703",
+        "CWE-120"
+      ],
+      "trigger": "unchecked fgets() returns NULL and strcpy() later assumes a valid null-terminated buffer",
+      "consequence": "buffer overflow, crash, or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-703",
+        "CWE-476"
+      ],
+      "trigger": "unchecked allocation or factory failure returns NULL and caller dereferences it",
+      "consequence": "crash or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-392",
+        "CWE-332"
+      ],
+      "trigger": "cryptographic random source failure is not reported and code falls back to weak randomness",
+      "consequence": "low entropy keys or predictable cryptographic material"
+    }
+  ],
+  "patch_principle": [
+    "Check return values and exceptions from all failure-prone I/O, allocation, parsing, and security APIs before using outputs.",
+    "Use specific exception types and specific catch blocks; rethrow or fail when the caller must decide.",
+    "Make error paths explicit: cleanup resources, return failure, throw, retry safely, or terminate.",
+    "Fail closed in authentication, authorization, cryptography, and integrity checks.",
+    "Validate partial reads/writes by comparing actual byte counts with expected byte counts."
+  ],
+  "minimal_examples": {
+    "vuln": "char buf[10], cp_buf[10]; fgets(buf, sizeof buf, stdin); strcpy(cp_buf, buf);",
+    "safe": "char buf[10], cp_buf[10]; if (fgets(buf, sizeof buf, stdin) == NULL) return; snprintf(cp_buf, sizeof cp_buf, \"%s\", buf);"
+  }
+}

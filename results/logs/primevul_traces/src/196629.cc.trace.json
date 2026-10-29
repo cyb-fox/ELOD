@@ -1,0 +1,214 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "ComputeAsync:67"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 67,
+      "snippet": "device.memcpy(input_copy.flat<Scalar>().data(),",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "ComputeAsync:67",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "ComputeAsync:201"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 201,
+      "snippet": "device.memcpy(output->flat<Scalar>().data(),",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "ComputeAsync:201",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "device",
+        "memcpy",
+        "input_copy"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "ComputeAsync:67",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "device",
+        "memcpy",
+        "transposed_rhs"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "ComputeAsync:138",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "device",
+        "memcpy",
+        "output"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "ComputeAsync:201",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "ComputeAsync:67",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "ComputeAsync:138",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "ComputeAsync:201",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

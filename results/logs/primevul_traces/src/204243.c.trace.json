@@ -1,0 +1,52 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "evalarg",
+        "eval_flags"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "one alias freed, then another alias to the same allocation is dereferenced or passed to a callee",
+        "free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)"
+      ]
+    },
+    "sink_id": "eval7:8",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "eval7:8",
+    "state_delta": {
+      "object_live_at_use": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "lifetime|use"
+  }
+]

@@ -1,0 +1,592 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "squashfs_opendir:56"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 56,
+      "snippet": "memcpy(&dirh, directory_table + bytes, sizeof(dirh));",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "squashfs_opendir:56",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "squashfs_opendir:72"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 72,
+      "snippet": "memcpy(&sdire, directory_table + bytes,",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "squashfs_opendir:72",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "squashfs_opendir:76"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 76,
+      "snippet": "memcpy(dire, directory_table + bytes,",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "squashfs_opendir:76",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "squashfs_opendir:86"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 86,
+      "snippet": "memcpy(dire->name, directory_table + bytes,",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "squashfs_opendir:86",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "squashfs_opendir:88"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 88,
+      "snippet": "dire->name[dire->size + 1] = '\\0';",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "squashfs_opendir:88",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "squashfs_opendir:100"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 100,
+      "snippet": "new_dir = realloc(dir->dirs, (dir->dir_count +",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "squashfs_opendir:100",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "squashfs_opendir:107"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 107,
+      "snippet": "strcpy(dir->dirs[dir->dir_count].name, dire->name);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "squashfs_opendir:107",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "sdirh",
+        "directory_table"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)"
+      ]
+    },
+    "sink_id": "squashfs_opendir:53",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "dirh",
+        "directory_table"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)"
+      ]
+    },
+    "sink_id": "squashfs_opendir:56",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "sdire",
+        "directory_table"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)"
+      ]
+    },
+    "sink_id": "squashfs_opendir:72",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "dire",
+        "directory_table"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "squashfs_opendir:76",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "dire",
+        "name"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "squashfs_opendir:86",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "dire",
+        "name",
+        "size"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "squashfs_opendir:88",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "new_dir",
+        "realloc",
+        "dir"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check"
+      ]
+    },
+    "sink_id": "squashfs_opendir:100",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "dir",
+        "dirs"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "squashfs_opendir:107",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:53",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:56",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:72",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:76",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:86",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:88",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:100",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "squashfs_opendir:107",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

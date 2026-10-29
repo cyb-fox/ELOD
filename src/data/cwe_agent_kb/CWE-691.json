@@ -1,0 +1,13 @@
+{
+  "cwe_id": "CWE-691",
+  "name": "Insufficient Control Flow Management",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [],
+    "parent_of": ["CWE-1325"]
+  },
+  "principle": "The product does not sufficiently control a security-relevant sequence or transition of control flow.",
+  "applicable_languages": ["C", "C++", "Java"],
+  "verification_focus": "Parent metadata only; classify and verify a concrete child mechanism instead."
+}

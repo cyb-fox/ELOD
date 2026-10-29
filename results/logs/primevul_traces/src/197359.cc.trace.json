@@ -1,0 +1,169 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Initialize:24"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-125"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 24,
+      "snippet": "VLOG(2) << \"Variable: \" << var->name();",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Initialize:24",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Initialize:49"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-703"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 49,
+      "snippet": "all_nodes_.insert(std::make_pair(div_const_node->name(), div_const_node));",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Initialize:49",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Initialize:24"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "var",
+        "name"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "array[index] read guarded only by index < len with no index >= 0 check",
+        "C++ vector/string operator[] read with external index and no prior range check"
+      ]
+    },
+    "sink_id": "Initialize:24",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "all_nodes_",
+        "insert",
+        "make_pair"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C fopen()/malloc()/calloc()/realloc()/new(std::nothrow) result used without NULL check"
+      ]
+    },
+    "sink_id": "Initialize:49",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "Initialize:24"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "Initialize:24",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Initialize:49",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

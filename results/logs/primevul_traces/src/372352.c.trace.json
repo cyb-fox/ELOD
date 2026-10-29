@@ -1,0 +1,338 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "sdb_edit:42"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-78"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 42,
+      "snippet": "int pid=fork();",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "sdb_edit:42",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|exec"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "sdb_edit:57"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 57,
+      "snippet": "sprintf(p,\"%s %s\",editor,filename);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "sdb_edit:57",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "sdb_edit:81"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 81,
+      "snippet": "pi->data.s.body[len]='\\0';",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "sdb_edit:81",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "pi",
+        "language"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "sdb_edit:11",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "pid",
+        "fork"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C/C++ execl(\"/bin/sh\", \"sh\", \"-c\", cmd, NULL) or execv shell with -c and external input",
+        "C/C++ system(cmd) where cmd contains argv, getenv(), request, socket, file, or config input"
+      ]
+    },
+    "sink_id": "sdb_edit:42",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|exec"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "sprintf",
+        "editor",
+        "filename"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width"
+      ]
+    },
+    "sink_id": "sdb_edit:57",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "system"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "sdb_edit:58",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "pi",
+        "data",
+        "body"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width"
+      ]
+    },
+    "sink_id": "sdb_edit:81",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "sdb_edit:11",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "sdb_edit:42",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "input_sanitized": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|exec"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "sdb_edit:57",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "sdb_edit:58",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "sdb_edit:81",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

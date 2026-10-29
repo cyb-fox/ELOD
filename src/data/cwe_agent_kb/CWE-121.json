@@ -1,0 +1,62 @@
+{
+  "cwe_id": "CWE-121",
+  "name": "Stack-based Buffer Overflow",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-787",
+      "CWE-788"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code writes past the bounds of a buffer allocated on the stack, usually a local fixed-size array. This can corrupt adjacent stack data such as saved frame pointers and return addresses, causing crashes or arbitrary code execution.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "local fixed-size array char buf[N] written by strcpy(buf, src)",
+    "local fixed-size array char buf[N] written by strcat(buf, src)",
+    "local fixed-size array char buf[N] written by sprintf(buf, fmt, ...) or vsprintf(buf, fmt, ...)",
+    "gets(buf) where buf is a local stack array",
+    "scanf(\"%s\", buf) or fscanf(...,\"%s\",buf) with no field width and buf is a local stack array",
+    "loop writes buf[i++] = input[j++] without i < sizeof(buf) guard",
+    "strcpy(hostname, hp->h_name) or similar library-returned string copied into local fixed-size array"
+  ],
+  "negative_signals": [
+    "destination buffer allocated with malloc/new, not a local stack array",
+    "copy length checked as strlen(src) < sizeof(buf) before copying into local array",
+    "snprintf(buf, sizeof(buf), \"%s\", src) used and return value/truncation handled",
+    "scanf format contains width less than destination capacity, e.g. scanf(\"%255s\", buf) for char buf[256]",
+    "loop condition enforces i < sizeof(buf)-1 and writes terminating '\\0'"
+  ],
+  "false_defense_traps": [
+    "strncpy(dst, src, sizeof(dst)) without guaranteed NUL termination",
+    "strncat(dst, src, sizeof(dst)) using total buffer size instead of remaining capacity",
+    "relying only on stack canaries, /GS, FORTIFY_SOURCE, ASLR, PIE, or DEP/NX",
+    "validating input format but not validating copied output length, e.g. hostname after gethostbyaddr"
+  ],
+  "verification_focus": "Does any write into a stack-allocated fixed-size buffer allow more bytes than the destination capacity including the NUL terminator?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-121",
+        "CWE-123"
+      ],
+      "trigger": "overflow corrupts saved frame pointer, stack pointer, or control data",
+      "consequence": "write-what-where primitive or control-flow hijack"
+    }
+  ],
+  "patch_principle": [
+    "Remove unbounded APIs such as gets, strcpy, strcat, sprintf, and widthless scanf for stack buffers.",
+    "Check source length against sizeof(destination) before copying, including space for the NUL terminator.",
+    "Use bounded formatting/copying APIs with the destination capacity and handle truncation explicitly.",
+    "Prefer safer abstractions such as std::string, std::array with checked access, or vetted wrapper functions.",
+    "Enable compiler/runtime hardening such as /GS, FORTIFY_SOURCE, stack canaries, ASLR, PIE, and DEP/NX as defense in depth only."
+  ],
+  "minimal_examples": {
+    "vuln": "char buf[256]; strcpy(buf, argv[1]);",
+    "safe": "char buf[256]; snprintf(buf, sizeof(buf), \"%s\", argv[1]);"
+  }
+}

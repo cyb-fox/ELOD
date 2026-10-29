@@ -1,0 +1,1856 @@
+{
+  "_schema": "top-level vulnerability family index; members are agent-ready CWEs",
+  "families": {
+    "memory-safety": {
+      "description": "Spatial/temporal memory errors: out-of-bounds read/write, overflow, use-after-free, double-free, NULL/uninitialized pointer, memory leak.",
+      "members": [
+        "CWE-119",
+        "CWE-120",
+        "CWE-121",
+        "CWE-122",
+        "CWE-123",
+        "CWE-124",
+        "CWE-125",
+        "CWE-126",
+        "CWE-127",
+        "CWE-131",
+        "CWE-401",
+        "CWE-415",
+        "CWE-416",
+        "CWE-467",
+        "CWE-476",
+        "CWE-562",
+        "CWE-588",
+        "CWE-672",
+        "CWE-763",
+        "CWE-787",
+        "CWE-825",
+        "CWE-843",
+        "CWE-824",
+        "CWE-704"
+      ]
+    },
+    "numeric-errors": {
+      "description": "Integer overflow/underflow, off-by-one, sign/truncation conversion errors; often the root cause feeding memory corruption.",
+      "members": [
+        "CWE-190",
+        "CWE-191",
+        "CWE-192",
+        "CWE-193",
+        "CWE-194",
+        "CWE-195",
+        "CWE-196",
+        "CWE-197",
+        "CWE-369",
+        "CWE-189"
+      ]
+    },
+    "race-condition": {
+      "description": "Improper synchronization of shared resources under concurrency/signals: races, TOCTOU, deadlock.",
+      "members": [
+        "CWE-362",
+        "CWE-367",
+        "CWE-764",
+        "CWE-765",
+        "CWE-820",
+        "CWE-833"
+      ]
+    },
+    "availability-and-error-handling": {
+      "description": "Improper handling of exceptional conditions and uncontrolled resource consumption: assertions, infinite loops, unreleased/unbounded resources.",
+      "members": [
+        "CWE-400",
+        "CWE-617",
+        "CWE-703",
+        "CWE-754",
+        "CWE-770",
+        "CWE-789",
+        "CWE-835",
+        "CWE-404",
+        "CWE-1325",
+        "CWE-772"
+      ]
+    },
+    "input-validation-and-state-integrity": {
+      "description": "Missing/insufficient input validation and improper initialization of variables/resources leading to unsafe state.",
+      "members": [
+        "CWE-20",
+        "CWE-22",
+        "CWE-23",
+        "CWE-36",
+        "CWE-73",
+        "CWE-434",
+        "CWE-444",
+        "CWE-457",
+        "CWE-502",
+        "CWE-665",
+        "CWE-909",
+        "CWE-915",
+        "CWE-1284",
+        "CWE-908",
+        "CWE-59"
+      ]
+    },
+    "data-exposure-and-trust": {
+      "description": "Exposure of sensitive information, missing encryption, and trust-boundary/HTTP smuggling issues.",
+      "members": [
+        "CWE-200",
+        "CWE-312",
+        "CWE-532",
+        "CWE-354",
+        "CWE-345",
+        "CWE-924",
+        "CWE-668"
+      ]
+    },
+    "access-control": {
+      "description": "Missing/incorrect authorization, improper authentication, and privilege/permission mismanagement.",
+      "members": [
+        "CWE-259",
+        "CWE-284",
+        "CWE-285",
+        "CWE-287",
+        "CWE-421",
+        "CWE-441",
+        "CWE-639",
+        "CWE-798",
+        "CWE-862",
+        "CWE-863",
+        "CWE-918",
+        "CWE-269",
+        "CWE-276",
+        "CWE-288",
+        "CWE-264"
+      ]
+    },
+    "injection": {
+      "description": "External input reaching an interpreter without neutralization: OS command, SQL, LDAP, XSS, format string, code injection, path traversal.",
+      "members": [
+        "CWE-77",
+        "CWE-78",
+        "CWE-79",
+        "CWE-80",
+        "CWE-89",
+        "CWE-90",
+        "CWE-91",
+        "CWE-93",
+        "CWE-94",
+        "CWE-116",
+        "CWE-134",
+        "CWE-943",
+        "CWE-1336"
+      ]
+    },
+    "cryptography": {
+      "description": "Weak or broken cryptographic algorithms, insufficient strength/entropy, and improper signature verification.",
+      "members": [
+        "CWE-319",
+        "CWE-321",
+        "CWE-326",
+        "CWE-327",
+        "CWE-328",
+        "CWE-330",
+        "CWE-331",
+        "CWE-347",
+        "CWE-310"
+      ]
+    }
+  },
+  "related_chains": [
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-190",
+        "CWE-835"
+      ],
+      "desc": "integer overflow followed by infinite loop or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-787"
+      ],
+      "desc": "out-of-bounds write and possible code execution"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-125"
+      ],
+      "desc": "out-of-bounds read or information disclosure"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-789",
+        "CWE-400"
+      ],
+      "desc": "excessive memory or CPU consumption"
+    },
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-23"
+      ],
+      "desc": "relative path traversal reads or writes outside the restricted directory"
+    },
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-36"
+      ],
+      "desc": "absolute path traversal bypasses the configured base directory"
+    },
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-59"
+      ],
+      "desc": "symlink escape reaches files outside the restricted directory"
+    },
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-434"
+      ],
+      "desc": "arbitrary file placement can lead to code execution"
+    },
+    {
+      "chain": [
+        "CWE-23",
+        "CWE-59"
+      ],
+      "desc": "restricted directory escape through the symlink target"
+    },
+    {
+      "chain": [
+        "CWE-23",
+        "CWE-434"
+      ],
+      "desc": "write executable file outside the upload directory"
+    },
+    {
+      "chain": [
+        "CWE-23",
+        "CWE-209"
+      ],
+      "desc": "filesystem layout disclosure"
+    },
+    {
+      "chain": [
+        "CWE-36",
+        "CWE-200"
+      ],
+      "desc": "read arbitrary files and expose sensitive data"
+    },
+    {
+      "chain": [
+        "CWE-36",
+        "CWE-434"
+      ],
+      "desc": "create or overwrite executable files and enable code execution"
+    },
+    {
+      "chain": [
+        "CWE-36",
+        "CWE-59"
+      ],
+      "desc": "escape directory restriction and access unintended files"
+    },
+    {
+      "chain": [
+        "CWE-73",
+        "CWE-22"
+      ],
+      "desc": "Files outside the intended directory are read, modified, or deleted."
+    },
+    {
+      "chain": [
+        "CWE-73",
+        "CWE-41"
+      ],
+      "desc": "The operation targets a different file than the checked file, bypassing restrictions."
+    },
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-78"
+      ],
+      "desc": "attacker executes unauthorized OS commands"
+    },
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-88"
+      ],
+      "desc": "attacker changes command options or command behavior"
+    },
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-917"
+      ],
+      "desc": "attacker evaluates unauthorized expressions or accesses objects"
+    },
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-624"
+      ],
+      "desc": "attacker executes unintended regex-level commands or code paths"
+    },
+    {
+      "chain": [
+        "CWE-184",
+        "CWE-78"
+      ],
+      "desc": "filter bypass and command execution"
+    },
+    {
+      "chain": [
+        "CWE-250",
+        "CWE-78"
+      ],
+      "desc": "privileged file access or privilege escalation"
+    },
+    {
+      "chain": [
+        "CWE-78",
+        "CWE-88"
+      ],
+      "desc": "argument or option injection into the invoked program"
+    },
+    {
+      "chain": [
+        "CWE-116",
+        "CWE-79"
+      ],
+      "desc": "Browser executes attacker-controlled script or markup"
+    },
+    {
+      "chain": [
+        "CWE-184",
+        "CWE-79"
+      ],
+      "desc": "Injected script steals data or modifies page actions"
+    },
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-79"
+      ],
+      "desc": "Second-order stored XSS and account compromise"
+    },
+    {
+      "chain": [
+        "CWE-79",
+        "CWE-352"
+      ],
+      "desc": "Victim actions are forged using the active session"
+    },
+    {
+      "chain": [
+        "CWE-80",
+        "CWE-79"
+      ],
+      "desc": "Browser executes attacker-controlled script, enabling session actions, data theft, or page modification"
+    },
+    {
+      "chain": [
+        "CWE-80",
+        "CWE-116"
+      ],
+      "desc": "Special characters are interpreted by the browser as markup instead of data"
+    },
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-287"
+      ],
+      "desc": "Authentication bypass or identity assumption"
+    },
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-200"
+      ],
+      "desc": "Sensitive database data disclosure"
+    },
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-78"
+      ],
+      "desc": "Operating system command execution"
+    },
+    {
+      "chain": [
+        "CWE-90",
+        "CWE-639"
+      ],
+      "desc": "authentication bypass or unauthorized directory access"
+    },
+    {
+      "chain": [
+        "CWE-90",
+        "CWE-200"
+      ],
+      "desc": "sensitive directory data exposure"
+    },
+    {
+      "chain": [
+        "CWE-91",
+        "CWE-643"
+      ],
+      "desc": "Read or modify unauthorized XML data via XPath injection"
+    },
+    {
+      "chain": [
+        "CWE-91",
+        "CWE-652"
+      ],
+      "desc": "Execute unintended XML data queries or updates"
+    },
+    {
+      "chain": [
+        "CWE-93",
+        "CWE-113"
+      ],
+      "desc": "HTTP header injection or response splitting"
+    },
+    {
+      "chain": [
+        "CWE-93",
+        "CWE-117"
+      ],
+      "desc": "Forged or misleading log entries"
+    },
+    {
+      "chain": [
+        "CWE-93",
+        "CWE-94"
+      ],
+      "desc": "Code execution in the workflow runner"
+    },
+    {
+      "chain": [
+        "CWE-94",
+        "CWE-95"
+      ],
+      "desc": "Eval injection and arbitrary control-flow modification"
+    },
+    {
+      "chain": [
+        "CWE-94",
+        "CWE-96"
+      ],
+      "desc": "Persistent code execution on later use"
+    },
+    {
+      "chain": [
+        "CWE-94",
+        "CWE-1336"
+      ],
+      "desc": "Server-side template code execution"
+    },
+    {
+      "chain": [
+        "CWE-116",
+        "CWE-117"
+      ],
+      "desc": "Log forging or log injection"
+    },
+    {
+      "chain": [
+        "CWE-116",
+        "CWE-78"
+      ],
+      "desc": "Operating system command execution"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-787"
+      ],
+      "desc": "memory modification or unauthorized code execution"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-125"
+      ],
+      "desc": "information disclosure and address leak for later exploitation"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-193",
+        "CWE-787"
+      ],
+      "desc": "one-byte memory corruption, crash, or control-flow impact"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "desc": "heap or stack buffer overwrite"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-680",
+        "CWE-787"
+      ],
+      "desc": "undersized allocation followed by out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-120",
+        "CWE-787"
+      ],
+      "desc": "out-of-bounds write corrupts adjacent memory"
+    },
+    {
+      "chain": [
+        "CWE-120",
+        "CWE-123"
+      ],
+      "desc": "write-what-where primitive and possible control-flow hijack"
+    },
+    {
+      "chain": [
+        "CWE-120",
+        "CWE-193"
+      ],
+      "desc": "one-byte overflow or unterminated string"
+    },
+    {
+      "chain": [
+        "CWE-121",
+        "CWE-123"
+      ],
+      "desc": "write-what-where primitive or control-flow hijack"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-131",
+        "CWE-122"
+      ],
+      "desc": "out-of-bounds heap write, crash, memory corruption, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-190",
+        "CWE-131",
+        "CWE-122"
+      ],
+      "desc": "undersized heap buffer and heap-based buffer overflow"
+    },
+    {
+      "chain": [
+        "CWE-122",
+        "CWE-787"
+      ],
+      "desc": "adjacent heap memory or control data is modified"
+    },
+    {
+      "chain": [
+        "CWE-134",
+        "CWE-123"
+      ],
+      "desc": "attacker-selected memory write"
+    },
+    {
+      "chain": [
+        "CWE-416",
+        "CWE-123"
+      ],
+      "desc": "write through corrupted pointer to attacker-selected address"
+    },
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-124"
+      ],
+      "desc": "memory before the buffer is overwritten"
+    },
+    {
+      "chain": [
+        "CWE-124",
+        "CWE-787"
+      ],
+      "desc": "memory corruption, crash, or controlled code execution"
+    },
+    {
+      "chain": [
+        "CWE-823",
+        "CWE-125"
+      ],
+      "desc": "read before or after the buffer, causing memory disclosure or crash"
+    },
+    {
+      "chain": [
+        "CWE-822",
+        "CWE-125"
+      ],
+      "desc": "attacker-controlled address range may be read"
+    },
+    {
+      "chain": [
+        "CWE-125",
+        "CWE-200"
+      ],
+      "desc": "sensitive information exposure and possible ASLR bypass"
+    },
+    {
+      "chain": [
+        "CWE-130",
+        "CWE-126"
+      ],
+      "desc": "out-of-bounds read leaks memory or crashes"
+    },
+    {
+      "chain": [
+        "CWE-170",
+        "CWE-126"
+      ],
+      "desc": "read continues past buffer end and may disclose adjacent memory"
+    },
+    {
+      "chain": [
+        "CWE-126",
+        "CWE-200"
+      ],
+      "desc": "sensitive memory disclosure"
+    },
+    {
+      "chain": [
+        "CWE-126",
+        "CWE-119"
+      ],
+      "desc": "bypass protection mechanism and improve code-execution reliability"
+    },
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-127"
+      ],
+      "desc": "negative index reads memory before the buffer"
+    },
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-127"
+      ],
+      "desc": "read pointer moves before the buffer and may leak memory or crash"
+    },
+    {
+      "chain": [
+        "CWE-131",
+        "CWE-119"
+      ],
+      "desc": "out-of-bounds read/write, crash, memory disclosure, memory modification, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-131",
+        "CWE-193",
+        "CWE-787"
+      ],
+      "desc": "off-by-one out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-131",
+        "CWE-119"
+      ],
+      "desc": "under-allocation followed by memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-195",
+        "CWE-131"
+      ],
+      "desc": "incorrect allocation size, allocation failure, or later memory error"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-680"
+      ],
+      "desc": "too-small buffer is allocated and later writes overflow it"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-119"
+      ],
+      "desc": "operation escapes intended buffer bounds"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-681"
+      ],
+      "desc": "incorrect numeric value drives unsafe logic or memory size"
+    },
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-131"
+      ],
+      "desc": "wrong-sized allocation or stack array size can lead to crash or later overflow"
+    },
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-787"
+      ],
+      "desc": "out-of-bounds write or read"
+    },
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-835"
+      ],
+      "desc": "infinite loop and denial of service"
+    },
+    {
+      "chain": [
+        "CWE-192",
+        "CWE-195"
+      ],
+      "desc": "huge length causes resource exhaustion or oversized copy"
+    },
+    {
+      "chain": [
+        "CWE-192",
+        "CWE-119"
+      ],
+      "desc": "buffer overflow and possible code execution"
+    },
+    {
+      "chain": [
+        "CWE-192",
+        "CWE-787"
+      ],
+      "desc": "out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "desc": "one-past-end write, memory corruption, crash, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-170"
+      ],
+      "desc": "improper null termination and later out-of-bounds string processing"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-119"
+      ],
+      "desc": "operation outside buffer bounds and possible data corruption"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-617"
+      ],
+      "desc": "reachable assertion and denial of service"
+    },
+    {
+      "chain": [
+        "CWE-194",
+        "CWE-195",
+        "CWE-119"
+      ],
+      "desc": "out-of-bounds read or write and possible memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-194",
+        "CWE-190",
+        "CWE-125"
+      ],
+      "desc": "out-of-bounds read and information disclosure or crash"
+    },
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-194"
+      ],
+      "desc": "bypass of size or boundary checks"
+    },
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-195",
+        "CWE-119"
+      ],
+      "desc": "negative length becomes huge and causes out-of-bounds buffer access"
+    },
+    {
+      "chain": [
+        "CWE-252",
+        "CWE-195",
+        "CWE-787"
+      ],
+      "desc": "huge copy length causes out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-195",
+        "CWE-190",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "desc": "integer wraparound creates an undersized buffer followed by out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-196",
+        "CWE-124"
+      ],
+      "desc": "buffer underwrite before the start of the object"
+    },
+    {
+      "chain": [
+        "CWE-196",
+        "CWE-120"
+      ],
+      "desc": "unchecked buffer copy and memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-196",
+        "CWE-681"
+      ],
+      "desc": "incorrect numeric value and invalid control or memory-access decisions"
+    },
+    {
+      "chain": [
+        "CWE-197",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "desc": "buffer allocated too small, then out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-197",
+        "CWE-787"
+      ],
+      "desc": "out-of-bounds write or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-197",
+        "CWE-125"
+      ],
+      "desc": "out-of-bounds read or data exposure"
+    },
+    {
+      "chain": [
+        "CWE-209",
+        "CWE-200"
+      ],
+      "desc": "attacker reads paths, configuration names, SQL details, or internal state"
+    },
+    {
+      "chain": [
+        "CWE-203",
+        "CWE-200"
+      ],
+      "desc": "attacker infers valid users, records, or internal decisions"
+    },
+    {
+      "chain": [
+        "CWE-200",
+        "CWE-89"
+      ],
+      "desc": "attacker improves SQL injection exploitation"
+    },
+    {
+      "chain": [
+        "CWE-656",
+        "CWE-259"
+      ],
+      "desc": "attacker extracts the password and bypasses authentication"
+    },
+    {
+      "chain": [
+        "CWE-259",
+        "CWE-287"
+      ],
+      "desc": "attacker gains privileges or assumes the configured identity"
+    },
+    {
+      "chain": [
+        "CWE-284",
+        "CWE-200"
+      ],
+      "desc": "sensitive information disclosure"
+    },
+    {
+      "chain": [
+        "CWE-284",
+        "CWE-269"
+      ],
+      "desc": "privilege escalation or execution of privileged actions"
+    },
+    {
+      "chain": [
+        "CWE-284",
+        "CWE-749"
+      ],
+      "desc": "unauthorized command, configuration, or state change"
+    },
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-862"
+      ],
+      "desc": "unauthorized read, write, privilege gain, or command execution"
+    },
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-863"
+      ],
+      "desc": "horizontal or vertical privilege escalation"
+    },
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-552"
+      ],
+      "desc": "external parties read sensitive files or directories"
+    },
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-732"
+      ],
+      "desc": "unauthorized actors modify or read protected resources"
+    },
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-306"
+      ],
+      "desc": "unauthenticated actor invokes privileged functionality"
+    },
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-295"
+      ],
+      "desc": "attacker impersonates a trusted service and captures credentials or data"
+    },
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-307"
+      ],
+      "desc": "attacker brute-forces or stuffs credentials to assume identity"
+    },
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-640"
+      ],
+      "desc": "attacker resets victim credentials and takes over account"
+    },
+    {
+      "chain": [
+        "CWE-312",
+        "CWE-200"
+      ],
+      "desc": "Confidential application data is disclosed"
+    },
+    {
+      "chain": [
+        "CWE-312",
+        "CWE-79"
+      ],
+      "desc": "Remote attacker steals the stored cookie value"
+    },
+    {
+      "chain": [
+        "CWE-306",
+        "CWE-312",
+        "CWE-200"
+      ],
+      "desc": "Bulk data exposure"
+    },
+    {
+      "chain": [
+        "CWE-319",
+        "CWE-200"
+      ],
+      "desc": "confidential information disclosure"
+    },
+    {
+      "chain": [
+        "CWE-319",
+        "CWE-522"
+      ],
+      "desc": "credential compromise and account takeover"
+    },
+    {
+      "chain": [
+        "CWE-656",
+        "CWE-321"
+      ],
+      "desc": "attacker extracts the key and bypasses cryptographic protection"
+    },
+    {
+      "chain": [
+        "CWE-321",
+        "CWE-798"
+      ],
+      "desc": "attacker assumes identity or gains privileged access"
+    },
+    {
+      "chain": [
+        "CWE-326",
+        "CWE-200"
+      ],
+      "desc": "confidential application data is decrypted and exposed"
+    },
+    {
+      "chain": [
+        "CWE-326",
+        "CWE-287"
+      ],
+      "desc": "protection mechanism is bypassed and authentication can be defeated"
+    },
+    {
+      "chain": [
+        "CWE-327",
+        "CWE-328"
+      ],
+      "desc": "Collision or preimage attacks enable forged data or spoofed identity"
+    },
+    {
+      "chain": [
+        "CWE-327",
+        "CWE-780"
+      ],
+      "desc": "Chosen-ciphertext or padding attacks can expose encrypted data"
+    },
+    {
+      "chain": [
+        "CWE-327",
+        "CWE-916"
+      ],
+      "desc": "Offline password cracking becomes practical"
+    },
+    {
+      "chain": [
+        "CWE-328",
+        "CWE-759"
+      ],
+      "desc": "rainbow-table recovery and account takeover"
+    },
+    {
+      "chain": [
+        "CWE-328",
+        "CWE-916"
+      ],
+      "desc": "offline brute-force cracking and access-control bypass"
+    },
+    {
+      "chain": [
+        "CWE-328",
+        "CWE-287"
+      ],
+      "desc": "authentication bypass"
+    },
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-338"
+      ],
+      "desc": "attacker predicts values and bypasses authentication or authorization"
+    },
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-335"
+      ],
+      "desc": "attacker reproduces the PRNG sequence and guesses secrets"
+    },
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-334"
+      ],
+      "desc": "attacker brute-forces valid values"
+    },
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-804"
+      ],
+      "desc": "attacker predicts CAPTCHA answers"
+    },
+    {
+      "chain": [
+        "CWE-331",
+        "CWE-287"
+      ],
+      "desc": "Attacker guesses the value and authenticates as another user"
+    },
+    {
+      "chain": [
+        "CWE-339",
+        "CWE-331"
+      ],
+      "desc": "PRNG output has reduced entropy and can be replayed or brute-forced"
+    },
+    {
+      "chain": [
+        "CWE-1339",
+        "CWE-331"
+      ],
+      "desc": "Effective key or token search space is reduced"
+    },
+    {
+      "chain": [
+        "CWE-347",
+        "CWE-94"
+      ],
+      "desc": "unauthorized code is loaded or executed"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-367"
+      ],
+      "desc": "attacker swaps the resource and bypasses authorization or modifies the wrong file"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-400"
+      ],
+      "desc": "CPU, memory, handle, or other resource exhaustion"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-59"
+      ],
+      "desc": "read or overwrite unintended files and application data"
+    },
+    {
+      "chain": [
+        "CWE-367",
+        "CWE-363"
+      ],
+      "desc": "Operation follows link to an unintended file, enabling unauthorized read/write/delete"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-369"
+      ],
+      "desc": "crash, exit, restart, or unhandled exception causing DoS"
+    },
+    {
+      "chain": [
+        "CWE-682",
+        "CWE-369"
+      ],
+      "desc": "availability loss through divide-by-zero failure"
+    },
+    {
+      "chain": [
+        "CWE-400",
+        "CWE-770"
+      ],
+      "desc": "CPU, memory, or descriptor exhaustion leading to denial of service"
+    },
+    {
+      "chain": [
+        "CWE-400",
+        "CWE-771"
+      ],
+      "desc": "resource leak accumulates until the process or host becomes unavailable"
+    },
+    {
+      "chain": [
+        "CWE-390",
+        "CWE-401"
+      ],
+      "desc": "memory leak that can accumulate into availability loss or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-364",
+        "CWE-415"
+      ],
+      "desc": "heap corruption or crash"
+    },
+    {
+      "chain": [
+        "CWE-415",
+        "CWE-123"
+      ],
+      "desc": "write-what-where and possible arbitrary code execution"
+    },
+    {
+      "chain": [
+        "CWE-415",
+        "CWE-416"
+      ],
+      "desc": "use-after-free with memory corruption or information disclosure"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-416"
+      ],
+      "desc": "crash, memory corruption, or stale data read"
+    },
+    {
+      "chain": [
+        "CWE-416",
+        "CWE-120"
+      ],
+      "desc": "corruption of a new heap object and possible control-flow hijack"
+    },
+    {
+      "chain": [
+        "CWE-421",
+        "CWE-287"
+      ],
+      "desc": "authentication or session ownership is bypassed; attacker gains privileges or assumes identity"
+    },
+    {
+      "chain": [
+        "CWE-434",
+        "CWE-79"
+      ],
+      "desc": "stored cross-site scripting"
+    },
+    {
+      "chain": [
+        "CWE-434",
+        "CWE-94"
+      ],
+      "desc": "remote code execution"
+    },
+    {
+      "chain": [
+        "CWE-441",
+        "CWE-668"
+      ],
+      "desc": "Resource is exposed to an unauthorized requester"
+    },
+    {
+      "chain": [
+        "CWE-441",
+        "CWE-918"
+      ],
+      "desc": "Server-side request forgery reaches internal or protected services"
+    },
+    {
+      "chain": [
+        "CWE-436",
+        "CWE-444"
+      ],
+      "desc": "hidden request/response bypasses protection, poisons cache, or reaches unauthorized backend endpoint"
+    },
+    {
+      "chain": [
+        "CWE-456",
+        "CWE-457"
+      ],
+      "desc": "Undefined or unintended value affects program behavior"
+    },
+    {
+      "chain": [
+        "CWE-252",
+        "CWE-457"
+      ],
+      "desc": "Failed parse leaves variables uninitialized and used in security logic"
+    },
+    {
+      "chain": [
+        "CWE-457",
+        "CWE-362"
+      ],
+      "desc": "Synchronization or authorization check may be skipped"
+    },
+    {
+      "chain": [
+        "CWE-467",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "desc": "undersized buffer followed by out-of-bounds write or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-467",
+        "CWE-187",
+        "CWE-287"
+      ],
+      "desc": "partial credential comparison permits improper authentication"
+    },
+    {
+      "chain": [
+        "CWE-252",
+        "CWE-476"
+      ],
+      "desc": "process crash or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-476"
+      ],
+      "desc": "crash, unsafe state, or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-789",
+        "CWE-476"
+      ],
+      "desc": "denial of service by crash"
+    },
+    {
+      "chain": [
+        "CWE-502",
+        "CWE-915"
+      ],
+      "desc": "integrity loss through unexpected state or unauthorized data modification"
+    },
+    {
+      "chain": [
+        "CWE-502",
+        "CWE-400"
+      ],
+      "desc": "CPU or memory denial of service"
+    },
+    {
+      "chain": [
+        "CWE-502",
+        "CWE-94"
+      ],
+      "desc": "remote code execution or shell command execution"
+    },
+    {
+      "chain": [
+        "CWE-532",
+        "CWE-200"
+      ],
+      "desc": "Sensitive data is exposed to an unauthorized actor"
+    },
+    {
+      "chain": [
+        "CWE-532",
+        "CWE-89"
+      ],
+      "desc": "Database attack planning and SQL injection exploitation are simplified"
+    },
+    {
+      "chain": [
+        "CWE-562",
+        "CWE-825"
+      ],
+      "desc": "expired pointer dereference causing crash, memory corruption, memory disclosure, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-562",
+        "CWE-672"
+      ],
+      "desc": "operation on expired storage with unpredictable behavior"
+    },
+    {
+      "chain": [
+        "CWE-704",
+        "CWE-588"
+      ],
+      "desc": "memory corruption or crash from invalid object layout"
+    },
+    {
+      "chain": [
+        "CWE-588",
+        "CWE-758"
+      ],
+      "desc": "undefined or implementation-defined execution behavior"
+    },
+    {
+      "chain": [
+        "CWE-253",
+        "CWE-617"
+      ],
+      "desc": "Denial of service by assertion failure"
+    },
+    {
+      "chain": [
+        "CWE-639",
+        "CWE-200"
+      ],
+      "desc": "unauthorized disclosure of another user's data"
+    },
+    {
+      "chain": [
+        "CWE-639",
+        "CWE-862"
+      ],
+      "desc": "unauthorized modification or deletion of another user's data"
+    },
+    {
+      "chain": [
+        "CWE-639",
+        "CWE-269"
+      ],
+      "desc": "privilege escalation or identity assumption"
+    },
+    {
+      "chain": [
+        "CWE-665",
+        "CWE-908"
+      ],
+      "desc": "unpredictable value, crash, or unintended control flow"
+    },
+    {
+      "chain": [
+        "CWE-665",
+        "CWE-457"
+      ],
+      "desc": "out-of-bounds access, access-control bypass, or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-665",
+        "CWE-1188"
+      ],
+      "desc": "bypass of authentication or authorization"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-665"
+      ],
+      "desc": "use of inconsistent state or protection bypass"
+    },
+    {
+      "chain": [
+        "CWE-826",
+        "CWE-672"
+      ],
+      "desc": "later legitimate code uses an expired resource"
+    },
+    {
+      "chain": [
+        "CWE-672",
+        "CWE-416"
+      ],
+      "desc": "memory corruption, crash, or sensitive data access"
+    },
+    {
+      "chain": [
+        "CWE-672",
+        "CWE-910"
+      ],
+      "desc": "I/O occurs on the wrong file, socket, or process resource"
+    },
+    {
+      "chain": [
+        "CWE-703",
+        "CWE-120"
+      ],
+      "desc": "buffer overflow, crash, or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-703",
+        "CWE-476"
+      ],
+      "desc": "crash or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-392",
+        "CWE-332"
+      ],
+      "desc": "low entropy keys or predictable cryptographic material"
+    },
+    {
+      "chain": [
+        "CWE-754",
+        "CWE-476"
+      ],
+      "desc": "crash or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-754",
+        "CWE-362"
+      ],
+      "desc": "unexpected state or unsafe operation on stale assumptions"
+    },
+    {
+      "chain": [
+        "CWE-754",
+        "CWE-209"
+      ],
+      "desc": "information exposure that helps refine attacks"
+    },
+    {
+      "chain": [
+        "CWE-763",
+        "CWE-119"
+      ],
+      "desc": "memory corruption, crash, or possible arbitrary code execution"
+    },
+    {
+      "chain": [
+        "CWE-763",
+        "CWE-762"
+      ],
+      "desc": "undefined behavior and heap corruption"
+    },
+    {
+      "chain": [
+        "CWE-763",
+        "CWE-761"
+      ],
+      "desc": "invalid free, crash, or heap corruption"
+    },
+    {
+      "chain": [
+        "CWE-764",
+        "CWE-412"
+      ],
+      "desc": "resource pool exhaustion and denial of service"
+    },
+    {
+      "chain": [
+        "CWE-764",
+        "CWE-833"
+      ],
+      "desc": "self-deadlock and stalled execution"
+    },
+    {
+      "chain": [
+        "CWE-765",
+        "CWE-362"
+      ],
+      "desc": "data race, memory corruption, or integrity loss"
+    },
+    {
+      "chain": [
+        "CWE-765",
+        "CWE-400"
+      ],
+      "desc": "resource exhaustion, crash, or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-770"
+      ],
+      "desc": "Memory, disk, CPU, handle, thread, or process exhaustion causing denial of service"
+    },
+    {
+      "chain": [
+        "CWE-770",
+        "CWE-400"
+      ],
+      "desc": "Uncontrolled resource consumption and service unavailability"
+    },
+    {
+      "chain": [
+        "CWE-770",
+        "CWE-789"
+      ],
+      "desc": "Excessive memory allocation causing process or system denial of service"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-787"
+      ],
+      "desc": "one-byte or sentinel write corrupts adjacent memory"
+    },
+    {
+      "chain": [
+        "CWE-131",
+        "CWE-787"
+      ],
+      "desc": "heap or stack buffer overflow"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-787"
+      ],
+      "desc": "undersized buffer receives oversized write"
+    },
+    {
+      "chain": [
+        "CWE-822",
+        "CWE-787"
+      ],
+      "desc": "write to unintended memory address"
+    },
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-789"
+      ],
+      "desc": "excessive heap or stack allocation causes memory exhaustion"
+    },
+    {
+      "chain": [
+        "CWE-129",
+        "CWE-789"
+      ],
+      "desc": "process exits or crashes from out-of-memory"
+    },
+    {
+      "chain": [
+        "CWE-798",
+        "CWE-287"
+      ],
+      "desc": "Attackers reuse the fixed credential to bypass authentication and gain privileges"
+    },
+    {
+      "chain": [
+        "CWE-798",
+        "CWE-259"
+      ],
+      "desc": "All installations share a recoverable password that enables mass compromise"
+    },
+    {
+      "chain": [
+        "CWE-798",
+        "CWE-321"
+      ],
+      "desc": "Attackers extract the key and decrypt, sign, or impersonate protected communications"
+    },
+    {
+      "chain": [
+        "CWE-820",
+        "CWE-362"
+      ],
+      "desc": "race condition causing corrupted data, stale reads, or altered execution logic"
+    },
+    {
+      "chain": [
+        "CWE-820",
+        "CWE-200"
+      ],
+      "desc": "confidential application data can be exposed"
+    },
+    {
+      "chain": [
+        "CWE-825",
+        "CWE-125"
+      ],
+      "desc": "out-of-bounds read and information exposure or crash"
+    },
+    {
+      "chain": [
+        "CWE-825",
+        "CWE-787"
+      ],
+      "desc": "out-of-bounds write, heap corruption, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-833"
+      ],
+      "desc": "threads block forever and service availability is lost"
+    },
+    {
+      "chain": [
+        "CWE-835",
+        "CWE-400"
+      ],
+      "desc": "service hang or denial of service due to resource exhaustion"
+    },
+    {
+      "chain": [
+        "CWE-843",
+        "CWE-119"
+      ],
+      "desc": "out-of-bounds read/write, crash, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-843",
+        "CWE-636"
+      ],
+      "desc": "authentication or authorization bypass"
+    },
+    {
+      "chain": [
+        "CWE-862",
+        "CWE-425"
+      ],
+      "desc": "Unauthorized forced browsing to privileged functionality or data"
+    },
+    {
+      "chain": [
+        "CWE-862",
+        "CWE-200"
+      ],
+      "desc": "Unauthorized disclosure of confidential records"
+    },
+    {
+      "chain": [
+        "CWE-862",
+        "CWE-639"
+      ],
+      "desc": "Horizontal authorization bypass across users with the same role"
+    },
+    {
+      "chain": [
+        "CWE-863",
+        "CWE-639"
+      ],
+      "desc": "horizontal authorization bypass to read or modify another user's data"
+    },
+    {
+      "chain": [
+        "CWE-863",
+        "CWE-551"
+      ],
+      "desc": "bypass of access control through alternate path or representation"
+    },
+    {
+      "chain": [
+        "CWE-909",
+        "CWE-908"
+      ],
+      "desc": "Unpredictable control flow, crash, or incorrect security decision"
+    },
+    {
+      "chain": [
+        "CWE-909",
+        "CWE-126"
+      ],
+      "desc": "Out-of-bounds read, information disclosure, or crash"
+    },
+    {
+      "chain": [
+        "CWE-909",
+        "CWE-362"
+      ],
+      "desc": "Other thread observes unsafe state or skips required initialization"
+    },
+    {
+      "chain": [
+        "CWE-915",
+        "CWE-284"
+      ],
+      "desc": "Unauthorized access or privilege change"
+    },
+    {
+      "chain": [
+        "CWE-915",
+        "CWE-94"
+      ],
+      "desc": "Unauthorized code execution"
+    },
+    {
+      "chain": [
+        "CWE-1427",
+        "CWE-918"
+      ],
+      "desc": "Internal URL access, port scanning, or sensitive data retrieval by the server"
+    },
+    {
+      "chain": [
+        "CWE-1286",
+        "CWE-1389",
+        "CWE-918"
+      ],
+      "desc": "SSRF protection bypass and access to blocked internal addresses"
+    },
+    {
+      "chain": [
+        "CWE-918",
+        "CWE-441"
+      ],
+      "desc": "Server acts as unintended proxy and bypasses network access controls"
+    },
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-89"
+      ],
+      "desc": "read, modify, or delete database data; bypass access control"
+    },
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-90"
+      ],
+      "desc": "alter directory search results or bypass authentication checks"
+    },
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-643"
+      ],
+      "desc": "select unintended XML nodes or bypass credential checks"
+    },
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-652"
+      ],
+      "desc": "read or manipulate unintended XML data"
+    },
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-190"
+      ],
+      "desc": "integer overflow causes undersized allocation or unexpected behavior"
+    },
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-606"
+      ],
+      "desc": "excessive CPU consumption or non-terminating processing"
+    },
+    {
+      "chain": [
+        "CWE-1336",
+        "CWE-94"
+      ],
+      "desc": "arbitrary code or command execution through template expression evaluation"
+    },
+    {
+      "chain": [
+        "CWE-1336",
+        "CWE-79"
+      ],
+      "desc": "cross-site scripting and client-side script execution"
+    }
+  ]
+}

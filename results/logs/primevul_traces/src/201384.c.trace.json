@@ -1,0 +1,130 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "ga_concat_shorten_esc:1"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1,
+      "snippet": "ga_concat_shorten_esc(garray_T *gap, char_u *str)",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "ga_concat_shorten_esc:1",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ga_concat_shorten_esc",
+        "garray_T",
+        "gap"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit",
+        "signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start"
+      ]
+    },
+    "sink_id": "ga_concat_shorten_esc:1",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "mb_ptr2char"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "ga_concat_shorten_esc:22",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "ga_concat_shorten_esc:1",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "ga_concat_shorten_esc:22",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  }
+]

@@ -1,0 +1,90 @@
+{
+  "cwe_id": "CWE-22",
+  "name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-73"
+    ],
+    "parent_of": [
+      "CWE-23",
+      "CWE-36"
+    ]
+  },
+  "principle": "External input is used to construct a file or directory path without neutralizing special path elements. Attackers can make the path resolve outside the intended directory and read, write, delete, or execute unexpected files.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "request.getParameter(...) or argv[...] concatenated into new File(...), FileInputStream(...), FileOutputStream(...), Files.readAllBytes(...), Files.delete(...)",
+    "user-controlled string passed to fopen(...), open(...), std::ifstream(...), std::ofstream(...), remove(...), unlink(...)",
+    "Paths.get(base, input) or base.resolve(input) used without normalize()/toRealPath()/getCanonicalPath() and a base-directory check",
+    "realpath(...), File.getCanonicalPath(), or Path.toRealPath() called but result is not checked against canonical base directory",
+    "path.startsWith(base) or string prefix check performed before canonicalization",
+    "replace(\"../\", \"\"), replace(\"..\\\\\", \"\"), regex stripping of separators, or blacklist-only path filtering",
+    "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+  ],
+  "negative_signals": [
+    "Path baseReal = base.toRealPath(); Path target = baseReal.resolve(input).toRealPath(...); target.startsWith(baseReal) is checked before file use",
+    "File.getCanonicalPath() applied to both base and target, then targetCanonical is verified under baseCanonical plus separator",
+    "input is an ID used in a fixed ID-to-filename map; raw path strings are not accepted",
+    "allowlist regex permits only simple filenames and rejects '/', '\\\\', ':', '..', and unexpected extensions",
+    "Java NIO uses LinkOption.NOFOLLOW_LINKS where symlink traversal is not allowed, plus a post-resolution base check"
+  ],
+  "false_defense_traps": [
+    "Checking startsWith(base) before getCanonicalPath()/toRealPath()",
+    "Removing '../' or '..\\\\' without canonicalizing the final path",
+    "Blocking '/' but allowing '\\\\' or platform-specific separators",
+    "Using normalize() only; it does not resolve symbolic links",
+    "Relying only on client-side filename validation"
+  ],
+  "verification_focus": "Can any externally controlled path segment resolve outside the intended canonical base directory at the file-operation sink?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-23"
+      ],
+      "trigger": "input contains '../' or '..\\\\'",
+      "consequence": "relative path traversal reads or writes outside the restricted directory"
+    },
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-36"
+      ],
+      "trigger": "input is an absolute path such as '/etc/passwd' or 'C:\\\\Windows\\\\win.ini'",
+      "consequence": "absolute path traversal bypasses the configured base directory"
+    },
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-59"
+      ],
+      "trigger": "validated path later resolves through a symbolic link",
+      "consequence": "symlink escape reaches files outside the restricted directory"
+    },
+    {
+      "chain": [
+        "CWE-22",
+        "CWE-434"
+      ],
+      "trigger": "attacker controls upload destination path and file content",
+      "consequence": "arbitrary file placement can lead to code execution"
+    }
+  ],
+  "patch_principle": [
+    "Canonicalize or resolve the base and target paths before authorization and before file access.",
+    "Reject the target unless its canonical path remains under the canonical base directory.",
+    "Prefer fixed ID-to-file mappings or strict filename allowlists over accepting raw paths.",
+    "Reject absolute paths, parent-directory elements, directory separators, and unexpected extensions when only filenames are required.",
+    "Handle symbolic links explicitly with toRealPath(), realpath(), or NOFOLLOW_LINKS as appropriate."
+  ],
+  "minimal_examples": {
+    "vuln": "new File(baseDir + \"/\" + request.getParameter(\"name\")).delete();",
+    "safe": "Path b=base.toRealPath(); Path p=b.resolve(name).toRealPath(LinkOption.NOFOLLOW_LINKS); if(!p.startsWith(b)) throw new SecurityException(); Files.delete(p);"
+  }
+}

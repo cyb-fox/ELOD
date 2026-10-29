@@ -1,0 +1,98 @@
+{
+  "cwe_id": "CWE-20",
+  "name": "Improper Input Validation",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-707"
+    ],
+    "parent_of": [
+      "CWE-1284",
+      "CWE-1285",
+      "CWE-1286",
+      "CWE-1287",
+      "CWE-1288",
+      "CWE-1289",
+      "CWE-129"
+    ]
+  },
+  "principle": "The product receives input but does not validate required properties such as length, range, type, syntax, consistency, or authenticity before processing it. Unexpected input can drive unsafe memory access, resource consumption, control flow changes, or command execution.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "atoi/atol/strtol/Integer.parseInt result used as size, count, index, offset, loop bound, or allocation size without lower-bound and upper-bound checks",
+    "scanf/fscanf/sscanf/cin/BufferedReader.readLine/request.getParameter/getenv/argv/recv/read/fread data used before validation",
+    "memcpy/memmove/strncpy/read/write/malloc/new/vector::resize/Arrays.copyOf called with externally derived length not range-checked",
+    "array[index]/pointer+offset/List.get(index)/ByteBuffer.position/ByteBuffer.limit called with externally derived index or offset not bounds-checked",
+    "validation checks only null, empty, EOF, or parse success but not range, sign, missing fields, extra fields, or cross-field consistency",
+    "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value",
+    "client-side JavaScript or UI validation exists but server-side C/C++/Java handler uses the same field without validation"
+  ],
+  "negative_signals": [
+    "guard like if (len >= 0 && len <= MAX) dominates all uses of len as size, count, index, or offset",
+    "strtol/strtoul checks end pointer, errno overflow, sign, and accepted range before cast or use",
+    "Java code applies allowlist regex and parsed numeric range check before get/substring/allocate/copy use",
+    "server-side handler validates request.getParameter/body/header values even when client-side validation exists",
+    "URL/HTML/Unicode decoding or canonicalization occurs before allowlist validation, with no later decode before use",
+    "combined or derived values are revalidated after concatenation, arithmetic, or metadata/raw-data reconciliation"
+  ],
+  "false_defense_traps": [
+    "Denylist filters for bad characters without an allowlist grammar and range checks",
+    "Client-side validation only",
+    "Checking only an upper bound while negative values are possible",
+    "Validating individual fields before concatenation but not validating the combined value",
+    "Validating encoded input before URL/HTML/Unicode decoding or canonicalization"
+  ],
+  "verification_focus": "Does every untrusted or externally derived input have required type, syntax, range, length, consistency, and canonical form checked before security-sensitive use?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-190",
+        "CWE-835"
+      ],
+      "trigger": "unchecked input participates in arithmetic that controls loop termination",
+      "consequence": "integer overflow followed by infinite loop or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-787"
+      ],
+      "trigger": "unchecked input controls write offset or copy length",
+      "consequence": "out-of-bounds write and possible code execution"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-125"
+      ],
+      "trigger": "unchecked input controls read offset or length",
+      "consequence": "out-of-bounds read or information disclosure"
+    },
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-789",
+        "CWE-400"
+      ],
+      "trigger": "unchecked input controls allocation size or operation count",
+      "consequence": "excessive memory or CPU consumption"
+    }
+  ],
+  "patch_principle": [
+    "Identify all trust-boundary inputs: parameters, headers, cookies, files, filenames, environment variables, network data, database results, and API-returned data.",
+    "Canonicalize or decode input once into the internal representation before validation.",
+    "Use accept-known-good validation for type, syntax, length, range, required fields, extra fields, and cross-field business rules.",
+    "Validate derived and combined values after parsing, arithmetic, concatenation, or metadata/raw-data reconciliation.",
+    "Reject invalid input before use; do not rely only on denylists or client-side checks."
+  ],
+  "minimal_examples": {
+    "vuln": "int len = atoi(argv[1]); memcpy(dst, src, len);",
+    "safe": "char *e; long len = strtol(argv[1], &e, 10); if (*e || len < 0 || len > (long)sizeof dst) reject(); else memcpy(dst, src, (size_t)len);"
+  }
+}

@@ -1,0 +1,261 @@
+=== 待审推理日志 L-0232 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 11 个；未决 9 个。
+
+【推理轨迹】共 30 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:9
+  引证行: 9
+  引证内容: if (n->IsConstant()) {
+  初判倾向: VIOLATED
+  上下文源码:
+      6 |     int64_t max_constant_size_in_bytes,
+      7 |     std::unordered_map<const Node*, std::vector<Tensor>>*
+      8 |         shape_replacement_map) {
+      9 |   if (n->IsConstant()) {
+     10 |     // Skip constant folding resources as they cannot be deep copied.
+     11 |     return n->output_type(0) != DT_RESOURCE;
+     12 |   }
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:11
+  引证行: 11
+  引证内容: return n->output_type(0) != DT_RESOURCE;
+  初判倾向: VIOLATED
+  上下文源码:
+      8 |         shape_replacement_map) {
+      9 |   if (n->IsConstant()) {
+     10 |     // Skip constant folding resources as they cannot be deep copied.
+     11 |     return n->output_type(0) != DT_RESOURCE;
+     12 |   }
+     13 |   if (MaybeReplaceShapeOp(n, shape_map, shape_replacement_map)) {
+     14 |     return true;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:16
+  引证行: 16
+  引证内容: if (n->op_def().is_stateful()) {
+  初判倾向: VIOLATED
+  上下文源码:
+     13 |   if (MaybeReplaceShapeOp(n, shape_map, shape_replacement_map)) {
+     14 |     return true;
+     15 |   }
+     16 |   if (n->op_def().is_stateful()) {
+     17 |     return false;
+     18 |   }
+     19 |   if (consider && !consider(n)) {
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:24
+  引证行: 24
+  引证内容: auto shape_it = shape_map->find(n->name());
+  初判倾向: VIOLATED
+  上下文源码:
+     21 |   }
+     22 |   if (shape_map != nullptr) {
+     23 |     // We can skip the node if an output is known to be oversized.
+     24 |     auto shape_it = shape_map->find(n->name());
+     25 |     if (shape_it != shape_map->end()) {
+     26 |       for (int64_t i = 0; i < shape_it->second.size(); ++i) {
+     27 |         const auto& out_shape = shape_it->second[i];
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:26
+  引证行: 26
+  引证内容: for (int64_t i = 0; i < shape_it->second.size(); ++i) {
+  初判倾向: VIOLATED
+  上下文源码:
+     23 |     // We can skip the node if an output is known to be oversized.
+     24 |     auto shape_it = shape_map->find(n->name());
+     25 |     if (shape_it != shape_map->end()) {
+     26 |       for (int64_t i = 0; i < shape_it->second.size(); ++i) {
+     27 |         const auto& out_shape = shape_it->second[i];
+     28 |         if (out_shape.IsFullyDefined() &&
+     29 |             out_shape.num_elements() * DataTypeSize(n->output_type(i)) >
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:27
+  引证行: 27
+  引证内容: const auto& out_shape = shape_it->second[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     24 |     auto shape_it = shape_map->find(n->name());
+     25 |     if (shape_it != shape_map->end()) {
+     26 |       for (int64_t i = 0; i < shape_it->second.size(); ++i) {
+     27 |         const auto& out_shape = shape_it->second[i];
+     28 |         if (out_shape.IsFullyDefined() &&
+     29 |             out_shape.num_elements() * DataTypeSize(n->output_type(i)) >
+     30 |                 max_constant_size_in_bytes) {
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:29
+  引证行: 29
+  引证内容: out_shape.num_elements() * DataTypeSize(n->output_type(i)) >
+  初判倾向: VIOLATED
+  上下文源码:
+     26 |       for (int64_t i = 0; i < shape_it->second.size(); ++i) {
+     27 |         const auto& out_shape = shape_it->second[i];
+     28 |         if (out_shape.IsFullyDefined() &&
+     29 |             out_shape.num_elements() * DataTypeSize(n->output_type(i)) >
+     30 |                 max_constant_size_in_bytes) {
+     31 |           return false;
+     32 |         }
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: IsConstantFoldable:36
+  引证行: 36
+  引证内容: if (n->IsControlFlow() || n->IsSend() || n->IsRecv()) {
+  初判倾向: VIOLATED
+  上下文源码:
+     33 |       }
+     34 |     }
+     35 |   }
+     36 |   if (n->IsControlFlow() || n->IsSend() || n->IsRecv()) {
+     37 |     return false;
+     38 |   }
+     39 |   // TODO(yuanbyu): For now disable these session handle operations.
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:9
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:11
+  命中信号: gethostbyaddr/getenv/fopen/dlopen/dlsym return value dereferenced or passed to a dereferencing API before NULL check
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:16
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:24
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:25
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:26
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:27
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:29
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:36
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:40
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: IsConstantFoldable:41
+  筛选: keep
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:9
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:16
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:27
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:36
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:40
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: IsConstantFoldable:41
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

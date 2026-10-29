@@ -1,0 +1,68 @@
+=== 待审推理日志 L-0365 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 2 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:38
+  引证行: 38
+  引证内容: quota_t qdiffs[QUOTA_NUMRESOURCES] = QUOTA_DIFFS_DONTCARE_INITIALIZER;
+  初判倾向: VIOLATED
+  上下文源码:
+     35 |             goto out;
+     36 | 
+     37 |         if (!ignorequota) {
+     38 |             quota_t qdiffs[QUOTA_NUMRESOURCES] = QUOTA_DIFFS_DONTCARE_INITIALIZER;
+     39 |             qdiffs[QUOTA_ANNOTSTORAGE] = value->len - (quota_t)oldval.len;
+     40 |             r = mailbox_quota_check(mailbox, qdiffs);
+     41 |             if (r) goto out;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:39
+  引证行: 39
+  引证内容: qdiffs[QUOTA_ANNOTSTORAGE] = value->len - (quota_t)oldval.len;
+  初判倾向: VIOLATED
+  上下文源码:
+     36 | 
+     37 |         if (!ignorequota) {
+     38 |             quota_t qdiffs[QUOTA_NUMRESOURCES] = QUOTA_DIFFS_DONTCARE_INITIALIZER;
+     39 |             qdiffs[QUOTA_ANNOTSTORAGE] = value->len - (quota_t)oldval.len;
+     40 |             r = mailbox_quota_check(mailbox, qdiffs);
+     41 |             if (r) goto out;
+     42 |         }
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:38
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:39
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:38
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:39
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

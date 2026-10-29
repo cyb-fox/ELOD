@@ -1,0 +1,87 @@
+{
+  "cwe_id": "CWE-918",
+  "name": "Server-Side Request Forgery (SSRF)",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-441",
+      "CWE-610"
+    ],
+    "parent_of": []
+  },
+  "principle": "Server code fetches a URL or network resource influenced by an upstream request without enforcing the expected destination. This lets attackers make the server access internal hosts, blocked ports, local files, or alternate protocols as a confused deputy.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "PHP",
+    "Python",
+    "JavaScript",
+    "Go",
+    "Ruby"
+  ],
+  "detection_signals": [
+    "Java: request.getParameter()/Header/body value flows into new URL(...).openStream(), URLConnection.connect(), HttpClient.send(), RestTemplate.getForObject(), WebClient.get()",
+    "C/C++: request parameter flows into curl_easy_setopt(curl, CURLOPT_URL, user_url) or CURLOPT_PROXY without destination validation",
+    "PHP: $_GET/$_POST/$_REQUEST value flows into file_get_contents($url), fopen($url), curl_setopt(CURLOPT_URL, $url)",
+    "URL fetch code accepts full URL strings from clients instead of server-side resource IDs",
+    "HTTP client follows redirects automatically without revalidating Location target, e.g. HttpURLConnection.setInstanceFollowRedirects(true), CURLOPT_FOLLOWLOCATION, HttpClient.Redirect.ALWAYS",
+    "URL validation allows schemes other than https/http, e.g. file://, gopher://, tftp://, ftp://, scp://",
+    "Host checks use string contains/startsWith/endsWith on raw URL before URI parsing or DNS resolution"
+  ],
+  "negative_signals": [
+    "User input is a fixed key mapped to server-side constant URLs, not used as a raw URL",
+    "Parsed URI scheme is restricted to https and host is matched by exact allowlist after canonicalization",
+    "Resolved IP addresses are checked and rejected for loopback, link-local, private, multicast, and metadata ranges before connect",
+    "Redirects are disabled or each redirect Location is revalidated with the same allowlist and IP checks",
+    "Outbound request is made through an egress proxy/firewall that enforces the same destination allowlist",
+    "Java code uses URI parsing plus IDN.toASCII/canonical host comparison, not raw string URL comparison"
+  ],
+  "false_defense_traps": [
+    "Blocking only \"localhost\" misses 127.0.0.1, ::1, 0.0.0.0, decimal/octal/hex IPs, and DNS names resolving to local IPs",
+    "Checking url.startsWith(\"https://trusted.com\") is bypassed by userinfo, subdomains, redirects, or parser confusion",
+    "Allowing all http/https URLs but blocking file:// still permits internal HTTP services and cloud metadata endpoints",
+    "Validating hostname before DNS lookup without checking resolved IP permits DNS rebinding",
+    "Validating only the first request while allowing redirects permits redirect-to-internal SSRF"
+  ],
+  "verification_focus": "Can attacker-controlled input influence the URL, host, port, scheme, proxy, or redirect target of a server-side outbound request outside an exact approved destination set?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-1427",
+        "CWE-918"
+      ],
+      "trigger": "Prompt injection forces an AI/LLM tool or retriever to fetch an attacker-chosen URL",
+      "consequence": "Internal URL access, port scanning, or sensitive data retrieval by the server"
+    },
+    {
+      "chain": [
+        "CWE-1286",
+        "CWE-1389",
+        "CWE-918"
+      ],
+      "trigger": "IP allowlist/blocklist validates only decimal IP format while the URL parser accepts octal or hexadecimal IP forms",
+      "consequence": "SSRF protection bypass and access to blocked internal addresses"
+    },
+    {
+      "chain": [
+        "CWE-918",
+        "CWE-441"
+      ],
+      "trigger": "Server fetches unexpected host, port, or scheme on behalf of attacker",
+      "consequence": "Server acts as unintended proxy and bypasses network access controls"
+    }
+  ],
+  "patch_principle": [
+    "Do not accept arbitrary URLs; accept resource identifiers and map them to server-side constant destinations.",
+    "Enforce an exact allowlist of scheme, host, and port after URI parsing and canonicalization.",
+    "Resolve hostnames and reject loopback, private, link-local, multicast, and cloud metadata IP ranges before every connection.",
+    "Disable redirects or revalidate every redirect target with the same scheme, host, port, and IP checks.",
+    "Restrict outbound network access with egress firewall/proxy rules as defense in depth."
+  ],
+  "minimal_examples": {
+    "vuln": "new URL(request.getParameter(\"url\")).openStream();",
+    "safe": "InputStream s = new URL(ALLOWED_URLS.get(request.getParameter(\"id\"))).openStream();"
+  }
+}

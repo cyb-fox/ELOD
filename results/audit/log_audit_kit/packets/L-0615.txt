@@ -1,0 +1,110 @@
+=== 待审推理日志 L-0615 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 2 个。
+
+【推理轨迹】共 11 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: squashfs_opendir:76
+  引证行: 76
+  引证内容: memcpy(dire->name, directory_table + bytes,
+  初判倾向: VIOLATED
+  上下文源码:
+     73 | 				goto corrupted;
+     74 | 			}
+     75 | 
+     76 | 			memcpy(dire->name, directory_table + bytes,
+     77 | 				dire->size + 1);
+     78 | 			dire->name[dire->size + 1] = '\0';
+     79 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: squashfs_opendir:78
+  引证行: 78
+  引证内容: dire->name[dire->size + 1] = '\0';
+  初判倾向: VIOLATED
+  上下文源码:
+     75 | 
+     76 | 			memcpy(dire->name, directory_table + bytes,
+     77 | 				dire->size + 1);
+     78 | 			dire->name[dire->size + 1] = '\0';
+     79 | 
+     80 | 			/* check name for invalid characters (i.e /, ., ..) */
+     81 | 			if(check_name(dire->name, dire->size + 1) == FALSE) {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: squashfs_opendir:90
+  引证行: 90
+  引证内容: new_dir = realloc(dir->dirs, (dir->dir_count +
+  初判倾向: VIOLATED
+  上下文源码:
+     87 | 				"%d:%d, type %d\n", dire->name,
+     88 | 				dirh.start_block, dire->offset, dire->type);
+     89 | 			if((dir->dir_count % DIR_ENT_SIZE) == 0) {
+     90 | 				new_dir = realloc(dir->dirs, (dir->dir_count +
+     91 | 					DIR_ENT_SIZE) * sizeof(struct dir_ent));
+     92 | 				if(new_dir == NULL)
+     93 | 					EXIT_UNSQUASH("squashfs_opendir: "
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:76
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:78
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:90
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:97
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:76
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:78
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:90
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:97
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

@@ -1,0 +1,461 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EC_GROUP_new_from_ecparameters:11"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 11,
+      "snippet": "if (!params->fieldID || !params->fieldID->fieldType ||",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:11",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EC_GROUP_new_from_ecparameters:12"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 12,
+      "snippet": "!params->fieldID->p.ptr) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:12",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EC_GROUP_new_from_ecparameters:23"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-789"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 23,
+      "snippet": "if (!params->curve || !params->curve->a ||",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:23",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EC_GROUP_new_from_ecparameters:24"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 24,
+      "snippet": "!params->curve->a->data || !params->curve->b ||",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:24",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EC_GROUP_new_from_ecparameters:25"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-789"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 25,
+      "snippet": "!params->curve->b->data) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:25",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EC_GROUP_new_from_ecparameters:175"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-789"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 175,
+      "snippet": "memcpy(ret->seed, params->curve->seed->data,",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:175",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "params",
+        "fieldID",
+        "fieldType"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:11",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "params",
+        "fieldID",
+        "ptr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:12",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "params",
+        "curve"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "allocation size computed as count * sizeof(T) or a - b with no maximum-size check before allocation"
+      ]
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:23",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "params",
+        "curve",
+        "data"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization"
+      ]
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:24",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "params",
+        "curve",
+        "data"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "allocation size computed as count * sizeof(T) or a - b with no maximum-size check before allocation"
+      ]
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:25",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ret",
+        "seed"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "size_t len = signed_expr or subtraction result followed by allocation with len",
+        "std::vector<T> v(n), vector.resize(n), string.reserve(n), or new T[n] using unbounded n"
+      ]
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:175",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:11",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:12",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:23",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:24",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:25",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EC_GROUP_new_from_ecparameters:175",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

@@ -1,0 +1,124 @@
+{
+  "selected_threshold": 0.05,
+  "dev_at_selected": {
+    "coverage_all": 0.96,
+    "n_vuln_gt": 50,
+    "mean_picks": 4.217
+  },
+  "teacher_dev_baseline_coverage_all": 0.76,
+  "dev_threshold_sweep": {
+    "0.05": {
+      "coverage_all": 0.96,
+      "n_vuln_gt": 50,
+      "mean_picks": 4.217
+    },
+    "0.1": {
+      "coverage_all": 0.9,
+      "n_vuln_gt": 50,
+      "mean_picks": 3.633
+    },
+    "0.15": {
+      "coverage_all": 0.86,
+      "n_vuln_gt": 50,
+      "mean_picks": 3.3
+    },
+    "0.2": {
+      "coverage_all": 0.86,
+      "n_vuln_gt": 50,
+      "mean_picks": 3.083
+    },
+    "0.25": {
+      "coverage_all": 0.82,
+      "n_vuln_gt": 50,
+      "mean_picks": 2.833
+    },
+    "0.3": {
+      "coverage_all": 0.78,
+      "n_vuln_gt": 50,
+      "mean_picks": 2.667
+    },
+    "0.35": {
+      "coverage_all": 0.78,
+      "n_vuln_gt": 50,
+      "mean_picks": 2.617
+    },
+    "0.4": {
+      "coverage_all": 0.74,
+      "n_vuln_gt": 50,
+      "mean_picks": 2.5
+    },
+    "0.45": {
+      "coverage_all": 0.72,
+      "n_vuln_gt": 50,
+      "mean_picks": 2.367
+    },
+    "0.5": {
+      "coverage_all": 0.7,
+      "n_vuln_gt": 50,
+      "mean_picks": 2.183
+    },
+    "0.55": {
+      "coverage_all": 0.68,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.983
+    },
+    "0.6": {
+      "coverage_all": 0.68,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.833
+    },
+    "0.65": {
+      "coverage_all": 0.66,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.683
+    },
+    "0.7": {
+      "coverage_all": 0.64,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.567
+    },
+    "0.75": {
+      "coverage_all": 0.6,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.367
+    },
+    "0.8": {
+      "coverage_all": 0.54,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.25
+    },
+    "0.85": {
+      "coverage_all": 0.54,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.167
+    },
+    "0.9": {
+      "coverage_all": 0.5,
+      "n_vuln_gt": 50,
+      "mean_picks": 1.033
+    }
+  },
+  "families": [
+    "access-control",
+    "availability-and-error-handling",
+    "cryptography",
+    "data-exposure-and-trust",
+    "injection",
+    "input-validation-and-state-integrity",
+    "memory-safety",
+    "numeric-errors",
+    "race-condition"
+  ],
+  "args": {
+    "encoder": "./models/unixcoder",
+    "out": "./models/clf_select",
+    "epochs": 6,
+    "bs": 16,
+    "lr": 2e-05,
+    "max_len": 512,
+    "val_frac": 0.1,
+    "gpu": "auto",
+    "seed": 0,
+    "limit": 0
+  }
+}

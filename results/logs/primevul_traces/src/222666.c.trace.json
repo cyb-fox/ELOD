@@ -1,0 +1,1484 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:1"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1,
+      "snippet": "int main(int argc, char **argv, char **envp)",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:1",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:5"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 5,
+      "snippet": "while ((opt = getopt(argc, argv, \"b:h:k:p:q:w:z:xv\")) != -1) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:5",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:6"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 6,
+      "snippet": "switch (opt) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:6",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:8"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 8,
+      "snippet": "tmate_settings->bind_addr = xstrdup(optarg);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:8",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:11"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 11,
+      "snippet": "tmate_settings->tmate_host = xstrdup(optarg);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:11",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:17"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 17,
+      "snippet": "tmate_settings->ssh_port = atoi(optarg);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:17",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:20"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 20,
+      "snippet": "tmate_settings->ssh_port_advertized = atoi(optarg);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:20",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:29"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 29,
+      "snippet": "tmate_settings->use_proxy_protocol = true;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:29",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:32"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 32,
+      "snippet": "tmate_settings->log_level++;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:32",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:35"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 35,
+      "snippet": "usage();",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:35",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:40"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 40,
+      "snippet": "init_logging(tmate_settings->log_level);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:40",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:42"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 42,
+      "snippet": "setup_locale();",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:42",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:45"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 45,
+      "snippet": "tmate_settings->tmate_host = get_full_hostname();",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:45",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:51"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 51,
+      "snippet": "tmate_catch_sigsegv();",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:51",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "main:71"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 71,
+      "snippet": "tmate_settings->keys_dir, tmate_settings->bind_addr, tmate_settings->ssh_port);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "main:71",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "main",
+        "argc",
+        "argv"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:1",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "opt",
+        "getopt",
+        "argc"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:5",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "opt"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:6",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "bind_addr",
+        "xstrdup"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:8",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "tmate_host",
+        "xstrdup"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:11",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "keys_dir",
+        "xstrdup"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:14",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "ssh_port",
+        "atoi"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:17",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "ssh_port_advertized",
+        "atoi"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:20",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 24,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "websocket_hostname",
+        "xstrdup"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:23",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 25,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "websocket_port",
+        "atoi"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:26",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 26,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "use_proxy_protocol"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:29",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 27,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "log_level"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:32",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 28,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "usage"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:35",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 29,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "init_logging",
+        "tmate_settings",
+        "log_level"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:40",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 30,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "setup_locale"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:42",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 31,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "tmate_host"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:44",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 32,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "tmate_host",
+        "get_full_hostname"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:45",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 33,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_preload_trace_lib"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:50",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 34,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_catch_sigsegv"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "main:51",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 35,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_init_rand"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:52",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 36,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "tmate_settings",
+        "keys_dir",
+        "bind_addr"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "main:71",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 37,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:1",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 38,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:5",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 39,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:6",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 40,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:8",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 41,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:11",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 42,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:14",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 43,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:17",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 44,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:20",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 45,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:23",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 46,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:26",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 47,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:29",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 48,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:32",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 49,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:35",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 50,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:40",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 51,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:42",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 52,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:44",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 53,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:45",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 54,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:50",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 55,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:51",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 56,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:52",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 57,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "main:71",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

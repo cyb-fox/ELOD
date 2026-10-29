@@ -1,0 +1,80 @@
+{
+  "cwe_id": "CWE-192",
+  "name": "Integer Coercion Error",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-681"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code casts, promotes, extends, or truncates an integer so the stored value no longer matches the intended value. The wrong value can bypass checks and then drive allocation sizes, copy lengths, indexes, or loop bounds.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#"
+  ],
+  "detection_signals": [
+    "signed int/short/char assigned to size_t or unsigned and later used as malloc/calloc/realloc size",
+    "negative-capable signed length checked only with len > MAX before conversion to size_t/unsigned",
+    "int or long assigned to short/char/byte without range check before use as length/count/index",
+    "function call passes signed variable to size_t parameter of memcpy/memmove/strncpy/read/fread",
+    "packet/file/network count field parsed into signed integer then multiplied by sizeof(...) for allocation",
+    "explicit cast like (unsigned)len or (size_t)len on untrusted or range-unchecked value",
+    "Java narrowing cast like (short)i or (byte)i on untrusted value before array allocation/indexing"
+  ],
+  "negative_signals": [
+    "range check enforces 0 <= len && len <= MAX before any cast to size_t/unsigned",
+    "checked conversion helper rejects out-of-range values before assignment to narrower type",
+    "same validated variable and same integer type are used for both bounds check and sink",
+    "C++ std::in_range<T>(x) or equivalent guard precedes static_cast<T>(x)",
+    "Java Math.toIntExact or explicit min/max check precedes narrowing conversion"
+  ],
+  "false_defense_traps": [
+    "checking only len > MAX misses negative signed values",
+    "checking before narrowing cast does not prove the narrowed value is unchanged",
+    "explicit casts silence compiler warnings but do not validate range",
+    "using strncpy/memcpy with a coerced length still overflows if the length changed",
+    "null-terminating after a copy does not fix an oversized copy length"
+  ],
+  "verification_focus": "Does any integer cast, promotion, extension, or truncation change an untrusted value before it is used in a size, index, count, allocation, copy, or loop sink?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-192",
+        "CWE-195"
+      ],
+      "trigger": "negative signed value is converted to unsigned or size_t",
+      "consequence": "huge length causes resource exhaustion or oversized copy"
+    },
+    {
+      "chain": [
+        "CWE-192",
+        "CWE-119"
+      ],
+      "trigger": "coerced length bypasses a bounds check and reaches a buffer operation",
+      "consequence": "buffer overflow and possible code execution"
+    },
+    {
+      "chain": [
+        "CWE-192",
+        "CWE-787"
+      ],
+      "trigger": "coerced return value or length prevents error handling and controls a write offset/size",
+      "consequence": "out-of-bounds write"
+    }
+  ],
+  "patch_principle": [
+    "Avoid unnecessary casts and mixed signedness for sizes, counts, and indexes.",
+    "Validate both minimum and maximum bounds before conversion.",
+    "Perform the security check in the exact type used by the sink.",
+    "Reject values that cannot be represented in the destination type before narrowing.",
+    "Use checked conversion APIs or languages/settings that trap ambiguous casts."
+  ],
+  "minimal_examples": {
+    "vuln": "int n = packet->headers; if (n > 100) error(); headers = malloc(n * sizeof(PacketHeader));",
+    "safe": "int n = packet->headers; if (n < 0 || n > 100) error(); headers = malloc((size_t)n * sizeof(PacketHeader));"
+  }
+}

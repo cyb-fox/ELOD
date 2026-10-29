@@ -1,0 +1,109 @@
+=== 待审推理日志 L-0153 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 0 个。
+
+【推理轨迹】共 14 步
+
+--- 步骤 1 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sug_filltree:30
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 2 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sug_filltree:31
+  筛选: keep
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sug_filltree:32
+  筛选: keep
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sug_filltree:58
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sug_filltree:86
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sug_filltree:87
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sug_filltree:88
+  筛选: keep
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sug_filltree:30
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sug_filltree:31
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sug_filltree:32
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sug_filltree:58
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sug_filltree:86
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sug_filltree:87
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sug_filltree:88
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-125

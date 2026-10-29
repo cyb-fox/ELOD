@@ -1,0 +1,380 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "decode_errcode_attr:1"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-20"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1,
+      "snippet": "static pj_status_t decode_errcode_attr(pj_pool_t *pool,",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "decode_errcode_attr:1",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "decode_errcode_attr:1"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "pj_status_t",
+        "decode_errcode_attr",
+        "pj_pool_t"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value",
+        "client-side JavaScript or UI validation exists but server-side C/C++/Java handler uses the same field without validation"
+      ]
+    },
+    "sink_id": "decode_errcode_attr:1",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "msghdr"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "decode_errcode_attr:9",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "buf",
+        "attr",
+        "hdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "decode_errcode_attr:13",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "attr",
+        "err_code",
+        "buf"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "decode_errcode_attr:15",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "value",
+        "slen",
+        "attr"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "decode_errcode_attr:19",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "pj_strdup",
+        "pool",
+        "attr"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "decode_errcode_attr:22",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "decode_errcode_attr:1"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "decode_errcode_attr:1",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "decode_errcode_attr:9",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "decode_errcode_attr:13",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "decode_errcode_attr:15",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "decode_errcode_attr:19",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "decode_errcode_attr:22",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

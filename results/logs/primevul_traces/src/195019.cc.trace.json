@@ -1,0 +1,193 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EvaluateOneFoldable:59"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 59,
+      "snippet": "node_name = strings::StrCat(node_name, \"-\", i);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "EvaluateOneFoldable:59",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "EvaluateOneFoldable:27"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "strings",
+        "fold",
+        "node"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check"
+      ]
+    },
+    "sink_id": "EvaluateOneFoldable:27",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strings",
+        "tensor",
+        "in"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null"
+      ]
+    },
+    "sink_id": "EvaluateOneFoldable:35",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "node_name",
+        "strings"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null"
+      ]
+    },
+    "sink_id": "EvaluateOneFoldable:59",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "EvaluateOneFoldable:27"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "EvaluateOneFoldable:27",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EvaluateOneFoldable:35",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "EvaluateOneFoldable:59",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  }
+]

@@ -1,0 +1,435 @@
+=== 待审推理日志 L-0134 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 17 个；未决 17 个。
+
+【推理轨迹】共 48 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:6
+  引证行: 6
+  引证内容: const char *alias= table_list->alias.str;
+  初判倾向: VIOLATED
+  上下文源码:
+      3 |   TABLE *table;
+      4 |   const char *key;
+      5 |   uint	key_length;
+      6 |   const char *alias= table_list->alias.str;
+      7 |   uint flags= ot_ctx->get_flags();
+      8 |   MDL_ticket *mdl_ticket;
+      9 |   TABLE_SHARE *share;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:7
+  引证行: 7
+  引证内容: uint flags= ot_ctx->get_flags();
+  初判倾向: VIOLATED
+  上下文源码:
+      4 |   const char *key;
+      5 |   uint	key_length;
+      6 |   const char *alias= table_list->alias.str;
+      7 |   uint flags= ot_ctx->get_flags();
+      8 |   MDL_ticket *mdl_ticket;
+      9 |   TABLE_SHARE *share;
+     10 |   uint gts_flags;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:23
+  引证行: 23
+  引证内容: DBUG_ASSERT(!table_list->table);
+  初判倾向: VIOLATED
+  上下文源码:
+     20 | 
+     21 |     open_temporary_table() must be used to open temporary tables.
+     22 |   */
+     23 |   DBUG_ASSERT(!table_list->table);
+     24 | 
+     25 |   /* an open table operation needs a lot of the stack space */
+     26 |   if (check_stack_overrun(thd, STACK_MIN_SIZE_FOR_OPEN, (uchar *)&alias))
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:29
+  引证行: 29
+  引证内容: if (!(flags & MYSQL_OPEN_IGNORE_KILLED) && thd->killed)
+  初判倾向: VIOLATED
+  上下文源码:
+     26 |   if (check_stack_overrun(thd, STACK_MIN_SIZE_FOR_OPEN, (uchar *)&alias))
+     27 |     DBUG_RETURN(TRUE);
+     28 | 
+     29 |   if (!(flags & MYSQL_OPEN_IGNORE_KILLED) && thd->killed)
+     30 |   {
+     31 |     thd->send_kill_message();
+     32 |     DBUG_RETURN(TRUE);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:31
+  引证行: 31
+  引证内容: thd->send_kill_message();
+  初判倾向: VIOLATED
+  上下文源码:
+     28 | 
+     29 |   if (!(flags & MYSQL_OPEN_IGNORE_KILLED) && thd->killed)
+     30 |   {
+     31 |     thd->send_kill_message();
+     32 |     DBUG_RETURN(TRUE);
+     33 |   }
+     34 | 
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:41
+  引证行: 41
+  引证内容: if (table_list->mdl_request.is_write_lock_request() &&
+  初判倾向: VIOLATED
+  上下文源码:
+     38 |     Note that we allow write locks on log tables as otherwise logging
+     39 |     to general/slow log would be disabled in read only transactions.
+     40 |   */
+     41 |   if (table_list->mdl_request.is_write_lock_request() &&
+     42 |       thd->tx_read_only &&
+     43 |       !(flags & (MYSQL_LOCK_LOG_TABLE | MYSQL_OPEN_HAS_MDL_LOCK)))
+     44 |   {
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:49
+  引证行: 49
+  引证内容: if (!table_list->db.str)
+  初判倾向: VIOLATED
+  上下文源码:
+     46 |     DBUG_RETURN(true);
+     47 |   }
+     48 | 
+     49 |   if (!table_list->db.str)
+     50 |   {
+     51 |     my_error(ER_NO_DB_ERROR, MYF(0));
+     52 |     DBUG_RETURN(true);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:64
+  引证行: 64
+  引证内容: if (thd->locked_tables_mode &&
+  初判倾向: VIOLATED
+  上下文源码:
+     61 |     tables in pre-locked/LOCK TABLES mode.
+     62 |     TODO: move this block into a separate function.
+     63 |   */
+     64 |   if (thd->locked_tables_mode &&
+     65 |       ! (flags & MYSQL_OPEN_GET_NEW_TABLE))
+     66 |   {						// Using table locks
+     67 |     TABLE *best_table= 0;
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:71
+  引证行: 71
+  引证内容: if (table->s->table_cache_key.length == key_length &&
+  初判倾向: VIOLATED
+  上下文源码:
+     68 |     int best_distance= INT_MIN;
+     69 |     for (table=thd->open_tables; table ; table=table->next)
+     70 |     {
+     71 |       if (table->s->table_cache_key.length == key_length &&
+     72 | 	  !memcmp(table->s->table_cache_key.str, key, key_length))
+     73 |       {
+     74 |         if (!my_strcasecmp(system_charset_info, table->alias.c_ptr(), alias) &&
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:72
+  引证行: 72
+  引证内容: !memcmp(table->s->table_cache_key.str, key, key_length))
+  初判倾向: VIOLATED
+  上下文源码:
+     69 |     for (table=thd->open_tables; table ; table=table->next)
+     70 |     {
+     71 |       if (table->s->table_cache_key.length == key_length &&
+     72 | 	  !memcmp(table->s->table_cache_key.str, key, key_length))
+     73 |       {
+     74 |         if (!my_strcasecmp(system_charset_info, table->alias.c_ptr(), alias) &&
+     75 |             table->query_id != thd->query_id && /* skip tables already used */
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:74
+  引证行: 74
+  引证内容: if (!my_strcasecmp(system_charset_info, table->alias.c_ptr(), alias) &&
+  初判倾向: VIOLATED
+  上下文源码:
+     71 |       if (table->s->table_cache_key.length == key_length &&
+     72 | 	  !memcmp(table->s->table_cache_key.str, key, key_length))
+     73 |       {
+     74 |         if (!my_strcasecmp(system_charset_info, table->alias.c_ptr(), alias) &&
+     75 |             table->query_id != thd->query_id && /* skip tables already used */
+     76 |             (thd->locked_tables_mode == LTM_LOCK_TABLES ||
+     77 |              table->query_id == 0))
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:75
+  引证行: 75
+  引证内容: table->query_id != thd->query_id && /* skip tables already used */
+  初判倾向: VIOLATED
+  上下文源码:
+     72 | 	  !memcmp(table->s->table_cache_key.str, key, key_length))
+     73 |       {
+     74 |         if (!my_strcasecmp(system_charset_info, table->alias.c_ptr(), alias) &&
+     75 |             table->query_id != thd->query_id && /* skip tables already used */
+     76 |             (thd->locked_tables_mode == LTM_LOCK_TABLES ||
+     77 |              table->query_id == 0))
+     78 |         {
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:77
+  引证行: 77
+  引证内容: table->query_id == 0))
+  初判倾向: VIOLATED
+  上下文源码:
+     74 |         if (!my_strcasecmp(system_charset_info, table->alias.c_ptr(), alias) &&
+     75 |             table->query_id != thd->query_id && /* skip tables already used */
+     76 |             (thd->locked_tables_mode == LTM_LOCK_TABLES ||
+     77 |              table->query_id == 0))
+     78 |         {
+     79 |           int distance= ((int) table->reginfo.lock_type -
+     80 |                          (int) table_list->lock_type);
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: open_table:79
+  引证行: 79
+  引证内容: int distance= ((int) table->reginfo.lock_type -
+  初判倾向: VIOLATED
+  上下文源码:
+     76 |             (thd->locked_tables_mode == LTM_LOCK_TABLES ||
+     77 |              table->query_id == 0))
+     78 |         {
+     79 |           int distance= ((int) table->reginfo.lock_type -
+     80 |                          (int) table_list->lock_type);
+     81 | 
+     82 |           /*
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:6
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:7
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:23
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:29
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:31
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:41
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:42
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:49
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:64
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:69
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:71
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:72
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:74
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:75
+  命中信号: malloc/calloc/realloc/strdup/new(std::nothrow) return value used with ->, *, [], memcpy, strcpy, or memset before NULL check
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:76
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:77
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: open_table:79
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:41
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:49
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:64
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:69
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:71
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:72
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 44 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:74
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 45 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:75
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 46 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:76
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 47 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:77
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 48 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: open_table:79
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

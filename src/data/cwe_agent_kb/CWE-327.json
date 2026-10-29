@@ -1,0 +1,87 @@
+{
+  "cwe_id": "CWE-327",
+  "name": "Use of a Broken or Risky Cryptographic Algorithm",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "cryptography",
+    "child_of": [
+      "CWE-693"
+    ],
+    "parent_of": [
+      "CWE-328",
+      "CWE-780",
+      "CWE-1240",
+      "CWE-916"
+    ]
+  },
+  "principle": "The product selects a cryptographic algorithm or protocol that is broken, obsolete, risky, non-standard, or private. Attackers may break the protection and read data, modify data, forge identities, or defeat signatures.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Verilog",
+    "VHDL"
+  ],
+  "detection_signals": [
+    "Java Cipher.getInstance(\"DES\"), Cipher.getInstance(\"DESede\"), Cipher.getInstance(\"RC4\"), or Cipher.getInstance(\"ARCFOUR\")",
+    "Java MessageDigest.getInstance(\"MD4\"), MessageDigest.getInstance(\"MD5\"), or MessageDigest.getInstance(\"SHA-1\") used for signatures, integrity, certificates, or passwords",
+    "OpenSSL EVP_des_*(), DES_*(), RC4(), EVP_rc4(), EVP_md4(), EVP_md5(), or EVP_sha1() in security-sensitive code",
+    "Cipher transformation contains \"/ECB/\" such as Cipher.getInstance(\"AES/ECB/PKCS5Padding\") or EVP_*_ecb()",
+    "TLS/SSL configuration enables SSLv2, SSLv3, TLSv1.0, TLSv1.1, RC4, DES, 3DES, MD5, or SHA1 cipher suites",
+    "RSA encryption uses Cipher.getInstance(\"RSA/ECB/PKCS1Padding\") or RSA_public_encrypt(..., RSA_PKCS1_PADDING) instead of OAEP",
+    "Custom encryption/hash code uses XOR, shifts, rotations, LFSR, lookup tables, or proprietary encrypt()/decrypt()/hash() without a vetted crypto library"
+  ],
+  "negative_signals": [
+    "AES-GCM, ChaCha20-Poly1305, SHA-256/SHA-384/SHA-512, SHA-3, or HMAC-SHA-256 from a vetted library",
+    "Password storage uses Argon2, bcrypt, scrypt, or PBKDF2WithHmacSHA256 with salt and iteration/work factor",
+    "RSA encryption uses OAEP such as OAEPWithSHA-256AndMGF1Padding or RSA_PKCS1_OAEP_PADDING",
+    "Legacy MD5/SHA1 appears only in non-security checksums, cache keys, deduplication, or tests with no trust decision",
+    "TLS configuration disables SSLv2/SSLv3/TLSv1.0/TLSv1.1 and weak cipher suites",
+    "Algorithm choice is centralized behind a wrapper/provider and can be upgraded without changing callers"
+  ],
+  "false_defense_traps": [
+    "Keeping a proprietary algorithm secret; reverse engineering can expose it",
+    "Using MD5 or SHA1 only because the data is also encrypted elsewhere",
+    "Using AES but selecting ECB mode",
+    "Using RSA without OAEP padding",
+    "Relying on old hardware crypto IP that cannot be patched when the algorithm becomes obsolete"
+  ],
+  "verification_focus": "Is the algorithm or protocol itself known-broken, obsolete, risky, non-standard, or private, rather than merely using weak parameters?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-327",
+        "CWE-328"
+      ],
+      "trigger": "MD5, SHA1, or MD4 is used for integrity, signature, certificate, or trust comparison",
+      "consequence": "Collision or preimage attacks enable forged data or spoofed identity"
+    },
+    {
+      "chain": [
+        "CWE-327",
+        "CWE-780"
+      ],
+      "trigger": "RSA encryption is used without OAEP padding",
+      "consequence": "Chosen-ciphertext or padding attacks can expose encrypted data"
+    },
+    {
+      "chain": [
+        "CWE-327",
+        "CWE-916"
+      ],
+      "trigger": "Fast hash such as MD5, SHA1, or SHA256 is used directly for password storage",
+      "consequence": "Offline password cracking becomes practical"
+    }
+  ],
+  "patch_principle": [
+    "Replace broken algorithms and protocols with currently vetted standards from maintained libraries",
+    "Do not design private or custom cryptographic algorithms",
+    "Use algorithm-appropriate modes and padding such as AEAD for encryption and OAEP for RSA",
+    "Review algorithms periodically and design crypto-agility through wrappers or provider configuration",
+    "Protect keys and do not skip required cryptographic steps"
+  ],
+  "minimal_examples": {
+    "vuln": "Cipher c = Cipher.getInstance(\"DES/ECB/PKCS5Padding\");",
+    "safe": "Cipher c = Cipher.getInstance(\"AES/GCM/NoPadding\");"
+  }
+}

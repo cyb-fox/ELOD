@@ -1,0 +1,99 @@
+{
+  "cwe_id": "CWE-284",
+  "name": "Improper Access Control",
+  "abstraction": "Pillar",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [],
+    "parent_of": [
+      "CWE-269",
+      "CWE-282",
+      "CWE-285",
+      "CWE-286",
+      "CWE-287",
+      "CWE-346",
+      "CWE-749",
+      "CWE-923",
+      "CWE-1191",
+      "CWE-1220",
+      "CWE-1224",
+      "CWE-1231",
+      "CWE-1233",
+      "CWE-1252"
+    ]
+  },
+  "principle": "The product does not restrict, or incorrectly restricts, an unauthorized actor's access to a resource. Failed authentication, authorization, privilege, ownership, or accountability checks can allow privilege gain, sensitive data access, command execution, or evasion of detection.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "PHP",
+    "Python",
+    "JavaScript",
+    "Go",
+    "Rust"
+  ],
+  "detection_signals": [
+    "controller/handler reads request parameter id/userId/accountId and calls findById/load/get without accessControl.check(currentUser, resource)",
+    "Spring @GetMapping/@PostMapping/@DeleteMapping on non-public endpoint without @PreAuthorize/@Secured or explicit server-side authorization call",
+    "authorization decision uses client-controlled request parameter/cookie/header such as role=isAdmin, userId, group, permission",
+    "C/C++ chmod(path, 0777) or chmod(path, 0666) on sensitive file or directory",
+    "Java Files.setPosixFilePermissions includes OTHERS_WRITE or OTHERS_READ on sensitive resource",
+    "privilege elevation call setuid(0)/seteuid(0)/setreuid(...,0) followed by sensitive operation without guaranteed drop in cleanup/finally/RAII",
+    "CORS response sets Access-Control-Allow-Origin: * together with Access-Control-Allow-Credentials: true for authenticated API"
+  ],
+  "negative_signals": [
+    "resource access is preceded by server-side accessControl.check(authenticatedUser, action, resource) and denial returns 403",
+    "database query scopes resource by authenticated principal, e.g. WHERE id=? AND owner_id=?",
+    "endpoint has @PreAuthorize/@Secured with role and object-level permission expression before business logic",
+    "ACL/permission parser fails closed on missing, malformed, or unknown rule",
+    "privilege elevation is wrapped with try/finally or RAII cleanup that always drops privileges",
+    "public/static resource is explicitly annotated or routed as public and contains no sensitive operation"
+  ],
+  "false_defense_traps": [
+    "client-side UI hiding, JavaScript checks, hidden fields, or disabled buttons without server-side authorization",
+    "authentication-only checks such as isLoggedIn() for object-specific or role-specific operations",
+    "trusting JWT/cookie/header role claims without signature verification and server-side policy evaluation",
+    "blacklisting a few admin URLs while default route behavior allows access",
+    "dropping privileges only on the success path after a call that can throw or return early"
+  ],
+  "verification_focus": "Does trusted server-side code enforce the intended access policy for this actor, action, and resource on every path?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-284",
+        "CWE-200"
+      ],
+      "trigger": "unauthorized actor can read a protected resource",
+      "consequence": "sensitive information disclosure"
+    },
+    {
+      "chain": [
+        "CWE-284",
+        "CWE-269"
+      ],
+      "trigger": "access control grants or retains excessive privileges",
+      "consequence": "privilege escalation or execution of privileged actions"
+    },
+    {
+      "chain": [
+        "CWE-284",
+        "CWE-749"
+      ],
+      "trigger": "dangerous method or function is exposed to an unauthorized caller",
+      "consequence": "unauthorized command, configuration, or state change"
+    }
+  ],
+  "patch_principle": [
+    "Enforce authorization in trusted server-side code before every sensitive operation.",
+    "Use default-deny and least-privilege policies; explicitly mark only intended public resources.",
+    "Bind resource access to ownership, role, tenant, and action checks instead of trusting client identifiers.",
+    "Manage privilege changes with fail-closed error handling and guaranteed privilege drop.",
+    "Compartmentalize trust zones and keep sensitive data inside the intended boundary."
+  ],
+  "minimal_examples": {
+    "vuln": "User u = userRepo.findById(request.getParameter(\"userId\"));",
+    "safe": "User u = userRepo.findByIdAndOwner(request.getParameter(\"userId\"), currentUser.getId()).orElseThrow(Forbidden::new);"
+  }
+}

@@ -1,0 +1,98 @@
+=== 待审推理日志 L-0458 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 0 个。
+
+【推理轨迹】共 10 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: tipc_crypto_key_rcv:3
+  引证行: 3
+  引证内容: struct tipc_crypto *tx = tipc_net(rx->net)->crypto_tx;
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | static bool tipc_crypto_key_rcv(struct tipc_crypto *rx, struct tipc_msg *hdr)
+      2 | {
+      3 | 	struct tipc_crypto *tx = tipc_net(rx->net)->crypto_tx;
+      4 | 	struct tipc_aead_key *skey = NULL;
+      5 | 	u16 key_gen = msg_key_gen(hdr);
+      6 | 	u16 size = msg_data_sz(hdr);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: tipc_crypto_key_rcv:25
+  引证行: 25
+  引证内容: memcpy(skey->alg_name, data, TIPC_AEAD_ALG_NAME);
+  初判倾向: VIOLATED
+  上下文源码:
+     22 | 
+     23 | 	/* Copy key from msg data */
+     24 | 	skey->keylen = ntohl(*((__be32 *)(data + TIPC_AEAD_ALG_NAME)));
+     25 | 	memcpy(skey->alg_name, data, TIPC_AEAD_ALG_NAME);
+     26 | 	memcpy(skey->key, data + TIPC_AEAD_ALG_NAME + sizeof(__be32),
+     27 | 	       skey->keylen);
+     28 | 
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: tipc_crypto_key_rcv:3
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: tipc_crypto_key_rcv:9
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: tipc_crypto_key_rcv:25
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: tipc_crypto_key_rcv:26
+  筛选: keep
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: tipc_crypto_key_rcv:3
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: tipc_crypto_key_rcv:9
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: tipc_crypto_key_rcv:25
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.7
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: tipc_crypto_key_rcv:26
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-119, CWE-190

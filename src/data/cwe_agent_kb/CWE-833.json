@@ -1,0 +1,61 @@
+{
+  "cwe_id": "CWE-833",
+  "name": "Deadlock",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "race-condition",
+    "child_of": [
+      "CWE-667",
+      "CWE-662"
+    ],
+    "parent_of": []
+  },
+  "principle": "Two or more threads or executable segments acquire and hold locks in a cycle, so each waits for another to release a needed lock. The result is permanent blocking of progress and loss of availability.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "Nested acquisition of multiple mutexes/monitors in different orders across functions",
+    "`pthread_mutex_lock()` / `std::mutex::lock()` / `synchronized` blocks where unlock is not guaranteed on every exit path",
+    "Holding one lock while calling into another function that may acquire a second lock or invoke callbacks",
+    "`wait()`/`join()`/blocking I/O performed while a lock is held",
+    "Two threads share locks `A` and `B` and code paths lock `A->B` in one place and `B->A` in another",
+    "Busy-wait or retry loop on `try_lock()` without releasing already-held locks"
+  ],
+  "negative_signals": [
+    "Only one shared lock is ever used",
+    "All code paths enforce a single global lock order for every pair of locks",
+    "`tryLock()`/timed lock failure always releases held locks before retrying",
+    "RAII/`finally`/`defer` ensures every lock has a paired unlock on exceptions and returns",
+    "No blocking calls or external callbacks occur while a lock is held"
+  ],
+  "false_defense_traps": [
+    "Using `tryLock()` but spinning while still holding another lock",
+    "Relying on `sleep()` or a timeout to break a circular wait",
+    "Wrapping lock release in code that is skipped by exceptions, `return`, or `goto`",
+    "Using `synchronized`/`monitor` blocks but calling unknown code inside the block"
+  ],
+  "verification_focus": "Can any execution path hold one lock while waiting for another, creating a circular wait with no guaranteed release or timeout?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-833"
+      ],
+      "trigger": "concurrent interleaving changes lock acquisition or release order",
+      "consequence": "threads block forever and service availability is lost"
+    }
+  ],
+  "patch_principle": [
+    "Define and enforce one global lock acquisition order",
+    "Minimize lock scope; release before blocking calls or callbacks",
+    "Use `try_lock`/timed acquisition with rollback on failure",
+    "Ensure every exit path releases all held locks, including exceptions"
+  ],
+  "minimal_examples": {
+    "vuln": "T1: lock(A); lock(B); work(); unlock(B); unlock(A);   T2: lock(B); lock(A); work(); unlock(A); unlock(B);",
+    "safe": "T1: lock(A); lock(B); work(); unlock(B); unlock(A);   T2: lock(A); lock(B); work(); unlock(B); unlock(A);"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "cwe_id": "CWE-825",
+  "name": "Expired Pointer Dereference",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-119",
+      "CWE-672"
+    ],
+    "parent_of": [
+      "CWE-415",
+      "CWE-416"
+    ]
+  },
+  "principle": "Code dereferences a pointer to memory that was once valid but has expired after free, scope exit, or release. The stale address may now refer to inaccessible memory or attacker-influenced reused storage, causing crash, data exposure, corruption, or code execution.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "pointer passed to function, read, write, delete, or free after free(ptr)",
+    "pointer dereferenced after delete ptr or delete[] ptr",
+    "field/global pointer freed in one branch and later used without reassignment",
+    "same pointer freed twice on multiple control-flow paths",
+    "address of local stack variable returned or stored beyond its scope",
+    "container/object stores raw pointer to object whose owner calls free/delete",
+    "callback/function pointer invoked after associated object memory was freed"
+  ],
+  "negative_signals": [
+    "ptr is set to NULL/nullptr immediately after free/delete and checked before use",
+    "ownership transferred with std::unique_ptr or std::shared_ptr instead of raw pointer",
+    "all uses occur before the only free/delete on every control-flow path",
+    "pointer is reassigned to a fresh malloc/new result before later dereference",
+    "C++ RAII object lifetime encloses every dereference and no raw escaping pointer exists"
+  ],
+  "false_defense_traps": [
+    "setting only one alias to NULL while other aliases still point to freed memory",
+    "checking ptr != NULL after free when the pointer was not nulled",
+    "assuming malloc reuse will not occur before stale pointer use",
+    "freeing in an error path and logging with the same pointer later",
+    "manual comments about ownership without enforced single owner"
+  ],
+  "verification_focus": "Can any dereference, read/write, function call, or second release occur after the pointed-to storage has expired on any control-flow path?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-562",
+        "CWE-825"
+      ],
+      "trigger": "caller dereferences an address returned for a local stack variable after the callee returns",
+      "consequence": "use of expired stack storage"
+    },
+    {
+      "chain": [
+        "CWE-825",
+        "CWE-125"
+      ],
+      "trigger": "stale pointer is used for a read after the allocation is gone or size metadata is no longer valid",
+      "consequence": "out-of-bounds read and information exposure or crash"
+    },
+    {
+      "chain": [
+        "CWE-825",
+        "CWE-787"
+      ],
+      "trigger": "stale pointer is used for a write after the memory is reallocated or invalid",
+      "consequence": "out-of-bounds write, heap corruption, or code execution"
+    }
+  ],
+  "patch_principle": [
+    "Use automatic memory management or RAII ownership where possible.",
+    "Establish a single clear owner for each allocation and release it once.",
+    "Set freed raw pointers to NULL/nullptr and invalidate all aliases when feasible.",
+    "Move logging, cleanup, and reads before free/delete, or copy needed data before release.",
+    "Prefer smart pointers and containers over raw malloc/free or new/delete."
+  ],
+  "minimal_examples": {
+    "vuln": "free(ptr); logError(\"aborted\", ptr);",
+    "safe": "logError(\"aborted\", ptr); free(ptr); ptr = NULL;"
+  }
+}

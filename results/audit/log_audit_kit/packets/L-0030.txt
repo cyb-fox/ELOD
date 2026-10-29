@@ -1,0 +1,469 @@
+=== 待审推理日志 L-0030 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 19 个；未决 19 个。
+
+【推理轨迹】共 53 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:17
+  引证行: 17
+  引证内容: memset(tmpbuf, '\0', TEMP_BUF_SIZE);
+  初判倾向: VIOLATED
+  上下文源码:
+     14 |     char gtype;
+     15 |     StoreEntry *entry = NULL;
+     16 | 
+     17 |     memset(tmpbuf, '\0', TEMP_BUF_SIZE);
+     18 |     memset(line, '\0', TEMP_BUF_SIZE);
+     19 | 
+     20 |     entry = gopherState->entry;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:86
+  引证行: 86
+  引证内容: memcpy(gopherState->buf + gopherState->len, pos, llen);
+  初判倾向: VIOLATED
+  上下文源码:
+     83 |             /* there is no complete line in inbuf */
+     84 |             /* copy it to temp buffer */
+     85 |             /* note: llen is adjusted above */
+     86 |             memcpy(gopherState->buf + gopherState->len, pos, llen);
+     87 |             gopherState->len += llen;
+     88 |             break;
+     89 |         }
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:92
+  引证行: 92
+  引证内容: memcpy(line, gopherState->buf, gopherState->len);
+  初判倾向: VIOLATED
+  上下文源码:
+     89 |         }
+     90 |         if (gopherState->len != 0) {
+     91 |             /* there is something left from last tx. */
+     92 |             memcpy(line, gopherState->buf, gopherState->len);
+     93 |             memcpy(line + gopherState->len, pos, llen);
+     94 |             llen += gopherState->len;
+     95 |             gopherState->len = 0;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:107
+  引证行: 107
+  引证内容: memset(line, '\0', TEMP_BUF_SIZE);
+  初判倾向: VIOLATED
+  上下文源码:
+    104 | 
+    105 |         if (*line == '.') {
+    106 |             /* skip it */
+    107 |             memset(line, '\0', TEMP_BUF_SIZE);
+    108 |             continue;
+    109 |         }
+    110 | 
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:224
+  引证行: 224
+  引证内容: memset(tmpbuf, '\0', TEMP_BUF_SIZE);
+  初判倾向: VIOLATED
+  上下文源码:
+    221 |                         break;
+    222 |                     }
+    223 | 
+    224 |                     memset(tmpbuf, '\0', TEMP_BUF_SIZE);
+    225 | 
+    226 |                     if ((gtype == GOPHER_TELNET) || (gtype == GOPHER_3270)) {
+    227 |                         if (strlen(escaped_selector) != 0)
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:228
+  引证行: 228
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"telnet://%s@%s%s%s/\">%s</A>\n",
+  初判倾向: VIOLATED
+  上下文源码:
+    225 | 
+    226 |                     if ((gtype == GOPHER_TELNET) || (gtype == GOPHER_3270)) {
+    227 |                         if (strlen(escaped_selector) != 0)
+    228 |                             snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"telnet://%s@%s%s%s/\">%s</A>\n",
+    229 |                                      icon_url, escaped_selector, rfc1738_escape_part(host),
+    230 |                                      *port ? ":" : "", port, html_quote(name));
+    231 |                         else
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:232
+  引证行: 232
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"telnet://%s%s%s/\">%s</A>\n",
+  初判倾向: VIOLATED
+  上下文源码:
+    229 |                                      icon_url, escaped_selector, rfc1738_escape_part(host),
+    230 |                                      *port ? ":" : "", port, html_quote(name));
+    231 |                         else
+    232 |                             snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"telnet://%s%s%s/\">%s</A>\n",
+    233 |                                      icon_url, rfc1738_escape_part(host), *port ? ":" : "",
+    234 |                                      port, html_quote(name));
+    235 | 
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:237
+  引证行: 237
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "\t%s\n", html_quote(name));
+  初判倾向: VIOLATED
+  上下文源码:
+    234 |                                      port, html_quote(name));
+    235 | 
+    236 |                     } else if (gtype == GOPHER_INFO) {
+    237 |                         snprintf(tmpbuf, TEMP_BUF_SIZE, "\t%s\n", html_quote(name));
+    238 |                     } else {
+    239 |                         if (strncmp(selector, "GET /", 5) == 0) {
+    240 |                             /* WWW link */
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:241
+  引证行: 241
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"http://%s/%s\">%s</A>\n",
+  初判倾向: VIOLATED
+  上下文源码:
+    238 |                     } else {
+    239 |                         if (strncmp(selector, "GET /", 5) == 0) {
+    240 |                             /* WWW link */
+    241 |                             snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"http://%s/%s\">%s</A>\n",
+    242 |                                      icon_url, host, rfc1738_escape_unescaped(selector + 5), html_quote(name));
+    243 |                         } else if (gtype == GOPHER_WWW) {
+    244 |                             snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"%s\">%s</A>\n",
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:244
+  引证行: 244
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"%s\">%s</A>\n",
+  初判倾向: VIOLATED
+  上下文源码:
+    241 |                             snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"http://%s/%s\">%s</A>\n",
+    242 |                                      icon_url, host, rfc1738_escape_unescaped(selector + 5), html_quote(name));
+    243 |                         } else if (gtype == GOPHER_WWW) {
+    244 |                             snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"%s\">%s</A>\n",
+    245 |                                      icon_url, rfc1738_escape_unescaped(selector), html_quote(name));
+    246 |                         } else {
+    247 |                             /* Standard link */
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:248
+  引证行: 248
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"gopher://%s/%c%s\">%s</A>\n",
+  初判倾向: VIOLATED
+  上下文源码:
+    245 |                                      icon_url, rfc1738_escape_unescaped(selector), html_quote(name));
+    246 |                         } else {
+    247 |                             /* Standard link */
+    248 |                             snprintf(tmpbuf, TEMP_BUF_SIZE, "<IMG border=\"0\" SRC=\"%s\"> <A HREF=\"gopher://%s/%c%s\">%s</A>\n",
+    249 |                                      icon_url, host, gtype, escaped_selector, html_quote(name));
+    250 |                         }
+    251 |                     }
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:260
+  引证行: 260
+  引证内容: memset(line, '\0', TEMP_BUF_SIZE);
+  初判倾向: VIOLATED
+  上下文源码:
+    257 |                     continue;
+    258 |                 }
+    259 |             } else {
+    260 |                 memset(line, '\0', TEMP_BUF_SIZE);
+    261 |                 continue;
+    262 |             }
+    263 | 
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:287
+  引证行: 287
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "</PRE><HR noshade size=\"1px\"><H2>Record# %d<br><i>%s</i></H2>\n<PRE>", recno, html_quote(result));
+  初判倾向: VIOLATED
+  上下文源码:
+    284 |                     break;
+    285 | 
+    286 |                 if (gopherState->cso_recno != recno) {
+    287 |                     snprintf(tmpbuf, TEMP_BUF_SIZE, "</PRE><HR noshade size=\"1px\"><H2>Record# %d<br><i>%s</i></H2>\n<PRE>", recno, html_quote(result));
+    288 |                     gopherState->cso_recno = recno;
+    289 |                 } else {
+    290 |                     snprintf(tmpbuf, TEMP_BUF_SIZE, "%s\n", html_quote(result));
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:290
+  引证行: 290
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "%s\n", html_quote(result));
+  初判倾向: VIOLATED
+  上下文源码:
+    287 |                     snprintf(tmpbuf, TEMP_BUF_SIZE, "</PRE><HR noshade size=\"1px\"><H2>Record# %d<br><i>%s</i></H2>\n<PRE>", recno, html_quote(result));
+    288 |                     gopherState->cso_recno = recno;
+    289 |                 } else {
+    290 |                     snprintf(tmpbuf, TEMP_BUF_SIZE, "%s\n", html_quote(result));
+    291 |                 }
+    292 | 
+    293 |                 outbuf.append(tmpbuf);
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gopherToHTML:321
+  引证行: 321
+  引证内容: snprintf(tmpbuf, TEMP_BUF_SIZE, "</PRE><HR noshade size=\"1px\"><H2>%s</H2>\n<PRE>", html_quote(result));
+  初判倾向: VIOLATED
+  上下文源码:
+    318 | 
+    319 |                 case 502: { /* Too Many Matches */
+    320 |                     /* Print the message the server returns */
+    321 |                     snprintf(tmpbuf, TEMP_BUF_SIZE, "</PRE><HR noshade size=\"1px\"><H2>%s</H2>\n<PRE>", html_quote(result));
+    322 |                     outbuf.append(tmpbuf);
+    323 |                     break;
+    324 |                 }
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:17
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:18
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:86
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:92
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:93
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:97
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:107
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:224
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:228
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:232
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:237
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:241
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:244
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:248
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:256
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:260
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:287
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:290
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gopherToHTML:321
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:86
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:92
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:93
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:97
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:107
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:224
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:228
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 44 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:232
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 45 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:237
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 46 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:241
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 47 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:244
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 48 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:248
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 49 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:256
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 50 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:260
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 51 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:287
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 52 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:290
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 53 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gopherToHTML:321
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

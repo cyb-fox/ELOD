@@ -1,0 +1,70 @@
+{
+  "cwe_id": "CWE-1336",
+  "name": "Improper Neutralization of Special Elements Used in a Template Engine",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-94"
+    ],
+    "parent_of": []
+  },
+  "principle": "Externally influenced data is allowed to reach template source or template syntax without proper neutralization. The engine then interprets attacker-controlled template directives or expressions as code, enabling injection and possible code execution.",
+  "applicable_languages": [
+    "Java",
+    "PHP",
+    "Python",
+    "JavaScript"
+  ],
+  "detection_signals": [
+    "Template source is built from request/query/header/body data, then passed to a template parser/compiler, e.g. `Template(userInput)`, `createTemplate(userInput)`, `renderString(userInput)`.",
+    "Template syntax markers are concatenated with untrusted data before rendering, e.g. `\"{{\" + x + \"}}\"`, `${x}`, `<%` + x + `%>`.",
+    "Dynamic template name/path comes from user input, e.g. `loadTemplate(req.getParameter(...))`, `include(param)`, `extends(param)` without allowlist.",
+    "Untrusted text is passed to engine eval/parse/compile APIs instead of as a model variable, e.g. `evalTemplate(...)`, `compileTemplate(...)`, `processString(...)`.",
+    "Template engine is instantiated with unrestricted defaults while accepting user-controlled template text, e.g. no sandbox/restricted mode or unsafe resolver/class access settings.",
+    "User input is read from a source and later becomes the first argument to render/process methods, not a model map entry."
+  ],
+  "negative_signals": [
+    "Template is a fixed literal or bundled resource, and only data values are bound into the context, e.g. `render(FIXED_TEMPLATE, model)`.",
+    "User input is added only to a variable map/context, e.g. `model.put(\"name\", request.getParameter(...))`, with no template parsing of that value.",
+    "Sandbox/restricted mode is enabled, e.g. `SandboxedEnvironment`, `setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER)`, or equivalent locked-down configuration.",
+    "Template names are selected from a constant enum/allowlist before lookup, not from raw user input.",
+    "No string concatenation/interpolation is used to construct template syntax delimiters or directives.",
+    "The engine renders precompiled templates from trusted sources only, with user data treated as escaped output values."
+  ],
+  "false_defense_traps": [
+    "HTML escaping the user input before inserting it into template source; escaping does not stop template expression parsing.",
+    "Regex stripping a few tokens such as `{{`, `${`, or `<%`; alternate delimiters, filters, or nested expressions can still work.",
+    "Blacklisting `eval` while still calling template compile/parse on attacker-controlled text.",
+    "Sanitizing output after rendering; the injection already occurred during template evaluation."
+  ],
+  "verification_focus": "Can any attacker-controlled value reach the template source or expression parser, instead of only the template context data?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-1336",
+        "CWE-94"
+      ],
+      "trigger": "attacker controls template text or directives that the engine interprets",
+      "consequence": "arbitrary code or command execution through template expression evaluation"
+    },
+    {
+      "chain": [
+        "CWE-1336",
+        "CWE-79"
+      ],
+      "trigger": "template injection is reflected into browser-visible output",
+      "consequence": "cross-site scripting and client-side script execution"
+    }
+  ],
+  "patch_principle": [
+    "Keep template source fixed and trusted; pass untrusted values only as data bindings.",
+    "Enable sandbox/restricted mode and disable dangerous expression access, function calls, and class loading.",
+    "Allowlist template identifiers and reject raw user-supplied template text.",
+    "Precompile templates from trusted resources; never compile or evaluate user-provided template strings."
+  ],
+  "minimal_examples": {
+    "vuln": "html = Template(request.getParameter(\"tpl\")).render(model);",
+    "safe": "html = Template(FIXED_TEMPLATE).render(model);"
+  }
+}

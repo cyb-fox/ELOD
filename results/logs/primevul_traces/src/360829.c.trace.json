@@ -1,0 +1,594 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "__io_sync_cancel:7"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 7,
+      "snippet": "if ((cd->flags & IORING_ASYNC_CANCEL_FD) &&",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "__io_sync_cancel:7",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "__io_sync_cancel:8"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 8,
+      "snippet": "(cd->flags & IORING_ASYNC_CANCEL_FD_FIXED)) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "__io_sync_cancel:8",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "__io_sync_cancel:11"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 11,
+      "snippet": "if (unlikely(fd >= ctx->nr_user_files))",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "__io_sync_cancel:11",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "__io_sync_cancel:13"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 13,
+      "snippet": "fd = array_index_nospec(fd, ctx->nr_user_files);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "__io_sync_cancel:13",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "__io_sync_cancel:14"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 14,
+      "snippet": "file_ptr = io_fixed_file_slot(&ctx->file_table, fd)->file_ptr;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "__io_sync_cancel:14",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "__io_sync_cancel:15"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 15,
+      "snippet": "cd->file = (struct file *) (file_ptr & FFS_MASK);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "__io_sync_cancel:15",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "__io_sync_cancel:16"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 16,
+      "snippet": "if (!cd->file)",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "__io_sync_cancel:16",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "io_ring_ctx",
+        "ctx",
+        "cd"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:4",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "cd",
+        "flags"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:7",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "cd",
+        "flags"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:8",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "unlikely",
+        "fd",
+        "ctx"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:11",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "fd",
+        "array_index_nospec",
+        "ctx"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:13",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "file_ptr",
+        "io_fixed_file_slot",
+        "ctx"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:14",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "cd",
+        "file",
+        "file_ptr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:15",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "cd",
+        "file"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "__io_sync_cancel:16",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:4",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:7",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:8",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:11",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:13",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:14",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:15",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "__io_sync_cancel:16",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  }
+]

@@ -1,0 +1,1239 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:72"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 72,
+      "snippet": "memcpy(ctx->hdr_store + ctx->hdr_store_size, data, sizeof(char)*pck_size);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:72",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:90"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 90,
+      "snippet": "assert(ctx->resume_from <= ctx->hdr_store_size);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:90",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:129"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 129,
+      "snippet": "memcpy(ctx->hdr_store, start, remain);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:129",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:139"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 139,
+      "snippet": "memcpy(ctx->hdr_store + ctx->bytes_in_header, start, 8 - ctx->bytes_in_header);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:139",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:206"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 206,
+      "snippet": "memcpy(pck_data, start, (size_t) size);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:206",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:256"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 256,
+      "snippet": "memcpy(pck_data, ctx->hdr_store, current);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:256",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:295"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 295,
+      "snippet": "memmove(ctx->hdr_store, start, remain);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:295",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:302"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 302,
+      "snippet": "memcpy(ctx->hdr_store + ctx->hdr_store_size, data + vosh_start, (size_t) (pck_size - vosh_start) );",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:302",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:339"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 339,
+      "snippet": "memmove(ctx->hdr_store, start, remain);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:339",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:346"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 346,
+      "snippet": "memcpy(ctx->hdr_store + ctx->hdr_store_size, data + vosh_start, (size_t) (pck_size - vosh_start) );",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:346",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:486"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 486,
+      "snippet": "memcpy(pck_data, ctx->hdr_store+current, bytes_from_store);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:486",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:492"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 492,
+      "snippet": "memcpy(pck_data + bytes_from_store, start, (size_t) size);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:492",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:495"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 495,
+      "snippet": "memcpy(pck_data, start, (size_t) size);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:495",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mpgviddmx_process:524"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 524,
+      "snippet": "memcpy(ctx->hdr_store, start+remain-3, 3);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mpgviddmx_process:524",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:72",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "assert",
+        "ctx",
+        "resume_from"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "`x = a - b` where `a` or `b` comes from input, packet length, or external state",
+        "`len = total_len - header_len` without a preceding `header_len <= total_len` check"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:90",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:129",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "subtraction result passed to `malloc()`, `new[]`, stack array size, `memcpy()`, `memmove()`, `read()`, or `write()`"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:139",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "pck_data",
+        "ctx"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:151",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "pck_data",
+        "start"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:206",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "subtraction result passed to `malloc()`, `new[]`, stack array size, `memcpy()`, `memmove()`, `read()`, or `write()`"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:217",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "pck_data",
+        "ctx"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:256",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "pck_data",
+        "start"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "subtraction result passed to `malloc()`, `new[]`, stack array size, `memcpy()`, `memmove()`, `read()`, or `write()`"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:262",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 24,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memmove",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:295",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 25,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "`size_t`/unsigned destination assigned from subtraction of signed or mixed-sign operands"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:302",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 26,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memmove",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:339",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 27,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "`size_t`/unsigned destination assigned from subtraction of signed or mixed-sign operands"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:346",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 28,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "pck_data",
+        "ctx"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "subtraction result passed to `malloc()`, `new[]`, stack array size, `memcpy()`, `memmove()`, `read()`, or `write()`"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:486",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 29,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "pck_data",
+        "bytes_from_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "subtraction result passed to `malloc()`, `new[]`, stack array size, `memcpy()`, `memmove()`, `read()`, or `write()`"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:492",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 30,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "pck_data",
+        "start"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:495",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 31,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "ctx",
+        "hdr_store"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "mpgviddmx_process:524",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 32,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:72",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 33,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:90",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 34,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:129",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 35,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:139",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 36,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:151",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 37,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:206",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 38,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:217",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 39,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:256",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 40,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:262",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 41,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:295",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 42,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:302",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 43,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:339",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 44,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:346",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 45,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:486",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 46,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:492",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 47,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:495",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 48,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mpgviddmx_process:524",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

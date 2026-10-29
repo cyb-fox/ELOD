@@ -1,0 +1,671 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MakeDataset:11"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 11,
+      "snippet": "OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(indices->shape()),",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "MakeDataset:11",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MakeDataset:13"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 13,
+      "snippet": "indices->shape().DebugString()));",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "MakeDataset:13",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MakeDataset:16"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 16,
+      "snippet": "values->shape().DebugString()));",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "MakeDataset:16",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MakeDataset:17"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 17,
+      "snippet": "OP_REQUIRES(ctx, TensorShapeUtils::IsVector(dense_shape->shape()),",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "MakeDataset:17",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MakeDataset:19"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 19,
+      "snippet": "dense_shape->shape().DebugString()));",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "MakeDataset:19",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MakeDataset:21"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 21,
+      "snippet": "ctx, values->shape().dim_size(0) == indices->shape().dim_size(0),",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "MakeDataset:21",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ctx",
+        "input",
+        "indices"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:5",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ctx",
+        "input",
+        "values"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:7",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ctx",
+        "input",
+        "dense_shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:9",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ctx",
+        "indices",
+        "shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:11",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "indices",
+        "shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:13",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ctx",
+        "values",
+        "shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:14",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "values",
+        "shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:16",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ctx",
+        "dense_shape",
+        "shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:17",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "dense_shape",
+        "shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:19",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ctx",
+        "values",
+        "shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "MakeDataset:21",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:5",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:7",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:9",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:11",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:13",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:14",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:16",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 24,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:17",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 25,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:19",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 26,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "MakeDataset:21",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  }
+]

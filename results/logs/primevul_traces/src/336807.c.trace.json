@@ -1,0 +1,92 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "lprn_is_black:5"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-125"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 5,
+      "snippet": "int bh = lprn->nBh;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "lprn_is_black:5",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "lprn_is_black:5"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "bh",
+        "lprn",
+        "nBh"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "array[index] read guarded only by index < len with no index >= 0 check",
+        "C++ vector/string operator[] read with external index and no prior range check"
+      ]
+    },
+    "sink_id": "lprn_is_black:5",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "lprn_is_black:5"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "lprn_is_black:5",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

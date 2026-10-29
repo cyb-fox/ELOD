@@ -1,0 +1,85 @@
+{
+  "cwe_id": "CWE-1284",
+  "name": "Improper Validation of Specified Quantity in Input",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-20"
+    ],
+    "parent_of": [
+      "CWE-606"
+    ]
+  },
+  "principle": "Code accepts an attacker-influenced quantity such as size, length, count, price, rate, or time without enforcing required bounds and sign. That quantity can drive allocation, copying, loops, calculations, or business logic into resource exhaustion, memory corruption, or incorrect charges.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "JavaScript",
+    "C#",
+    "Go",
+    "Python"
+  ],
+  "detection_signals": [
+    "scanf(\"%d\", &len) or Integer.parseInt(input) assigned to size/count/quantity without lower-bound check",
+    "malloc(count * sizeof(T)) or new T[count] using input-derived count without count >= 0 and max check",
+    "memcpy(dst, src, len) or System.arraycopy(src,0,dst,0,len) using input-derived len without len <= destination capacity",
+    "for/while loop condition uses input-derived count/limit without max-iteration validation",
+    "price * quantity or balance += amount using input-derived quantity without quantity > 0 and business maximum check",
+    "only upper-bound check such as if (n > MAX) reject with no n < 0 check",
+    "array[index] or list.get(index) using input-derived index/count without range check against actual container size"
+  ],
+  "negative_signals": [
+    "explicit check enforces min <= quantity && quantity <= max before first use",
+    "size validation uses actual capacity such as len <= sizeof(buf) or len <= dst.length",
+    "input quantity parsed into unsigned/safe type and parse rejects negative syntax before use",
+    "multiplication for allocation uses checked_mul, Math.multiplyExact, or overflow-checked helper before allocation",
+    "validation failure returns/throws before allocation, copy, loop, index, or charge operation"
+  ],
+  "false_defense_traps": [
+    "upper-bound-only validation misses negative quantities",
+    "denylist of bad strings instead of numeric allow-list bounds",
+    "checking parsed type only, e.g. scanf return or NumberFormatException, without range validation",
+    "clamping to min/max silently when callers require exact requested quantity",
+    "validating one related field but not consistency, e.g. length header differs from buffer size"
+  ],
+  "verification_focus": "Does every attacker-controlled quantity have required type, sign, lower bound, upper bound, overflow, and cross-field consistency checks before it controls allocation, copy, loop, index, or calculation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-789"
+      ],
+      "trigger": "unchecked or negative input-derived size is converted to a large allocation size",
+      "consequence": "excessive memory allocation and denial of service"
+    },
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-190"
+      ],
+      "trigger": "unchecked input-derived dimensions are multiplied or added for size calculation",
+      "consequence": "integer overflow causes undersized allocation or unexpected behavior"
+    },
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-606"
+      ],
+      "trigger": "unchecked input-derived count controls loop termination",
+      "consequence": "excessive CPU consumption or non-terminating processing"
+    }
+  ],
+  "patch_principle": [
+    "Use accept-known-good validation for every quantity: required syntax, type, sign, minimum, and maximum.",
+    "Tie maximum bounds to the real downstream limit, such as buffer length, array size, quota, or business rule.",
+    "Check arithmetic overflow before multiplying or adding quantities for sizes, prices, or offsets.",
+    "Reject and stop processing on validation failure before allocation, copy, loop, index, or charge.",
+    "Validate consistency across related fields such as declared length versus actual payload length."
+  ],
+  "minimal_examples": {
+    "vuln": "int quantity = currentUser.getAttribute(\"quantity\"); double total = price * quantity;",
+    "safe": "int quantity = currentUser.getAttribute(\"quantity\"); if (quantity < 1 || quantity > MAX_QTY) throw new IllegalArgumentException(); double total = price * quantity;"
+  }
+}

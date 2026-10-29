@@ -1,0 +1,169 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "st21nfca_connectivity_event_received:31"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 31,
+      "snippet": "memcpy(transaction->aid, &skb->data[2],",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "st21nfca_connectivity_event_received:31",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "st21nfca_connectivity_event_received:40"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 40,
+      "snippet": "memcpy(transaction->params, skb->data +",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "st21nfca_connectivity_event_received:40",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "st21nfca_connectivity_event_received:31"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "transaction",
+        "aid"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "st21nfca_connectivity_event_received:31",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "transaction",
+        "params"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size"
+      ]
+    },
+    "sink_id": "st21nfca_connectivity_event_received:40",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "st21nfca_connectivity_event_received:31"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.7
+    },
+    "sink_id": "st21nfca_connectivity_event_received:31",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "st21nfca_connectivity_event_received:40",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

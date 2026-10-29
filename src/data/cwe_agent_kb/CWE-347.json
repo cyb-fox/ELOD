@@ -1,0 +1,64 @@
+{
+  "cwe_id": "CWE-347",
+  "name": "Improper Verification of Cryptographic Signature",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "cryptography",
+    "child_of": [
+      "CWE-345"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product skips or incorrectly performs cryptographic signature verification before trusting data. Attackers can modify data, spoof trusted identities, or deliver unauthorized code that is accepted as authentic.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "Java new JarFile(file) on downloaded or untrusted JAR instead of new JarFile(file, true)",
+    "Java JarFile(file, true) used but JarEntry input streams are never fully read before trusting classes/resources",
+    "JWT parsed with decode()/parseClaimsJwt()/getPayload() without verify()/parseClaimsJws()",
+    "JWT accepts header alg=\"none\" or selects verification algorithm from token header without an allowlist",
+    "Signature.verify(), EVP_DigestVerifyFinal(), RSA_verify(), ECDSA_do_verify(), or libsodium verify return value is ignored",
+    "catch block for SignatureException/InvalidKeyException/GeneralSecurityException continues processing signed data",
+    "Signed update/plugin/firmware/config loaded by dlopen(), System.load(), ClassLoader, or installer code with no signature verification call"
+  ],
+  "negative_signals": [
+    "Java new JarFile(file, true) and every JarEntry stream is fully read before use",
+    "Signature.verify(...) == true or EVP_DigestVerifyFinal(...) == 1 is required before data is used",
+    "verification failure throws/returns error and the signed data is not parsed, loaded, installed, or executed",
+    "JWT verification uses a fixed algorithm allowlist such as algorithms=[\"RS256\"] and rejects alg=\"none\"",
+    "certificate chain, validity period, revocation status, and expected signer identity are checked after signature verification"
+  ],
+  "false_defense_traps": [
+    "Checking only that a signature field exists without calling a verify API",
+    "Using Java JarFile(file, true) but never reading entries, so verification is not triggered",
+    "Verifying the signature bytes but not validating the signer certificate or trust anchor",
+    "Trusting the JWT alg header to choose the verification algorithm",
+    "Logging verification failure but continuing to process the data"
+  ],
+  "verification_focus": "Does every trust boundary that accepts signed data require successful signature and signer validation before the data is used?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-347",
+        "CWE-94"
+      ],
+      "trigger": "attacker-controlled signed-code package, plugin, update, or JAR is accepted without valid signature verification",
+      "consequence": "unauthorized code is loaded or executed"
+    }
+  ],
+  "patch_principle": [
+    "Verify signatures for all untrusted code, updates, firmware, tokens, messages, and configuration before use.",
+    "Fail closed: reject and stop processing when verification returns false or throws.",
+    "Use vetted high-level cryptographic verification APIs; do not implement signature parsing or comparison manually.",
+    "Pin or allowlist expected algorithms and reject none, weak, or downgraded algorithms.",
+    "Validate signer identity, certificate chain, expiration, and revocation in addition to the signature."
+  ],
+  "minimal_examples": {
+    "vuln": "JarFile jf = new JarFile(new File(downloadedFilePath));",
+    "safe": "JarFile jf = new JarFile(new File(downloadedFilePath), true);"
+  }
+}

@@ -1,0 +1,604 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:1"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1,
+      "snippet": "static Bigint * Balloc(int k)",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:1",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:6"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 6,
+      "snippet": "if (k > Kmax) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:6",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:7"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 7,
+      "snippet": "zend_error(E_ERROR, \"Balloc() allocation exceeds list boundary\");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:7",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:12"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 12,
+      "snippet": "freelist[k] = rv->next;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:12",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:15"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 15,
+      "snippet": "rv = (Bigint *)MALLOC(sizeof(Bigint) + (x-1)*sizeof(Long));",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:15",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:20"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 20,
+      "snippet": "rv->k = k;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:20",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:21"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-354"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 21,
+      "snippet": "rv->maxwds = x;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:21",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Balloc:24"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 24,
+      "snippet": "rv->sign = rv->wds = 0;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Balloc:24",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start"
+      ]
+    },
+    "sink_id": "Balloc:1",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit",
+        "signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start"
+      ]
+    },
+    "sink_id": "Balloc:6",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "zend_error",
+        "allocation",
+        "exceeds"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "Balloc:7",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "freelist",
+        "rv",
+        "next"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "Balloc:12",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "rv"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check"
+      ]
+    },
+    "sink_id": "Balloc:15",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "rv"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "Balloc:20",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "rv",
+        "maxwds"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established",
+        "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value"
+      ]
+    },
+    "sink_id": "Balloc:21",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "rv",
+        "sign",
+        "wds"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization",
+        "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)"
+      ]
+    },
+    "sink_id": "Balloc:24",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:1",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:6",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:7",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:12",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:15",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:20",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:21",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 24,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "Balloc:24",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "null_guard": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  }
+]

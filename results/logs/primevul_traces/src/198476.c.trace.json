@@ -1,0 +1,163 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "njs_await_fulfilled:30"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-362"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 30,
+      "snippet": "vm->levels[NJS_LEVEL_LOCAL] = async->local;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "njs_await_fulfilled:30",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "njs_await_fulfilled:31"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-416"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 31,
+      "snippet": "vm->levels[NJS_LEVEL_CLOSURE] = njs_function_closures(async->function);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "njs_await_fulfilled:31",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "njs_await_fulfilled:30"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "vm",
+        "levels",
+        "async"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "signal handler reads/writes global state or calls malloc(), free(), printf(), or other non-async-signal-safe functions"
+      ]
+    },
+    "sink_id": "njs_await_fulfilled:30",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "vm",
+        "levels",
+        "njs_function_closures"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "free/delete in an error branch followed by later log/debug/return code passing the same pointer to a function"
+      ]
+    },
+    "sink_id": "njs_await_fulfilled:31",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "njs_await_fulfilled:30"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "njs_await_fulfilled:30",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "njs_await_fulfilled:31",
+    "state_delta": {
+      "object_live_at_use": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "lifetime|use"
+  }
+]

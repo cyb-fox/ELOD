@@ -1,0 +1,109 @@
+{
+  "cwe_id": "CWE-119",
+  "name": "Improper Restriction of Operations within the Bounds of a Memory Buffer",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-118",
+      "CWE-20"
+    ],
+    "parent_of": [
+      "CWE-120",
+      "CWE-125",
+      "CWE-787",
+      "CWE-786",
+      "CWE-788",
+      "CWE-805",
+      "CWE-806",
+      "CWE-823"
+    ]
+  },
+  "principle": "The program reads from or writes to a memory buffer without ensuring the target address is within the buffer's intended bounds. Out-of-bounds access can corrupt adjacent memory, disclose data, crash the process, or redirect control flow.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Assembly",
+    "Java"
+  ],
+  "detection_signals": [
+    "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer",
+    "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+    "memcpy/memmove/read/recv length argument comes from input and is not checked against destination size",
+    "array[index] or *(base + index) where index is tainted and lacks index >= 0 && index < len",
+    "for/while loop writes buf[i] with condition i <= len or no i < capacity guard",
+    "malloc/calloc/new size uses arithmetic for later copy/encode expansion without overflow and capacity checks",
+    "JNI/native/Unsafe code accesses Java arrays or direct buffers without GetArrayLength/capacity bounds checks"
+  ],
+  "negative_signals": [
+    "access guarded by if (index >= 0 && index < len) before array[index]",
+    "copy length clamped to destination capacity, e.g. n = min(src_len, sizeof dst - 1)",
+    "snprintf(dst, sizeof dst, ...) or strlcpy(dst, src, sizeof dst) used with actual array size",
+    "memcpy destination size is proven at least length bytes by allocation and checked return/path",
+    "C++ std::vector::at(), std::span bounds-checked access, or Java normal array access without native/Unsafe memory access"
+  ],
+  "false_defense_traps": [
+    "strncpy(dst, src, sizeof dst) may leave dst without NUL termination",
+    "checking only index < len allows negative indexes in C/C++",
+    "using sizeof(ptr) instead of allocated buffer size underestimates or misstates capacity",
+    "ASLR/PIE/DEP/NX/canaries reduce exploitation but do not prevent out-of-bounds access",
+    "validating length before encoding/escaping expansion can overflow after expansion"
+  ],
+  "verification_focus": "For every buffer read/write, is the effective offset and byte count proven within the allocated object before the operation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-787"
+      ],
+      "trigger": "out-of-bounds write reaches return address, function pointer, vtable, or security flag",
+      "consequence": "memory modification or unauthorized code execution"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-125"
+      ],
+      "trigger": "out-of-bounds read reaches secrets, heap metadata, pointers, or stack data",
+      "consequence": "information disclosure and address leak for later exploitation"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-193",
+        "CWE-787"
+      ],
+      "trigger": "off-by-one loop or terminator write uses <= capacity or writes NUL past end",
+      "consequence": "one-byte memory corruption, crash, or control-flow impact"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "trigger": "allocated buffer size is smaller than required copy or expansion size",
+      "consequence": "heap or stack buffer overwrite"
+    },
+    {
+      "chain": [
+        "CWE-119",
+        "CWE-680",
+        "CWE-787"
+      ],
+      "trigger": "integer overflow wraps allocation size before copying the unwrapped amount",
+      "consequence": "undersized allocation followed by out-of-bounds write"
+    }
+  ],
+  "patch_principle": [
+    "Validate both lower and upper bounds for every index and pointer offset.",
+    "Compute required buffer sizes with overflow-checked arithmetic before allocation or copy.",
+    "Use bounded APIs with the real destination capacity and ensure NUL termination for strings.",
+    "Prefer memory-safe containers/languages or checked abstractions over raw pointers and arrays.",
+    "Treat compiler/runtime hardening as defense in depth, not as the fix."
+  ],
+  "minimal_examples": {
+    "vuln": "char dst[64]; strcpy(dst, user);",
+    "safe": "char dst[64]; snprintf(dst, sizeof dst, \"%s\", user);"
+  }
+}

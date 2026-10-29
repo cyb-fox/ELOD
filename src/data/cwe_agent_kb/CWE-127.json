@@ -1,0 +1,70 @@
+{
+  "cwe_id": "CWE-127",
+  "name": "Buffer Under-read",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-125",
+      "CWE-786"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product reads a buffer through an index or pointer that can point before the buffer start. This can disclose adjacent memory, leak addresses for ASLR bypass, or crash on invalid memory.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "signed index used in array[index] after only index < len check",
+    "array[index] read in error/logging path after index failed validation",
+    "buf[offset] or *(buf + offset) where offset is signed and no offset >= 0 check",
+    "p--, --p, or p -= n followed by *p without p >= base or p > base guard",
+    "reverse scan loop such as while (*--p != c) without p > base condition",
+    "memcpy/memcmp/strncmp/read using src + offset where offset can be negative"
+  ],
+  "negative_signals": [
+    "read guarded by index >= 0 && index < len in the same control path",
+    "pointer read guarded by p >= base && p < base + len before dereference",
+    "reverse scan loop checks p > base before decrement-and-dereference",
+    "signed index is validated nonnegative before cast to size_t",
+    "C++ std::vector::at or std::span::at used and exception is handled"
+  ],
+  "false_defense_traps": [
+    "checking only index < len misses negative indexes",
+    "checking only p < end misses pointers before base",
+    "casting negative signed index to size_t before validation creates a huge positive value",
+    "validating normal path but reading array[index] in the error message",
+    "treating all out-of-bounds reads as upper-bound over-reads and missing under-read direction"
+  ],
+  "verification_focus": "Can any read address or index evaluate to a location before the target buffer start?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-127"
+      ],
+      "trigger": "minimum index is not checked before array[index]",
+      "consequence": "negative index reads memory before the buffer"
+    },
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-127"
+      ],
+      "trigger": "integer underflow makes an offset or index negative",
+      "consequence": "read pointer moves before the buffer and may leak memory or crash"
+    }
+  ],
+  "patch_principle": [
+    "Validate both lower and upper bounds before every buffer read.",
+    "Reject negative indexes and offsets before pointer arithmetic or size_t casts.",
+    "Guard backward scans with a base-address termination condition.",
+    "Avoid reading invalid indexes in diagnostics or error paths.",
+    "Use bounds-checked containers or APIs where practical."
+  ],
+  "minimal_examples": {
+    "vuln": "if (index < len) value = array[index];",
+    "safe": "if (index >= 0 && index < len) value = array[index];"
+  }
+}

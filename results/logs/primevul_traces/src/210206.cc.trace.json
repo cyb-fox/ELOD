@@ -1,0 +1,1435 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:17"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 17,
+      "snippet": "memset(tmpbuf, '\\0', TEMP_BUF_SIZE);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:17",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:85"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 85,
+      "snippet": "memcpy(gopherState->buf + gopherState->len, pos, llen);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:85",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:91"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 91,
+      "snippet": "memcpy(line, gopherState->buf, gopherState->len);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:91",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:92"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 92,
+      "snippet": "memcpy(line + gopherState->len, pos, llen);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:92",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:96"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 96,
+      "snippet": "memcpy(line, pos, llen);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:96",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:98"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 98,
+      "snippet": "line[llen + 1] = '\\0';",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:98",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:106"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 106,
+      "snippet": "memset(line, '\\0', TEMP_BUF_SIZE);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:106",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:133"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 133,
+      "snippet": "port[0] = ':';",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:133",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:219"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 219,
+      "snippet": "memset(tmpbuf, '\\0', TEMP_BUF_SIZE);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:219",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:223"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 223,
+      "snippet": "snprintf(tmpbuf, TEMP_BUF_SIZE, \"<IMG border=\\\"0\\\" SRC=\\\"%s\\\"> <A HREF=\\\"telnet://%s@%s%s%s/\\\">%s</A>\\n\",",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:223",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:227"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 227,
+      "snippet": "snprintf(tmpbuf, TEMP_BUF_SIZE, \"<IMG border=\\\"0\\\" SRC=\\\"%s\\\"> <A HREF=\\\"telnet://%s%s%s/\\\">%s</A>\\n\",",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:227",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:232"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 232,
+      "snippet": "snprintf(tmpbuf, TEMP_BUF_SIZE, \"\\t%s\\n\", html_quote(name));",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:232",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:240"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 240,
+      "snippet": "snprintf(tmpbuf, TEMP_BUF_SIZE, \"<IMG border=\\\"0\\\" SRC=\\\"%s\\\"> <A HREF=\\\"gopher://%s/%c%s\\\">%s</A>\\n\",",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:240",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:248"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 248,
+      "snippet": "memset(line, '\\0', TEMP_BUF_SIZE);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "gopherToHTML:248",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "tmpbuf"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "gopherToHTML:17",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "line"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "gopherToHTML:18",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:85"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "gopherState",
+        "buf"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "for/while loop writes buf[i] with condition i <= len or no i < capacity guard"
+      ]
+    },
+    "sink_id": "gopherToHTML:85",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "gopherToHTML:91"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "line",
+        "gopherState"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "malloc/calloc/realloc/strdup/new(std::nothrow) return value used with ->, *, [], memcpy, strcpy, or memset before NULL check"
+      ]
+    },
+    "sink_id": "gopherToHTML:91",
+    "state_delta": {
+      "null_guard": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "line",
+        "gopherState"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "for/while loop writes buf[i] with condition i <= len or no i < capacity guard"
+      ]
+    },
+    "sink_id": "gopherToHTML:92",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "line",
+        "pos"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "gopherToHTML:96",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "line",
+        "llen"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "gopherToHTML:98",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "line"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "gopherToHTML:106",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "port"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "gopherToHTML:133",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 24,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "tmpbuf"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "gopherToHTML:219",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 25,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "border"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width"
+      ]
+    },
+    "sink_id": "gopherToHTML:223",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 26,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "border"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives"
+      ]
+    },
+    "sink_id": "gopherToHTML:227",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 27,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "html_quote"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width"
+      ]
+    },
+    "sink_id": "gopherToHTML:232",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 28,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "border"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives"
+      ]
+    },
+    "sink_id": "gopherToHTML:236",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 29,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "border"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width"
+      ]
+    },
+    "sink_id": "gopherToHTML:240",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 30,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "line"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "gopherToHTML:248",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 31,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "line"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "gopherToHTML:252",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 32,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "noshade"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "gopherToHTML:279",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 33,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "html_quote"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "gopherToHTML:282",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 34,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "tmpbuf",
+        "noshade"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "gopherToHTML:313",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 35,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:17",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 36,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:18",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 37,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "gopherToHTML:85"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.7
+    },
+    "sink_id": "gopherToHTML:85",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 38,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "gopherToHTML:91"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "null_guard"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "gopherToHTML:91",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "null_guard": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 39,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:92",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 40,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:96",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 41,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:98",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 42,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:106",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 43,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:133",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 44,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:219",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 45,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:223",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 46,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:227",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 47,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:232",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 48,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:236",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 49,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:240",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 50,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:248",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 51,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:252",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 52,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:279",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 53,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:282",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 54,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "gopherToHTML:313",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

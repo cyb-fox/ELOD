@@ -1,0 +1,99 @@
+=== 待审推理日志 L-0373 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 3 个；未决 2 个。
+
+【推理轨迹】共 9 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadCINImage:66
+  引证行: 66
+  引证内容: count=ReadBlob(image,4,magick);
+  初判倾向: VIOLATED
+  上下文源码:
+     63 |     File information.
+     64 |   */
+     65 |   offset=0;
+     66 |   count=ReadBlob(image,4,magick);
+     67 |   offset+=count;
+     68 |   if ((count != 4) ||
+     69 |       ((LocaleNCompare((char *) magick,"\200\052\137\327",4) != 0)))
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadCINImage:71
+  引证行: 71
+  引证内容: memset(&cin,0,sizeof(cin));
+  初判倾向: VIOLATED
+  上下文源码:
+     68 |   if ((count != 4) ||
+     69 |       ((LocaleNCompare((char *) magick,"\200\052\137\327",4) != 0)))
+     70 |     ThrowReaderException(CorruptImageError,"ImproperImageHeader");
+     71 |   memset(&cin,0,sizeof(cin));
+     72 |   image->endian=(magick[0] == 0x80) && (magick[1] == 0x2a) &&
+     73 |     (magick[2] == 0x5f) && (magick[3] == 0xd7) ? MSBEndian : LSBEndian;
+     74 |   cin.file.image_offset=ReadBlobLong(image);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadCINImage:84
+  引证行: 84
+  引证内容: offset+=ReadBlob(image,sizeof(cin.file.version),(unsigned char *)
+  初判倾向: VIOLATED
+  上下文源码:
+     81 |   offset+=4;
+     82 |   cin.file.file_size=ReadBlobLong(image);
+     83 |   offset+=4;
+     84 |   offset+=ReadBlob(image,sizeof(cin.file.version),(unsigned char *)
+     85 |     cin.file.version);
+     86 |   (void) CopyMagickString(property,cin.file.version,sizeof(cin.file.version));
+     87 |   (void) SetImageProperty(image,"dpx:file.version",property);
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadCINImage:66
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadCINImage:71
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadCINImage:84
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadCINImage:66
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadCINImage:71
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadCINImage:84
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

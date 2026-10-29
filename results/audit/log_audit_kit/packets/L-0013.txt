@@ -1,0 +1,289 @@
+=== 待审推理日志 L-0013 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 12 个；未决 12 个。
+
+【推理轨迹】共 33 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:32
+  引证行: 32
+  引证内容: while (*cc != XCL_END)
+  初判倾向: VIOLATED
+  上下文源码:
+     29 |   cc += 32 / sizeof(PCRE2_UCHAR);
+     30 |   }
+     31 | 
+     32 | while (*cc != XCL_END)
+     33 |   {
+     34 |   compares++;
+     35 |   if (*cc == XCL_SINGLE)
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:35
+  引证行: 35
+  引证内容: if (*cc == XCL_SINGLE)
+  初判倾向: VIOLATED
+  上下文源码:
+     32 | while (*cc != XCL_END)
+     33 |   {
+     34 |   compares++;
+     35 |   if (*cc == XCL_SINGLE)
+     36 |     {
+     37 |     cc ++;
+     38 |     GETCHARINCTEST(c, cc);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:45
+  引证行: 45
+  引证内容: else if (*cc == XCL_RANGE)
+  初判倾向: VIOLATED
+  上下文源码:
+     42 |     unicode_status |= XCLASS_SAVE_CHAR;
+     43 | #endif /* SUPPORT_UNICODE */
+     44 |     }
+     45 |   else if (*cc == XCL_RANGE)
+     46 |     {
+     47 |     cc ++;
+     48 |     GETCHARINCTEST(c, cc);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:59
+  引证行: 59
+  引证内容: SLJIT_ASSERT(*cc == XCL_PROP || *cc == XCL_NOTPROP);
+  初判倾向: VIOLATED
+  上下文源码:
+     56 | #ifdef SUPPORT_UNICODE
+     57 |   else
+     58 |     {
+     59 |     SLJIT_ASSERT(*cc == XCL_PROP || *cc == XCL_NOTPROP);
+     60 |     cc++;
+     61 |     if (*cc == PT_CLIST && cc[-1] == XCL_PROP)
+     62 |       {
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:61
+  引证行: 61
+  引证内容: if (*cc == PT_CLIST && cc[-1] == XCL_PROP)
+  初判倾向: VIOLATED
+  上下文源码:
+     58 |     {
+     59 |     SLJIT_ASSERT(*cc == XCL_PROP || *cc == XCL_NOTPROP);
+     60 |     cc++;
+     61 |     if (*cc == PT_CLIST && cc[-1] == XCL_PROP)
+     62 |       {
+     63 |       other_cases = PRIV(ucd_caseless_sets) + cc[1];
+     64 |       while (*other_cases != NOTACHAR)
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:64
+  引证行: 64
+  引证内容: while (*other_cases != NOTACHAR)
+  初判倾向: VIOLATED
+  上下文源码:
+     61 |     if (*cc == PT_CLIST && cc[-1] == XCL_PROP)
+     62 |       {
+     63 |       other_cases = PRIV(ucd_caseless_sets) + cc[1];
+     64 |       while (*other_cases != NOTACHAR)
+     65 |         {
+     66 |         if (*other_cases > max) max = *other_cases;
+     67 |         if (*other_cases < min) min = *other_cases;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:67
+  引证行: 67
+  引证内容: if (*other_cases < min) min = *other_cases;
+  初判倾向: VIOLATED
+  上下文源码:
+     64 |       while (*other_cases != NOTACHAR)
+     65 |         {
+     66 |         if (*other_cases > max) max = *other_cases;
+     67 |         if (*other_cases < min) min = *other_cases;
+     68 |         other_cases++;
+     69 |         }
+     70 |       }
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:77
+  引证行: 77
+  引证内容: switch(*cc)
+  初判倾向: VIOLATED
+  上下文源码:
+     74 |       min = 0;
+     75 |       }
+     76 | 
+     77 |     switch(*cc)
+     78 |       {
+     79 |       case PT_ANY:
+     80 |       /* Any either accepts everything or ignored. */
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: compile_xclass_matchingpath:204
+  引证行: 204
+  引证内容: if (common->utf)
+  初判倾向: VIOLATED
+  上下文源码:
+    201 |     add_jump(compiler, list, JUMP(SLJIT_NOT_ZERO));
+    202 | 
+    203 | #if PCRE2_CODE_UNIT_WIDTH == 8
+    204 |     if (common->utf)
+    205 | #endif /* PCRE2_CODE_UNIT_WIDTH == 8 */
+    206 |       JUMPHERE(jump);
+    207 |     }
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:11
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:32
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:35
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:45
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:59
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:61
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:64
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:66
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:67
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:77
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:192
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: compile_xclass_matchingpath:204
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:61
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:64
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:66
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:67
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:77
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:192
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: compile_xclass_matchingpath:204
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

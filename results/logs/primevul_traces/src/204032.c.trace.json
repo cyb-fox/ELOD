@@ -1,0 +1,160 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "virtbt_rx_handle:14"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-401"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 14,
+      "snippet": "hci_recv_frame(vbt->hdev, skb);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "virtbt_rx_handle:14",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "virtbt_rx_handle:5"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "pkt_type",
+        "__u8",
+        "skb"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "array[index] read guarded only by index < len with no index >= 0 check",
+        "C++ vector/string operator[] read with external index and no prior range check"
+      ]
+    },
+    "sink_id": "virtbt_rx_handle:5",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "virtbt_rx_handle:14"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "hci_recv_frame",
+        "vbt",
+        "hdev"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "malloc/calloc/realloc/strdup/new followed by an error return path without free/delete",
+        "C cleanup label frees only top-level struct but omits dynamically allocated member pointers"
+      ]
+    },
+    "sink_id": "virtbt_rx_handle:14",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "virtbt_rx_handle:5"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "virtbt_rx_handle:5",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "virtbt_rx_handle:14"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.9
+    },
+    "sink_id": "virtbt_rx_handle:14",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

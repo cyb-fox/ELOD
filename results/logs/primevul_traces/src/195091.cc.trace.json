@@ -1,0 +1,156 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "simplifyBroadcast:10"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-400"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 10,
+      "snippet": "shapes_found.push_back(*found_shape);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "simplifyBroadcast:10",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|exec"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "simplifyBroadcast:10"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "shapes_found",
+        "push_back",
+        "found_shape"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "expensive work on each request with no rate limiter, semaphore, or concurrency cap",
+        "reads from socket/file into memory or disk until EOF with no quota, cap, or total-bytes counter"
+      ]
+    },
+    "sink_id": "simplifyBroadcast:10",
+    "state_delta": {
+      "input_sanitized": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "other|exec"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "simplifyBroadcast:25"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "joined_dimensions",
+        "index",
+        "dim"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value"
+      ]
+    },
+    "sink_id": "simplifyBroadcast:25",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "simplifyBroadcast:10"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "input_sanitized"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "simplifyBroadcast:10",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "input_sanitized": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|exec"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "simplifyBroadcast:25"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "simplifyBroadcast:25",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

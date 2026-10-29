@@ -1,0 +1,74 @@
+{
+  "cwe_id": "CWE-369",
+  "name": "Divide By Zero",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-682"
+    ],
+    "parent_of": []
+  },
+  "principle": "The code uses a zero-capable value as the divisor in division or modulo. A zero denominator can raise an exception, signal, or crash and cause availability loss.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Go",
+    "JavaScript",
+    "Python"
+  ],
+  "detection_signals": [
+    "binary / operator with RHS variable or expression not proven nonzero",
+    "binary % operator with RHS variable or expression not proven nonzero",
+    "average/rate expression like total / count where count can be 0",
+    "dimension calculation like area / width, size / height, or scale / length where dimension comes from input",
+    "Java BigInteger.divide(x) or BigDecimal.divide(x) with x not checked against ZERO",
+    "C/C++ div(a,b), ldiv(a,b), lldiv(a,b), fmod(a,b), or remainder(a,b) with b not checked for 0",
+    "denominator computed from collection.size(), array.length, request count, width, height, or parsed numeric input without min > 0 validation"
+  ],
+  "negative_signals": [
+    "immediate guard before operation: if (denom == 0) throw/return and all paths stop",
+    "input validation enforces denom > 0 or denom < 0 before assignment/use",
+    "denominator is a literal nonzero constant",
+    "denominator is initialized to a nonzero constant and never reassigned before division",
+    "Java Objects.requireNonNull is not the only guard; code also checks compareTo(BigDecimal.ZERO) != 0 or signum() != 0"
+  ],
+  "false_defense_traps": [
+    "assert(denom != 0) or Java assert denom != 0; can be disabled in production",
+    "checking numerator instead of denominator",
+    "catching ArithmeticException but continuing with corrupt/default state",
+    "checking a value before conversion while the converted denominator can become 0, e.g. (int)smallDouble",
+    "validating only one branch while another division/modulo uses the same unchecked denominator"
+  ],
+  "verification_focus": "Can the RHS denominator of any /, %, divide, div, fmod, or remainder operation be zero on any reachable path?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-369"
+      ],
+      "trigger": "zero accepted from external input as count, size, width, height, or length",
+      "consequence": "crash, exit, restart, or unhandled exception causing DoS"
+    },
+    {
+      "chain": [
+        "CWE-682",
+        "CWE-369"
+      ],
+      "trigger": "incorrect calculation derives a zero denominator",
+      "consequence": "availability loss through divide-by-zero failure"
+    }
+  ],
+  "patch_principle": [
+    "Validate every denominator immediately before division or modulo.",
+    "Reject or handle zero with throw, error return, or safe alternate computation.",
+    "Enforce positive minimums for counts, dimensions, sizes, and rates at input boundaries.",
+    "Test zero and empty-input cases with unit tests or fuzzing."
+  ],
+  "minimal_examples": {
+    "vuln": "return totalTime / numRequests;",
+    "safe": "if (numRequests == 0) throw new ArithmeticException(\"divide by zero\"); return totalTime / numRequests;"
+  }
+}

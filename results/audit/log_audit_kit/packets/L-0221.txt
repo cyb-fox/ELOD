@@ -1,0 +1,139 @@
+=== 待审推理日志 L-0221 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 6 个；未决 3 个。
+
+【推理轨迹】共 15 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadBMPImage:74
+  引证行: 74
+  引证内容: (void) memset(&bmp_info,0,sizeof(bmp_info));
+  初判倾向: VIOLATED
+  上下文源码:
+     71 |   /*
+     72 |     Determine if this a BMP file.
+     73 |   */
+     74 |   (void) memset(&bmp_info,0,sizeof(bmp_info));
+     75 |   bmp_info.ba_offset=0;
+     76 |   start_position=0;
+     77 |   offset_bits=0;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadBMPImage:78
+  引证行: 78
+  引证内容: count=ReadBlob(image,2,magick);
+  初判倾向: VIOLATED
+  上下文源码:
+     75 |   bmp_info.ba_offset=0;
+     76 |   start_position=0;
+     77 |   offset_bits=0;
+     78 |   count=ReadBlob(image,2,magick);
+     79 |   if (count != 2)
+     80 |     ThrowReaderException(CorruptImageError,"ImproperImageHeader");
+     81 |   do
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadBMPImage:427
+  引证行: 427
+  引证内容: count=ReadBlob(image,packet_size*image->colors,bmp_colormap);
+  初判倾向: VIOLATED
+  上下文源码:
+    424 |             bmp_colormap=(unsigned char *) RelinquishMagickMemory(bmp_colormap);
+    425 |             ThrowReaderException(CorruptImageError,"ImproperImageHeader");
+    426 |           }
+    427 |         count=ReadBlob(image,packet_size*image->colors,bmp_colormap);
+    428 |         if (count != (ssize_t) (packet_size*image->colors))
+    429 |           {
+    430 |             bmp_colormap=(unsigned char *) RelinquishMagickMemory(bmp_colormap);
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadBMPImage:74
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadBMPImage:78
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadBMPImage:99
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadBMPImage:427
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadBMPImage:471
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadBMPImage:543
+  筛选: keep
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadBMPImage:74
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadBMPImage:78
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadBMPImage:99
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadBMPImage:427
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadBMPImage:471
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadBMPImage:543
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-190

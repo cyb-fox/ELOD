@@ -1,0 +1,125 @@
+=== 待审推理日志 L-0028 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 4 个。
+
+【推理轨迹】共 12 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: drill_parse_T_code:8
+  引证行: 8
+  引证内容: gerbv_drill_stats_t *stats = image->drill_stats;
+  初判倾向: VIOLATED
+  上下文源码:
+      5 |     gboolean done = FALSE;
+      6 |     int temp;
+      7 |     double size;
+      8 |     gerbv_drill_stats_t *stats = image->drill_stats;
+      9 |     gerbv_aperture_t *apert;
+     10 |     gchar *tmps;
+     11 |     gchar *string;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: drill_parse_T_code:136
+  引证行: 136
+  引证内容: apert->parameter[0] = size;
+  初判倾向: VIOLATED
+  上下文源码:
+    133 | 		    /* There's really no way of knowing what unit the tools
+    134 | 		       are defined in without sneaking a peek in the rest of
+    135 | 		       the file first. That's done in drill_guess_format() */
+    136 | 		    apert->parameter[0] = size;
+    137 | 		    apert->type = GERBV_APTYPE_CIRCLE;
+    138 | 		    apert->nuf_parameters = 1;
+    139 | 		    apert->unit = GERBV_UNIT_INCH;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: drill_parse_T_code:185
+  引证行: 185
+  引证内容: apert = image->aperture[tool_num] = g_new0(gerbv_aperture_t, 1);
+  初判倾向: VIOLATED
+  上下文源码:
+    182 |     if (apert == NULL) {
+    183 |         double dia;
+    184 | 
+    185 | 	apert = image->aperture[tool_num] = g_new0(gerbv_aperture_t, 1);
+    186 | 	if (apert == NULL)
+    187 | 	    GERB_FATAL_ERROR("malloc tool failed in %s()", __FUNCTION__);
+    188 | 
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: drill_parse_T_code:214
+  引证行: 214
+  引证内容: apert->parameter[0] = dia;
+  初判倾向: VIOLATED
+  上下文源码:
+    211 | 
+    212 | 	apert->type = GERBV_APTYPE_CIRCLE;
+    213 | 	apert->nuf_parameters = 1;
+    214 | 	apert->parameter[0] = dia;
+    215 | 
+    216 | 	/* Add the tool whose definition we just found into the list
+    217 | 	 * of tools for this layer used to generate statistics. */
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: drill_parse_T_code:8
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: drill_parse_T_code:136
+  命中信号: buf[offset] or *(buf + offset) where offset is input-derived and not checked against buffer size
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: drill_parse_T_code:185
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: drill_parse_T_code:214
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: drill_parse_T_code:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: drill_parse_T_code:136
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: drill_parse_T_code:185
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: drill_parse_T_code:214
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

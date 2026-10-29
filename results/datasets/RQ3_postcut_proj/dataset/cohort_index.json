@@ -1,0 +1,1022 @@
+{
+ "schema": "postcut_proj_cohort_index/1",
+ "cases": 24,
+ "note": "24 project pairs; each case has a vulnerable and a fixed snapshot of the same repository at the fix commit and its parent.",
+ "cohort": [
+  {
+   "case_id": "rq3-01",
+   "cve": "CVE-2026-9504",
+   "vulnerable_dir": "CVE-2026-9504__083__vuln",
+   "fixed_dir": "CVE-2026-9504__083__patch",
+   "gt_cwe": "CWE-119",
+   "files": {
+    "vulnerable": 3,
+    "fixed": 3
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "programs/dwggrep.c",
+    "fixed": "programs/dwggrep.c"
+   },
+   "shared_files": 3,
+   "identical_across_patch": 0,
+   "changed_files": [
+    "programs/dwggrep.c",
+    "src/bits.c",
+    "src/bits.h"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9504",
+   "fix_commit": "be996bf2178a40e98720f18c2414815d244413db",
+   "project_key": "CVE-2026-9504__083",
+   "published": "2026-05-25T22:16:34.153",
+   "upstream_repo": "libredwg",
+   "upstream_commits": [
+    {
+     "owner": "LibreDWG",
+     "repo": "libredwg",
+     "sha": "be996bf2178a40e98720f18c2414815d244413db"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-119",
+    "CWE-125"
+   ]
+  },
+  {
+   "case_id": "rq3-02",
+   "cve": "CVE-2026-10267",
+   "vulnerable_dir": "CVE-2026-10267__120__vuln",
+   "fixed_dir": "CVE-2026-10267__120__patch",
+   "gt_cwe": "CWE-119",
+   "files": {
+    "vulnerable": 5,
+    "fixed": 5
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/core/debug.c",
+    "fixed": "src/core/debug.c"
+   },
+   "shared_files": 5,
+   "identical_across_patch": 2,
+   "changed_files": [
+    "src/core/bytecode.c",
+    "src/core/compile.c",
+    "src/core/debug.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10267",
+   "fix_commit": "ed17dd2c5913a23fb1107251e44a9410a3c30cf5",
+   "project_key": "CVE-2026-10267__120",
+   "published": "2026-06-01T15:16:33.203",
+   "upstream_repo": "janet",
+   "upstream_commits": [
+    {
+     "owner": "janet-lang",
+     "repo": "janet",
+     "sha": "ed17dd2c5913a23fb1107251e44a9410a3c30cf5"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-119",
+    "CWE-125"
+   ]
+  },
+  {
+   "case_id": "rq3-03",
+   "cve": "CVE-2026-34183",
+   "vulnerable_dir": "CVE-2026-34183__160__vuln",
+   "fixed_dir": "CVE-2026-34183__160__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 9,
+    "fixed": 9
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "ssl/quic/quic_rx_depack.c",
+    "fixed": "ssl/quic/quic_rx_depack.c"
+   },
+   "shared_files": 9,
+   "identical_across_patch": 0,
+   "changed_files": [
+    "include/internal/quic_cfq.h",
+    "include/internal/quic_channel.h",
+    "include/internal/quic_fifd.h",
+    "ssl/quic/quic_cfq.c",
+    "ssl/quic/quic_channel.c",
+    "ssl/quic/quic_channel_local.h",
+    "ssl/quic/quic_fifd.c",
+    "ssl/quic/quic_rx_depack.c",
+    "ssl/quic/quic_txp.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://www.openssl.org/news/vulnerabilities.html",
+   "fix_commit": "fbaa83859c01ad64f497b757aaf51be7d05ed9eb",
+   "project_key": "CVE-2026-34183__160",
+   "published": "2026-06-09T17:17:05.000",
+   "upstream_repo": "openssl",
+   "upstream_commits": [
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "5b306efb0b3779dfdd0803b4afc9d08c91f11517"
+    },
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "7d06955ebe0ecf8adfd4c1e92018586da47ef9ac"
+    },
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "d2e9efbe4900a373227deb136e8665401404ffac"
+    },
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "fbaa83859c01ad64f497b757aaf51be7d05ed9eb"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-1325"
+   ]
+  },
+  {
+   "case_id": "rq3-04",
+   "cve": "CVE-2026-10157",
+   "vulnerable_dir": "CVE-2026-10157__112__vuln",
+   "fixed_dir": "CVE-2026-10157__112__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 8,
+    "fixed": 8
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/amf/ngap-handler.c",
+    "fixed": "src/amf/ngap-handler.c"
+   },
+   "shared_files": 7,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "src/amf/context.h",
+    "src/amf/ngap-build.c",
+    "src/amf/ngap-handler.c",
+    "src/mme/mme-context.h",
+    "src/mme/s1ap-build.c",
+    "src/mme/s1ap-handler.c"
+   ],
+   "context_only_on_one_side": [
+    "lib/asn1c/util/conv.c",
+    "src/amf/ngap-path.c"
+   ],
+   "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10157",
+   "fix_commit": "a188e36b1741ffc2252133f59b1bda4f14d3cb5c",
+   "project_key": "CVE-2026-10157__112",
+   "published": "2026-05-31T02:16:32.613",
+   "upstream_repo": "open5gs",
+   "upstream_commits": [
+    {
+     "owner": "open5gs",
+     "repo": "open5gs",
+     "sha": "a188e36b1741ffc2252133f59b1bda4f14d3cb5c"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-287"
+   ]
+  },
+  {
+   "case_id": "rq3-05",
+   "cve": "CVE-2026-37458",
+   "vulnerable_dir": "CVE-2026-37458__021__vuln",
+   "fixed_dir": "CVE-2026-37458__021__patch",
+   "gt_cwe": "CWE-20",
+   "files": {
+    "vulnerable": 2,
+    "fixed": 2
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "bgpd/bgp_attr.c",
+    "fixed": "bgpd/bgp_attr.c"
+   },
+   "shared_files": 1,
+   "identical_across_patch": 0,
+   "changed_files": [
+    "bgpd/bgp_attr.c"
+   ],
+   "context_only_on_one_side": [
+    "lib/prefix.h",
+    "lib/stream.c"
+   ],
+   "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-37458",
+   "fix_commit": "8102a8aeceb9f86fdfe1f80cd77080522bab69c8",
+   "project_key": "CVE-2026-37458__021",
+   "published": "2026-05-04T16:16:02.170",
+   "upstream_repo": "frr",
+   "upstream_commits": [
+    {
+     "owner": "FRRouting",
+     "repo": "frr",
+     "sha": "8102a8aeceb9f86fdfe1f80cd77080522bab69c8"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-20"
+   ]
+  },
+  {
+   "case_id": "rq3-06",
+   "cve": "CVE-2026-44656",
+   "vulnerable_dir": "CVE-2026-44656__045__vuln",
+   "fixed_dir": "CVE-2026-44656__045__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 4,
+    "fixed": 4
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/findfile.c",
+    "fixed": "src/findfile.c"
+   },
+   "shared_files": 4,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "src/findfile.c",
+    "src/optiondefs.h",
+    "src/version.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44656",
+   "fix_commit": "190cb3c2b9c769a3972bcfd991a7b5b6cb771ef0",
+   "project_key": "CVE-2026-44656__045",
+   "published": "2026-05-08T23:16:39.783",
+   "upstream_repo": "vim",
+   "upstream_commits": [
+    {
+     "owner": "vim",
+     "repo": "vim",
+     "sha": "190cb3c2b9c769a3972bcfd991a7b5b6cb771ef0"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-78"
+   ]
+  },
+  {
+   "case_id": "rq3-07",
+   "cve": "CVE-2026-42214",
+   "vulnerable_dir": "CVE-2026-42214__034__vuln",
+   "fixed_dir": "CVE-2026-42214__034__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 6,
+    "fixed": 6
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/NotepadNextApplication.cpp",
+    "fixed": "src/NotepadNextApplication.cpp"
+   },
+   "shared_files": 6,
+   "identical_across_patch": 3,
+   "changed_files": [
+    "src/LuaState.cpp",
+    "src/LuaState.h",
+    "src/NotepadNextApplication.cpp"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-42214",
+   "fix_commit": "f3ca1b10aca52f05fd7f4f5ebf9b566d6cd95ccc",
+   "project_key": "CVE-2026-42214__034",
+   "published": "2026-05-07T19:16:01.497",
+   "upstream_repo": "NotepadNext",
+   "upstream_commits": [
+    {
+     "owner": "dail8859",
+     "repo": "NotepadNext",
+     "sha": "f3ca1b10aca52f05fd7f4f5ebf9b566d6cd95ccc"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-94"
+   ]
+  },
+  {
+   "case_id": "rq3-08",
+   "cve": "CVE-2026-49130",
+   "vulnerable_dir": "CVE-2026-49130__105__vuln",
+   "fixed_dir": "CVE-2026-49130__105__patch",
+   "gt_cwe": "CWE-93",
+   "files": {
+    "vulnerable": 5,
+    "fixed": 5
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/playlist/plugins/AsxPlaylistPlugin.cxx",
+    "fixed": "src/playlist/plugins/AsxPlaylistPlugin.cxx"
+   },
+   "shared_files": 5,
+   "identical_across_patch": 0,
+   "changed_files": [
+    "src/playlist/plugins/AsxPlaylistPlugin.cxx",
+    "src/playlist/plugins/PlsPlaylistPlugin.cxx",
+    "src/playlist/plugins/RssPlaylistPlugin.cxx",
+    "src/playlist/plugins/XspfPlaylistPlugin.cxx",
+    "src/protocol/Verify.cxx"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49130",
+   "fix_commit": "855085b35c67dddeef0652e2cb3ac8cdd4f457b7",
+   "project_key": "CVE-2026-49130__105",
+   "published": "2026-05-28T20:16:26.823",
+   "upstream_repo": "MPD",
+   "upstream_commits": [
+    {
+     "owner": "MusicPlayerDaemon",
+     "repo": "MPD",
+     "sha": "855085b35c67dddeef0652e2cb3ac8cdd4f457b7"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-93"
+   ]
+  },
+  {
+   "case_id": "rq3-09",
+   "cve": "CVE-2025-60486",
+   "vulnerable_dir": "CVE-2025-60486__118__vuln",
+   "fixed_dir": "CVE-2025-60486__118__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 5,
+    "fixed": 5
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/isomedia/isom_read.c",
+    "fixed": "src/isomedia/isom_read.c"
+   },
+   "shared_files": 5,
+   "identical_across_patch": 2,
+   "changed_files": [
+    "applications/mp4box/filedump.c",
+    "src/compositor/mpeg4_geometry_ifs2d.c",
+    "src/isomedia/isom_read.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2025-60486",
+   "fix_commit": "e6d01820d7bf3967d931fedb379ee5f209bc133b",
+   "project_key": "CVE-2025-60486__118",
+   "published": "2026-06-01T15:16:28.753",
+   "upstream_repo": "gpac",
+   "upstream_commits": [
+    {
+     "owner": "gpac",
+     "repo": "gpac",
+     "sha": "e6d01820d7bf3967d931fedb379ee5f209bc133b"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-416"
+   ]
+  },
+  {
+   "case_id": "rq3-10",
+   "cve": "CVE-2026-28532",
+   "vulnerable_dir": "CVE-2026-28532__009__vuln",
+   "fixed_dir": "CVE-2026-28532__009__patch",
+   "gt_cwe": "CWE-125",
+   "files": {
+    "vulnerable": 4,
+    "fixed": 4
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "ospfd/ospf_sr.c",
+    "fixed": "ospfd/ospf_sr.c"
+   },
+   "shared_files": 4,
+   "identical_across_patch": 2,
+   "changed_files": [
+    "ospfd/ospf_sr.c",
+    "ospfd/ospf_te.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-28532",
+   "fix_commit": "f098decf02987fbf1c891766c1516ac832adadfd",
+   "project_key": "CVE-2026-28532__009",
+   "published": "2026-04-30T21:16:31.250",
+   "upstream_repo": "frr",
+   "upstream_commits": [
+    {
+     "owner": "FRRouting",
+     "repo": "frr",
+     "sha": "f098decf02987fbf1c891766c1516ac832adadfd"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-125",
+    "CWE-190"
+   ]
+  },
+  {
+   "case_id": "rq3-11",
+   "cve": "CVE-2026-34182",
+   "vulnerable_dir": "CVE-2026-34182__159__vuln",
+   "fixed_dir": "CVE-2026-34182__159__patch",
+   "gt_cwe": "CWE-354",
+   "files": {
+    "vulnerable": 4,
+    "fixed": 4
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "crypto/cms/cms_enc.c",
+    "fixed": "crypto/cms/cms_enc.c"
+   },
+   "shared_files": 4,
+   "identical_across_patch": 2,
+   "changed_files": [
+    "crypto/cms/cms_enc.c",
+    "crypto/cms/cms_local.h"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-34182",
+   "fix_commit": "9fd97f8cfdc2c0be214998de3b2b55c8edf6c7ac",
+   "project_key": "CVE-2026-34182__159",
+   "published": "2026-06-09T17:17:04.857",
+   "upstream_repo": "openssl",
+   "upstream_commits": [
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "03c1f4d45fb963aee7d5833390c507cd290182bc"
+    },
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "439ed7d2c0962ce964482727264668bf277c333f"
+    },
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "7947e6a81eb8776802f159fb6762cb7fcf7e34c7"
+    },
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "9fd97f8cfdc2c0be214998de3b2b55c8edf6c7ac"
+    },
+    {
+     "owner": "openssl",
+     "repo": "openssl",
+     "sha": "d2ca86bcd43e4f17d899f347101766b6107676e0"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-354"
+   ]
+  },
+  {
+   "case_id": "rq3-12",
+   "cve": "CVE-2026-40033",
+   "vulnerable_dir": "CVE-2026-40033__087__vuln",
+   "fixed_dir": "CVE-2026-40033__087__patch",
+   "gt_cwe": "CWE-122",
+   "files": {
+    "vulnerable": 3,
+    "fixed": 3
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "libfreerdp/gdi/gfx.c",
+    "fixed": "libfreerdp/gdi/gfx.c"
+   },
+   "shared_files": 3,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "libfreerdp/gdi/gfx.c",
+    "server/proxy/pf_config.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-40033",
+   "fix_commit": "d7508ebcd82842a691ae4941e5104d14240a89ae",
+   "project_key": "CVE-2026-40033__087",
+   "published": "2026-05-26T15:16:34.480",
+   "upstream_repo": "FreeRDP",
+   "upstream_commits": [
+    {
+     "owner": "FreeRDP",
+     "repo": "FreeRDP",
+     "sha": "d7508ebcd82842a691ae4941e5104d14240a89ae"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-122",
+    "CWE-787"
+   ]
+  },
+  {
+   "case_id": "rq3-13",
+   "cve": "CVE-2026-42311",
+   "vulnerable_dir": "CVE-2026-42311__047__vuln",
+   "fixed_dir": "CVE-2026-42311__047__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 3,
+    "fixed": 3
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/decode.c",
+    "fixed": "src/decode.c"
+   },
+   "shared_files": 3,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "src/decode.c",
+    "src/encode.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-42311",
+   "fix_commit": "58f9a1d166dcb0c274807d4423522d205b0c35ea",
+   "project_key": "CVE-2026-42311__047",
+   "published": "2026-05-09T06:16:10.430",
+   "upstream_repo": "Pillow",
+   "upstream_commits": [
+    {
+     "owner": "python-pillow",
+     "repo": "Pillow",
+     "sha": "58f9a1d166dcb0c274807d4423522d205b0c35ea"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-190",
+    "CWE-787"
+   ]
+  },
+  {
+   "case_id": "rq3-14",
+   "cve": "CVE-2026-43616",
+   "vulnerable_dir": "CVE-2026-43616__028__vuln",
+   "fixed_dir": "CVE-2026-43616__028__patch",
+   "gt_cwe": "CWE-23",
+   "files": {
+    "vulnerable": 3,
+    "fixed": 3
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "xarchive.cpp",
+    "fixed": "xarchive.cpp"
+   },
+   "shared_files": 3,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "xarchive.cpp",
+    "xarchives.cpp"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-43616",
+   "fix_commit": "6a2aa84c2fd120b704f76bb5c5ee3e9b5a7a0fcc",
+   "project_key": "CVE-2026-43616__028",
+   "published": "2026-05-04T18:16:32.830",
+   "upstream_repo": "DIE-engine",
+   "upstream_commits": [
+    {
+     "owner": "horsicq",
+     "repo": "DIE-engine",
+     "sha": "7fd300b926daf19707b2a36f0abe8b60a51308ee"
+    },
+    {
+     "owner": "horsicq",
+     "repo": "DIE-engine",
+     "sha": "cbbe1688e58ffd430d284bf65f336973f083db69"
+    },
+    {
+     "owner": "horsicq",
+     "repo": "Formats",
+     "sha": "56cdf50ee3c72c56284e2819b23e98332842d259"
+    },
+    {
+     "owner": "horsicq",
+     "repo": "XArchive",
+     "sha": "6a2aa84c2fd120b704f76bb5c5ee3e9b5a7a0fcc"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-23"
+   ]
+  },
+  {
+   "case_id": "rq3-15",
+   "cve": "CVE-2026-44988",
+   "vulnerable_dir": "CVE-2026-44988__095__vuln",
+   "fixed_dir": "CVE-2026-44988__095__patch",
+   "gt_cwe": "CWE-787",
+   "files": {
+    "vulnerable": 2,
+    "fixed": 2
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/libvncclient/tight.c",
+    "fixed": "src/libvncclient/tight.c"
+   },
+   "shared_files": 2,
+   "identical_across_patch": 0,
+   "changed_files": [
+    "include/rfb/rfbclient.h",
+    "src/libvncclient/tight.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-44988",
+   "fix_commit": "5b270544b85233668b98161323297d418a8f5fd1",
+   "project_key": "CVE-2026-44988__095",
+   "published": "2026-05-27T15:16:29.830",
+   "upstream_repo": "libvncserver",
+   "upstream_commits": [
+    {
+     "owner": "LibVNC",
+     "repo": "libvncserver",
+     "sha": "5b270544b85233668b98161323297d418a8f5fd1"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-787"
+   ]
+  },
+  {
+   "case_id": "rq3-16",
+   "cve": "CVE-2026-45130",
+   "vulnerable_dir": "CVE-2026-45130__046__vuln",
+   "fixed_dir": "CVE-2026-45130__046__patch",
+   "gt_cwe": "CWE-122",
+   "files": {
+    "vulnerable": 3,
+    "fixed": 3
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/spellfile.c",
+    "fixed": "src/spellfile.c"
+   },
+   "shared_files": 3,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "src/spellfile.c",
+    "src/version.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-45130",
+   "fix_commit": "92993329178cb1f72d700fff45ca86e1c2d369f8",
+   "project_key": "CVE-2026-45130__046",
+   "published": "2026-05-08T23:16:40.053",
+   "upstream_repo": "vim",
+   "upstream_commits": [
+    {
+     "owner": "vim",
+     "repo": "vim",
+     "sha": "92993329178cb1f72d700fff45ca86e1c2d369f8"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-122",
+    "CWE-190"
+   ]
+  },
+  {
+   "case_id": "rq3-17",
+   "cve": "CVE-2026-45324",
+   "vulnerable_dir": "CVE-2026-45324__110__vuln",
+   "fixed_dir": "CVE-2026-45324__110__patch",
+   "gt_cwe": "CWE-415",
+   "files": {
+    "vulnerable": 8,
+    "fixed": 8
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "librz/core/cbounds.c",
+    "fixed": "librz/core/cbounds.c"
+   },
+   "shared_files": 8,
+   "identical_across_patch": 3,
+   "changed_files": [
+    "librz/core/cbounds.c",
+    "librz/core/cconfig.c",
+    "librz/core/cmd/cmd_search.c",
+    "librz/include/rz_core.h",
+    "librz/main/rizin.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-45324",
+   "fix_commit": "045fff363b42b8a6dda8ad5229c29ec3267e7dbe",
+   "project_key": "CVE-2026-45324__110",
+   "published": "2026-05-29T20:16:25.977",
+   "upstream_repo": "rizin",
+   "upstream_commits": [
+    {
+     "owner": "rizinorg",
+     "repo": "rizin",
+     "sha": "045fff363b42b8a6dda8ad5229c29ec3267e7dbe"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-415"
+   ]
+  },
+  {
+   "case_id": "rq3-18",
+   "cve": "CVE-2025-56568",
+   "vulnerable_dir": "CVE-2025-56568__008__vuln",
+   "fixed_dir": "CVE-2025-56568__008__patch",
+   "gt_cwe": "CWE-617",
+   "files": {
+    "vulnerable": 8,
+    "fixed": 7
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/smf/context.c",
+    "fixed": "src/smf/context.c"
+   },
+   "shared_files": 6,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "lib/proto/types.c",
+    "src/smf/context.c",
+    "src/smf/gn-build.c",
+    "src/smf/gsm-build.c",
+    "src/smf/s5c-build.c"
+   ],
+   "context_only_on_one_side": [
+    "lib/core/ogs-strings.c",
+    "lib/gtp/context.c",
+    "lib/gtp/v1/message.c"
+   ],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2025-56568",
+   "fix_commit": "d7707879c943d2c952235382154d835b5849d54e",
+   "project_key": "CVE-2025-56568__008",
+   "published": "2026-04-30T20:16:23.220",
+   "upstream_repo": "open5gs",
+   "upstream_commits": [
+    {
+     "owner": "open5gs",
+     "repo": "open5gs",
+     "sha": "d7707879c943d2c952235382154d835b5849d54e"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-617"
+   ]
+  },
+  {
+   "case_id": "rq3-19",
+   "cve": "CVE-2026-47269",
+   "vulnerable_dir": "CVE-2026-47269__100__vuln",
+   "fixed_dir": "CVE-2026-47269__100__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 3,
+    "fixed": 3
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/device.c",
+    "fixed": "src/device.c"
+   },
+   "shared_files": 3,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "src/device.c",
+    "src/local.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-47269",
+   "fix_commit": "804fe24eae3d742d8be05fd015e36abc3c7d94e5",
+   "project_key": "CVE-2026-47269__100",
+   "published": "2026-05-27T21:16:18.810",
+   "upstream_repo": "pam_usb",
+   "upstream_commits": [
+    {
+     "owner": "mcdope",
+     "repo": "pam_usb",
+     "sha": "804fe24eae3d742d8be05fd015e36abc3c7d94e5"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-284"
+   ]
+  },
+  {
+   "case_id": "rq3-20",
+   "cve": "CVE-2026-47270",
+   "vulnerable_dir": "CVE-2026-47270__102__vuln",
+   "fixed_dir": "CVE-2026-47270__102__patch",
+   "gt_cwe": "CWE-362",
+   "files": {
+    "vulnerable": 8,
+    "fixed": 8
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/tmux.c",
+    "fixed": "src/tmux.c"
+   },
+   "shared_files": 8,
+   "identical_across_patch": 2,
+   "changed_files": [
+    "src/device.c",
+    "src/local.c",
+    "src/mem.c",
+    "src/pad.c",
+    "src/process.c",
+    "src/tmux.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-47270",
+   "fix_commit": "94f1640a61d49dfaf38e782680a52f01d5bf8b51",
+   "project_key": "CVE-2026-47270__102",
+   "published": "2026-05-27T21:16:18.950",
+   "upstream_repo": "pam_usb",
+   "upstream_commits": [
+    {
+     "owner": "mcdope",
+     "repo": "pam_usb",
+     "sha": "94f1640a61d49dfaf38e782680a52f01d5bf8b51"
+    },
+    {
+     "owner": "mcdope",
+     "repo": "pam_usb",
+     "sha": "d003e551b794a9e3774ff4720830fb7aadaa48bd"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-362"
+   ]
+  },
+  {
+   "case_id": "rq3-21",
+   "cve": "CVE-2026-47273",
+   "vulnerable_dir": "CVE-2026-47273__097__vuln",
+   "fixed_dir": "CVE-2026-47273__097__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 3,
+    "fixed": 3
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/conf.c",
+    "fixed": "src/conf.c"
+   },
+   "shared_files": 3,
+   "identical_across_patch": 1,
+   "changed_files": [
+    "src/conf.c",
+    "src/conf.h"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-47273",
+   "fix_commit": "721fed08a3596cb5b4671ad702f8fdc12dcc7420",
+   "project_key": "CVE-2026-47273__097",
+   "published": "2026-05-27T20:16:39.880",
+   "upstream_repo": "pam_usb",
+   "upstream_commits": [
+    {
+     "owner": "mcdope",
+     "repo": "pam_usb",
+     "sha": "721fed08a3596cb5b4671ad702f8fdc12dcc7420"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-91"
+   ]
+  },
+  {
+   "case_id": "rq3-22",
+   "cve": "CVE-2026-41142",
+   "vulnerable_dir": "CVE-2026-41142__032__vuln",
+   "fixed_dir": "CVE-2026-41142__032__patch",
+   "gt_cwe": "CWE-190",
+   "files": {
+    "vulnerable": 2,
+    "fixed": 2
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/lib/OpenEXRUtil/ImfImageChannel.cpp",
+    "fixed": "src/lib/OpenEXRUtil/ImfImageChannel.cpp"
+   },
+   "shared_files": 1,
+   "identical_across_patch": 0,
+   "changed_files": [
+    "src/lib/OpenEXRUtil/ImfImageChannel.cpp"
+   ],
+   "context_only_on_one_side": [
+    "src/bin/exrmaketiled/Image.h",
+    "src/lib/OpenEXR/ImfChannelList.h"
+   ],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-41142",
+   "fix_commit": "0592ee539f33c122c90f09238579b902d838afb4",
+   "project_key": "CVE-2026-41142__032",
+   "published": "2026-05-07T04:16:26.020",
+   "upstream_repo": "openexr",
+   "upstream_commits": [
+    {
+     "owner": "AcademySoftwareFoundation",
+     "repo": "openexr",
+     "sha": "0592ee539f33c122c90f09238579b902d838afb4"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-190"
+   ]
+  },
+  {
+   "case_id": "rq3-23",
+   "cve": "CVE-2026-7601",
+   "vulnerable_dir": "CVE-2026-7601__014__vuln",
+   "fixed_dir": "CVE-2026-7601__014__patch",
+   "gt_cwe": "CWE-404",
+   "files": {
+    "vulnerable": 2,
+    "fixed": 2
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/amf/gmm-handler.c",
+    "fixed": "src/amf/gmm-handler.c"
+   },
+   "shared_files": 2,
+   "identical_across_patch": 0,
+   "changed_files": [
+    "src/amf/gmm-handler.c",
+    "src/amf/namf-build.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-7601",
+   "fix_commit": "ebc66942b6f8f1fab2d640e71cf4e9f1a423b426",
+   "project_key": "CVE-2026-7601__014",
+   "published": "2026-05-02T03:15:59.997",
+   "upstream_repo": "open5gs",
+   "upstream_commits": [
+    {
+     "owner": "open5gs",
+     "repo": "open5gs",
+     "sha": "ebc66942b6f8f1fab2d640e71cf4e9f1a423b426"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-404"
+   ]
+  },
+  {
+   "case_id": "rq3-24",
+   "cve": "CVE-2026-8124",
+   "vulnerable_dir": "CVE-2026-8124__040__vuln",
+   "fixed_dir": "CVE-2026-8124__040__patch",
+   "gt_cwe": null,
+   "files": {
+    "vulnerable": 4,
+    "fixed": 4
+   },
+   "analysed_files": 2,
+   "focal": {
+    "vulnerable": "src/isomedia/box_code_base.c",
+    "fixed": "src/isomedia/box_code_base.c"
+   },
+   "shared_files": 4,
+   "identical_across_patch": 2,
+   "changed_files": [
+    "src/isomedia/box_code_3gpp.c",
+    "src/isomedia/box_code_base.c"
+   ],
+   "context_only_on_one_side": [],
+   "advisory_url": "https://cveawg.mitre.org/api/cve/CVE-2026-8124",
+   "fix_commit": "442e2299530138d8f874fd885c565ba98a6318ba",
+   "project_key": "CVE-2026-8124__040",
+   "published": "2026-05-08T02:16:08.000",
+   "upstream_repo": "gpac",
+   "upstream_commits": [
+    {
+     "owner": "gpac",
+     "repo": "gpac",
+     "sha": "442e2299530138d8f874fd885c565ba98a6318ba"
+    }
+   ],
+   "advisory_cwes": [
+    "CWE-400",
+    "CWE-770"
+   ]
+  }
+ ],
+ "provenance_note": "Each case now carries its upstream identity: advisory_url and fix_commit from data/postcut_proj/cohorts/rq3_targeted_v2/cohort-v2/selection_register.jsonl, and published disclosure date plus upstream repository/commit from data/postcutoff/cve_index.jsonl."
+}

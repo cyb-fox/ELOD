@@ -1,0 +1,100 @@
+=== 待审推理日志 L-0245 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 1 个。
+
+【推理轨迹】共 10 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_get_inflight_fd:13
+  引证行: 13
+  引证内容: if (ctx->msg.size != sizeof(ctx->msg.payload.inflight)) {
+  初判倾向: VIOLATED
+  上下文源码:
+     10 | 	int numa_node = SOCKET_ID_ANY;
+     11 | 	void *addr;
+     12 | 
+     13 | 	if (ctx->msg.size != sizeof(ctx->msg.payload.inflight)) {
+     14 | 		VHOST_LOG_CONFIG(ERR, "(%s) invalid get_inflight_fd message size is %d\n",
+     15 | 			dev->ifname, ctx->msg.size);
+     16 | 		return RTE_VHOST_MSG_RESULT_ERR;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_get_inflight_fd:71
+  引证行: 71
+  引证内容: dev->inflight_info->fd = ctx->fds[0] = fd;
+  初判倾向: VIOLATED
+  上下文源码:
+     68 | 
+     69 | 	dev->inflight_info->addr = addr;
+     70 | 	dev->inflight_info->size = ctx->msg.payload.inflight.mmap_size = mmap_size;
+     71 | 	dev->inflight_info->fd = ctx->fds[0] = fd;
+     72 | 	ctx->msg.payload.inflight.mmap_offset = 0;
+     73 | 	ctx->fd_num = 1;
+     74 | 
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_get_inflight_fd:13
+  命中信号: atoi/atol/strtol/Integer.parseInt result used as size, count, index, offset, loop bound, or allocation size without lower-bound and upper-bound checks
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_get_inflight_fd:15
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_get_inflight_fd:57
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_get_inflight_fd:71
+  命中信号: signal handler reads/writes global state or calls malloc(), free(), printf(), or other non-async-signal-safe functions
+  命中信号: pthread_mutex_lock(), pthread_mutex_trylock(), mtx_lock(), or lock acquisition return value ignored before shared-resource access
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_get_inflight_fd:13
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_get_inflight_fd:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_get_inflight_fd:57
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_get_inflight_fd:71
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-20, CWE-362

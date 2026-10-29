@@ -1,0 +1,84 @@
+{
+  "cwe_id": "CWE-502",
+  "name": "Deserialization of Untrusted Data",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-913"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product deserializes attacker-controlled bytes without ensuring the reconstructed object is valid and expected. Deserialization can instantiate unsafe types, invoke gadget methods, alter object state, or consume excessive resources before normal validation runs.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Ruby",
+    "PHP",
+    "Python",
+    "JavaScript"
+  ],
+  "detection_signals": [
+    "Java ObjectInputStream.readObject() on FileInputStream, ServletInputStream, Socket.getInputStream(), request body, or uploaded file",
+    "Java java.beans.XMLDecoder.readObject() on external XML",
+    "Java readObject(), readResolve(), finalize(), or Comparator gadget class reachable from deserialized input",
+    "Java Jackson enableDefaultTyping()/activateDefaultTyping() or polymorphic @JsonTypeInfo on untrusted JSON",
+    "Java org.yaml.snakeyaml.Yaml.load() on untrusted YAML without SafeConstructor",
+    "C++ boost::archive::*_iarchive >> object from socket/file/request without prior authentication and type allowlist",
+    "C/C++ custom unserialize/read/recv parser allocates objects or dispatches function pointers/vtables from encoded type names or IDs"
+  ],
+  "negative_signals": [
+    "Java ObjectInputFilter setObjectInputFilter() or global jdk.serialFilter restricts maxdepth, maxbytes, and allowed classes before readObject()",
+    "HMAC/signature verification over the exact serialized bytes occurs before any deserialization call",
+    "Deserialization replaced by parsing into fixed DTO/value types with schema validation and no polymorphic type metadata",
+    "Class defines private/final readObject(ObjectInputStream) that always throws IOException to forbid deserialization",
+    "Apache Commons IO ValidatingObjectInputStream.accept() or equivalent allowlist is configured before readObject()",
+    "Sensitive or environment-derived Java fields are declared transient and reinitialized after validation"
+  ],
+  "false_defense_traps": [
+    "Base64-decoding input before readObject() is not validation",
+    "Checking authentication or HMAC after readObject() is too late",
+    "Class-name blacklist blocks only known gadgets and misses new gadget chains",
+    "Client-side encryption/signing is bypassable if the client or key is compromised",
+    "WAF filtering does not cover all serialized input formats or alternate input paths"
+  ],
+  "verification_focus": "Can attacker-controlled bytes reach a deserialization API before integrity verification, type allowlisting, and object/state validation are enforced?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-502",
+        "CWE-915"
+      ],
+      "trigger": "serialized data controls object fields or dynamically determined attributes",
+      "consequence": "integrity loss through unexpected state or unauthorized data modification"
+    },
+    {
+      "chain": [
+        "CWE-502",
+        "CWE-400"
+      ],
+      "trigger": "serialized stream encodes very large, cyclic, or deeply nested object graphs",
+      "consequence": "CPU or memory denial of service"
+    },
+    {
+      "chain": [
+        "CWE-502",
+        "CWE-94"
+      ],
+      "trigger": "available gadget chain executes code during readObject/readResolve/constructor callbacks",
+      "consequence": "remote code execution or shell command execution"
+    }
+  ],
+  "patch_principle": [
+    "Do not deserialize untrusted data; use simple formats and populate new validated DTOs instead.",
+    "Authenticate serialized bytes with HMAC/signature before deserialization.",
+    "Enforce strict class allowlists and resource limits before the first deserialization call.",
+    "Disable or reject deserialization for classes that do not need it with a throwing readObject().",
+    "Remove unnecessary gadget-capable libraries and mark sensitive fields transient."
+  ],
+  "minimal_examples": {
+    "vuln": "Object obj = new ObjectInputStream(request.getInputStream()).readObject();",
+    "safe": "if (!validHmac(bytes)) throw new SecurityException(); ObjectInputFilter.Config.setObjectInputFilter(in, allowlistFilter); MyDto obj = (MyDto) in.readObject();"
+  }
+}

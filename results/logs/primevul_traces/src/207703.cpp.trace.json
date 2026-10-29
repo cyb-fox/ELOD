@@ -1,0 +1,233 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "listen:15"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 15,
+      "snippet": "strcpy(local.sun_path, pipePath.c_str());",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "listen:15",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "listen:24"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-121"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 24,
+      "snippet": "pipeServerSockets[pipePath] = set<int>({fd});",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "listen:24",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "set",
+        "listen",
+        "endpoint"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "listen:1",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "listen:15"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "local",
+        "sun_path"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "listen:15",
+    "state_delta": {
+      "path_validated": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "listen:24"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "pipeServerSockets",
+        "pipePath",
+        "set"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "gets(buf) where buf is a local stack array",
+        "local fixed-size array char buf[N] written by strcat(buf, src)"
+      ]
+    },
+    "sink_id": "listen:24",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "listen:1",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "listen:15"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "path_validated"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "listen:15",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "path_validated": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "listen:24"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "listen:24",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

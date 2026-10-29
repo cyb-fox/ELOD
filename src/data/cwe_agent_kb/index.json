@@ -1,0 +1,604 @@
+[
+  {
+    "cwe_id": "CWE-116",
+    "name": "Improper Encoding or Escaping of Output",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-119",
+    "name": "Improper Restriction of Operations within the Bounds of a Memory Buffer",
+    "project_family": "memory-safety",
+    "n_examples": 4,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-120",
+    "name": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')",
+    "project_family": "memory-safety",
+    "n_examples": 4,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-121",
+    "name": "Stack-based Buffer Overflow",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-122",
+    "name": "Heap-based Buffer Overflow",
+    "project_family": "memory-safety",
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-123",
+    "name": "Write-what-where Condition",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-124",
+    "name": "Buffer Underwrite ('Buffer Underflow')",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-125",
+    "name": "Out-of-bounds Read",
+    "project_family": "memory-safety",
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-126",
+    "name": "Buffer Over-read",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-127",
+    "name": "Buffer Under-read",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-131",
+    "name": "Incorrect Calculation of Buffer Size",
+    "project_family": null,
+    "n_examples": 5,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-1336",
+    "name": "Improper Neutralization of Special Elements Used in a Template Engine",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-190",
+    "name": "Integer Overflow or Wraparound",
+    "project_family": "memory-safety",
+    "n_examples": 4,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-191",
+    "name": "Integer Underflow (Wrap or Wraparound)",
+    "project_family": "memory-safety",
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-192",
+    "name": "Integer Coercion Error",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-193",
+    "name": "Off-by-one Error",
+    "project_family": "memory-safety",
+    "n_examples": 4,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-194",
+    "name": "Unexpected Sign Extension",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-195",
+    "name": "Signed to Unsigned Conversion Error",
+    "project_family": null,
+    "n_examples": 6,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-196",
+    "name": "Unsigned to Signed Conversion Error",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-197",
+    "name": "Numeric Truncation Error",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-20",
+    "name": "Improper Input Validation",
+    "project_family": "input-validation-and-state-integrity",
+    "n_examples": 5,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-200",
+    "name": "Exposure of Sensitive Information to an Unauthorized Actor",
+    "project_family": "data-exposure-and-trust",
+    "n_examples": 7,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-22",
+    "name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "project_family": null,
+    "n_examples": 7,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-23",
+    "name": "Relative Path Traversal",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-259",
+    "name": "Use of Hard-coded Password",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-284",
+    "name": "Improper Access Control",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-285",
+    "name": "Improper Authorization",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-312",
+    "name": "Cleartext Storage of Sensitive Information",
+    "project_family": null,
+    "n_examples": 6,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-319",
+    "name": "Cleartext Transmission of Sensitive Information",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-321",
+    "name": "Use of Hard-coded Cryptographic Key",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-326",
+    "name": "Inadequate Encryption Strength",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-327",
+    "name": "Use of a Broken or Risky Cryptographic Algorithm",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-328",
+    "name": "Use of Weak Hash",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-330",
+    "name": "Use of Insufficiently Random Values",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-331",
+    "name": "Insufficient Entropy",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-347",
+    "name": "Improper Verification of Cryptographic Signature",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-36",
+    "name": "Absolute Path Traversal",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-362",
+    "name": "Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition')",
+    "project_family": "race-condition",
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-367",
+    "name": "Time-of-check Time-of-use (TOCTOU) Race Condition",
+    "project_family": null,
+    "n_examples": 4,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-369",
+    "name": "Divide By Zero",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-400",
+    "name": "Uncontrolled Resource Consumption",
+    "project_family": "availability-and-error-handling",
+    "n_examples": 6,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-401",
+    "name": "Missing Release of Memory after Effective Lifetime",
+    "project_family": "memory-safety",
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-415",
+    "name": "Double Free",
+    "project_family": "memory-safety",
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-416",
+    "name": "Use After Free",
+    "project_family": "memory-safety",
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-421",
+    "name": "Race Condition During Access to Alternate Channel",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-434",
+    "name": "Unrestricted Upload of File with Dangerous Type",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-441",
+    "name": "Unintended Proxy or Intermediary ('Confused Deputy')",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-444",
+    "name": "Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling')",
+    "project_family": "data-exposure-and-trust",
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-467",
+    "name": "Use of sizeof() on a Pointer Type",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-476",
+    "name": "NULL Pointer Dereference",
+    "project_family": "memory-safety",
+    "n_examples": 4,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-502",
+    "name": "Deserialization of Untrusted Data",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-532",
+    "name": "Insertion of Sensitive Information into Log File",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-562",
+    "name": "Return of Stack Variable Address",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-588",
+    "name": "Attempt to Access Child of a Non-structure Pointer",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-617",
+    "name": "Reachable Assertion",
+    "project_family": "availability-and-error-handling",
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-639",
+    "name": "Authorization Bypass Through User-Controlled Key",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-672",
+    "name": "Operation on a Resource after Expiration or Release",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-703",
+    "name": "Improper Check or Handling of Exceptional Conditions",
+    "project_family": "availability-and-error-handling",
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-73",
+    "name": "External Control of File Name or Path",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-763",
+    "name": "Release of Invalid Pointer or Reference",
+    "project_family": null,
+    "n_examples": 4,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-764",
+    "name": "Multiple Locks of a Critical Resource",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-765",
+    "name": "Multiple Unlocks of a Critical Resource",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-77",
+    "name": "Improper Neutralization of Special Elements used in a Command ('Command Injection')",
+    "project_family": null,
+    "n_examples": 4,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-770",
+    "name": "Allocation of Resources Without Limits or Throttling",
+    "project_family": "availability-and-error-handling",
+    "n_examples": 5,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-78",
+    "name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+    "project_family": null,
+    "n_examples": 8,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-787",
+    "name": "Out-of-bounds Write",
+    "project_family": "memory-safety",
+    "n_examples": 7,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-789",
+    "name": "Memory Allocation with Excessive Size Value",
+    "project_family": null,
+    "n_examples": 6,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-79",
+    "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+    "project_family": null,
+    "n_examples": 6,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-798",
+    "name": "Use of Hard-coded Credentials",
+    "project_family": null,
+    "n_examples": 4,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-80",
+    "name": "Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS)",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-820",
+    "name": "Missing Synchronization",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-825",
+    "name": "Expired Pointer Dereference",
+    "project_family": null,
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-833",
+    "name": "Deadlock",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-835",
+    "name": "Loop with Unreachable Exit Condition ('Infinite Loop')",
+    "project_family": "availability-and-error-handling",
+    "n_examples": 2,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-843",
+    "name": "Access of Resource Using Incompatible Type ('Type Confusion')",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-862",
+    "name": "Missing Authorization",
+    "project_family": "native-access-control",
+    "n_examples": 2,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-863",
+    "name": "Incorrect Authorization",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-89",
+    "name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+    "project_family": null,
+    "n_examples": 5,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-90",
+    "name": "Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-909",
+    "name": "Missing Initialization of Resource",
+    "project_family": "input-validation-and-state-integrity",
+    "n_examples": 4,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-91",
+    "name": "XML Injection (aka Blind XPath Injection)",
+    "project_family": null,
+    "n_examples": 0,
+    "has_patched": false
+  },
+  {
+    "cwe_id": "CWE-915",
+    "name": "Improperly Controlled Modification of Dynamically-Determined Object Attributes",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-918",
+    "name": "Server-Side Request Forgery (SSRF)",
+    "project_family": null,
+    "n_examples": 1,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-93",
+    "name": "Improper Neutralization of CRLF Sequences ('CRLF Injection')",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-94",
+    "name": "Improper Control of Generation of Code ('Code Injection')",
+    "project_family": null,
+    "n_examples": 4,
+    "has_patched": true
+  },
+  {
+    "cwe_id": "CWE-943",
+    "name": "Improper Neutralization of Special Elements in Data Query Logic",
+    "project_family": null,
+    "n_examples": 3,
+    "has_patched": false
+  }
+]

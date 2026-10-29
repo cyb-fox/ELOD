@@ -1,0 +1,205 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "njs_array_prototype_splice:59"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 59,
+      "snippet": "if (njs_fast_path(njs_is_fast_array(this) && deleted->object.fast_array)) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "njs_array_prototype_splice:59",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "njs_array_prototype_splice:59"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "njs_fast_path",
+        "njs_is_fast_array",
+        "this"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit",
+        "signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start"
+      ]
+    },
+    "sink_id": "njs_array_prototype_splice:59",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "deleted",
+        "start",
+        "array"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "njs_array_prototype_splice:62",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memcpy",
+        "array",
+        "start"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": []
+    },
+    "sink_id": "njs_array_prototype_splice:121",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "njs_array_prototype_splice:59"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "njs_array_prototype_splice:59",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "njs_array_prototype_splice:62",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [
+        "attacker_control",
+        "non_negative_length",
+        "readable_extent"
+      ],
+      "resolution": "safe_proved",
+      "confidence": 0.0
+    },
+    "sink_id": "njs_array_prototype_splice:121",
+    "state_delta": {
+      "attacker_control": {
+        "to": "SATISFIED"
+      },
+      "non_negative_length": {
+        "to": "SATISFIED"
+      },
+      "readable_extent": {
+        "to": "SATISFIED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

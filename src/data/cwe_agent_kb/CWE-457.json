@@ -1,0 +1,83 @@
+{
+  "cwe_id": "CWE-457",
+  "name": "Use of Uninitialized Variable",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-908",
+      "CWE-665"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code reads a variable before a value is definitely assigned on every path. The value may be stack junk, a stale heap value, or a security-relevant default, causing unpredictable control flow, crashes, data exposure, or bypass.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Perl",
+    "PHP",
+    "Java"
+  ],
+  "detection_signals": [
+    "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment",
+    "`switch` assigns a variable in `case` blocks, then uses it after the switch, with missing `default` or a `default` that assigns the wrong variable",
+    "Variable assigned only inside `if`, `else if`, loop, or `try` block and read after the block without an `else`/fallback assignment",
+    "`sscanf`, `scanf`, `fscanf`, or `strtol` output variables are used without checking the function return/count before use",
+    "Uninitialized C string buffer or pointer passed to `printf(\"%s\")`, `strlen`, `strcat`, `strcmp`, or similar null-terminated string API",
+    "C++ class primitive member or pointer member missing from all constructors' initializer lists and later read",
+    "PHP variable assigned only under `isset($_POST[...])`, `isset($_GET[...])`, or `array_key_exists(...)` and later accessed unconditionally"
+  ],
+  "negative_signals": [
+    "Variable is initialized at declaration, e.g. `int x = 0;`, `char *p = NULL;`, `char buf[N] = \"\";`",
+    "Every `if`/`else` branch and every `switch` case including `default` assigns the variable before use",
+    "`sscanf`/`scanf` return value is compared to the expected assignment count before using output variables",
+    "C++ constructor initializer list initializes every primitive, pointer, and security-state member",
+    "Use site is dominated by an early `return`, `throw`, or error path when initialization fails",
+    "Java local variable use is accepted by the compiler only after definite assignment"
+  ],
+  "false_defense_traps": [
+    "Relying on debug builds or allocator patterns that fill stack/heap memory with predictable bytes",
+    "Assuming automatic C/C++ local variables are zero-initialized",
+    "Checking that input exists but leaving the destination variable unset when the check fails",
+    "Adding a `default` case that does not assign all variables used after the `switch`",
+    "Initializing only the pointer variable while the pointed-to buffer contents remain uninitialized"
+  ],
+  "verification_focus": "Can any control-flow path reach the read/API call with the variable not definitely assigned a valid value?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-456",
+        "CWE-457"
+      ],
+      "trigger": "Initialization is missing on one branch and the variable is later read",
+      "consequence": "Undefined or unintended value affects program behavior"
+    },
+    {
+      "chain": [
+        "CWE-252",
+        "CWE-457"
+      ],
+      "trigger": "`sscanf`/`scanf` return value is not checked before using output variables",
+      "consequence": "Failed parse leaves variables uninitialized and used in security logic"
+    },
+    {
+      "chain": [
+        "CWE-457",
+        "CWE-362"
+      ],
+      "trigger": "Uninitialized lock or state flag is tested as if valid",
+      "consequence": "Synchronization or authorization check may be skipped"
+    }
+  ],
+  "patch_principle": [
+    "Initialize critical variables at declaration with a safe default value.",
+    "Ensure all control-flow branches assign the variable or fail closed before the read.",
+    "Check parser/input API return values before using output variables.",
+    "Initialize C/C++ strings and buffers and guarantee null termination before string-library calls.",
+    "Enable compiler warnings such as `-Wuninitialized` and `-Wmaybe-uninitialized` and treat them as errors."
+  ],
+  "minimal_examples": {
+    "vuln": "int ok; if (is_admin(user)) ok = 1; if (ok) grant_access();",
+    "safe": "int ok = 0; if (is_admin(user)) ok = 1; if (ok) grant_access();"
+  }
+}

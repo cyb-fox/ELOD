@@ -1,0 +1,80 @@
+{
+  "cwe_id": "CWE-191",
+  "name": "Integer Underflow (Wrap or Wraparound)",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-682"
+    ],
+    "parent_of": []
+  },
+  "principle": "A subtraction produces a value below the type's minimum and wraps or otherwise becomes incorrect. If that wrapped value is then used as a size, index, offset, or counter, it can corrupt data, crash the program, or create exploitable control flow.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#"
+  ],
+  "detection_signals": [
+    "`x = a - b` where `a` or `b` comes from input, packet length, or external state",
+    "`size_t`/unsigned destination assigned from subtraction of signed or mixed-sign operands",
+    "`--i` or `i--` on an unsigned loop counter with termination logic depending on `i >= 0` or similar",
+    "`len = total_len - header_len` without a preceding `header_len <= total_len` check",
+    "subtraction result passed to `malloc()`, `new[]`, stack array size, `memcpy()`, `memmove()`, `read()`, or `write()`",
+    "subtraction used as array index, slice length, or bounds check input after mixed signed/unsigned conversion"
+  ],
+  "negative_signals": [
+    "explicit precheck `if (a < b) return error;` before `a - b`",
+    "checked arithmetic such as `__builtin_sub_overflow(a, b, &out)` with error handling",
+    "Java `Math.subtractExact(a, b)` with exception handling",
+    "C# `checked { x = a - b; }` with overflow handling",
+    "descending loop pattern `for (size_t i = n; i-- > 0; )` or equivalent non-underflowing form",
+    "subtraction of compile-time constants that cannot reach the type minimum"
+  ],
+  "false_defense_traps": [
+    "using unsigned types for both operands; unsigned subtraction still wraps",
+    "casting the wrapped result to a wider type after subtraction",
+    "clamping or `abs()` after the subtraction instead of checking before it",
+    "checking only an upper bound on the result after wraparound",
+    "assuming `size_t` prevents underflow because it is non-negative"
+  ],
+  "verification_focus": "Can this subtraction ever go below the type's minimum before the result is used as a length, index, offset, or loop counter?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-131"
+      ],
+      "trigger": "wrapped subtraction is used to compute allocation or buffer size",
+      "consequence": "wrong-sized allocation or stack array size can lead to crash or later overflow"
+    },
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-787"
+      ],
+      "trigger": "wrapped subtraction feeds a copy length or array index",
+      "consequence": "out-of-bounds write or read"
+    },
+    {
+      "chain": [
+        "CWE-191",
+        "CWE-835"
+      ],
+      "trigger": "unsigned loop counter underflows in loop termination logic",
+      "consequence": "infinite loop and denial of service"
+    }
+  ],
+  "patch_principle": [
+    "check `minuend >= subtrahend` before subtracting",
+    "use checked subtraction APIs or compiler overflow intrinsics",
+    "validate external length and offset fields before arithmetic",
+    "promote to a wider type only if the wider range is also bounded and checked",
+    "fail closed on underflow instead of wrapping or truncating the result"
+  ],
+  "minimal_examples": {
+    "vuln": "size_t len = total_len - header_len;",
+    "safe": "if (header_len > total_len) return error; size_t len = total_len - header_len;"
+  }
+}

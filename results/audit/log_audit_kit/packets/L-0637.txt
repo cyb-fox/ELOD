@@ -1,0 +1,3485 @@
+=== 待审推理日志 L-0637 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 145 个；未决 145 个。
+
+【推理轨迹】共 406 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:21
+  引证行: 21
+  引证内容: static const unsigned short order[19] = /* permutation of code lengths */
+  初判倾向: VIOLATED
+  上下文源码:
+     18 | #ifdef GUNZIP
+     19 |     unsigned char hbuf[4];      /* buffer for gzip header crc calculation */
+     20 | #endif
+     21 |     static const unsigned short order[19] = /* permutation of code lengths */
+     22 |         {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+     23 | 
+     24 |     if (inflateStateCheck(strm) || strm->next_out == Z_NULL ||
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:24
+  引证行: 24
+  引证内容: if (inflateStateCheck(strm) || strm->next_out == Z_NULL ||
+  初判倾向: VIOLATED
+  上下文源码:
+     21 |     static const unsigned short order[19] = /* permutation of code lengths */
+     22 |         {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+     23 | 
+     24 |     if (inflateStateCheck(strm) || strm->next_out == Z_NULL ||
+     25 |         (strm->next_in == Z_NULL && strm->avail_in != 0))
+     26 |         return Z_STREAM_ERROR;
+     27 | 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:25
+  引证行: 25
+  引证内容: (strm->next_in == Z_NULL && strm->avail_in != 0))
+  初判倾向: VIOLATED
+  上下文源码:
+     22 |         {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+     23 | 
+     24 |     if (inflateStateCheck(strm) || strm->next_out == Z_NULL ||
+     25 |         (strm->next_in == Z_NULL && strm->avail_in != 0))
+     26 |         return Z_STREAM_ERROR;
+     27 | 
+     28 |     state = (struct inflate_state FAR *)strm->state;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:28
+  引证行: 28
+  引证内容: state = (struct inflate_state FAR *)strm->state;
+  初判倾向: VIOLATED
+  上下文源码:
+     25 |         (strm->next_in == Z_NULL && strm->avail_in != 0))
+     26 |         return Z_STREAM_ERROR;
+     27 | 
+     28 |     state = (struct inflate_state FAR *)strm->state;
+     29 |     if (state->mode == TYPE) state->mode = TYPEDO;      /* skip check */
+     30 |     LOAD();
+     31 |     in = have;
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:29
+  引证行: 29
+  引证内容: if (state->mode == TYPE) state->mode = TYPEDO;      /* skip check */
+  初判倾向: VIOLATED
+  上下文源码:
+     26 |         return Z_STREAM_ERROR;
+     27 | 
+     28 |     state = (struct inflate_state FAR *)strm->state;
+     29 |     if (state->mode == TYPE) state->mode = TYPEDO;      /* skip check */
+     30 |     LOAD();
+     31 |     in = have;
+     32 |     out = left;
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:35
+  引证行: 35
+  引证内容: switch (state->mode) {
+  初判倾向: VIOLATED
+  上下文源码:
+     32 |     out = left;
+     33 |     ret = Z_OK;
+     34 |     for (;;)
+     35 |         switch (state->mode) {
+     36 |         case HEAD:
+     37 |             if (state->wrap == 0) {
+     38 |                 state->mode = TYPEDO;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:37
+  引证行: 37
+  引证内容: if (state->wrap == 0) {
+  初判倾向: VIOLATED
+  上下文源码:
+     34 |     for (;;)
+     35 |         switch (state->mode) {
+     36 |         case HEAD:
+     37 |             if (state->wrap == 0) {
+     38 |                 state->mode = TYPEDO;
+     39 |                 break;
+     40 |             }
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:38
+  引证行: 38
+  引证内容: state->mode = TYPEDO;
+  初判倾向: VIOLATED
+  上下文源码:
+     35 |         switch (state->mode) {
+     36 |         case HEAD:
+     37 |             if (state->wrap == 0) {
+     38 |                 state->mode = TYPEDO;
+     39 |                 break;
+     40 |             }
+     41 |             NEEDBITS(16);
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:43
+  引证行: 43
+  引证内容: if ((state->wrap & 2) && hold == 0x8b1f) {  /* gzip header */
+  初判倾向: VIOLATED
+  上下文源码:
+     40 |             }
+     41 |             NEEDBITS(16);
+     42 | #ifdef GUNZIP
+     43 |             if ((state->wrap & 2) && hold == 0x8b1f) {  /* gzip header */
+     44 |                 if (state->wbits == 0)
+     45 |                     state->wbits = 15;
+     46 |                 state->check = crc32(0L, Z_NULL, 0);
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:44
+  引证行: 44
+  引证内容: if (state->wbits == 0)
+  初判倾向: VIOLATED
+  上下文源码:
+     41 |             NEEDBITS(16);
+     42 | #ifdef GUNZIP
+     43 |             if ((state->wrap & 2) && hold == 0x8b1f) {  /* gzip header */
+     44 |                 if (state->wbits == 0)
+     45 |                     state->wbits = 15;
+     46 |                 state->check = crc32(0L, Z_NULL, 0);
+     47 |                 CRC2(state->check, hold);
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:45
+  引证行: 45
+  引证内容: state->wbits = 15;
+  初判倾向: VIOLATED
+  上下文源码:
+     42 | #ifdef GUNZIP
+     43 |             if ((state->wrap & 2) && hold == 0x8b1f) {  /* gzip header */
+     44 |                 if (state->wbits == 0)
+     45 |                     state->wbits = 15;
+     46 |                 state->check = crc32(0L, Z_NULL, 0);
+     47 |                 CRC2(state->check, hold);
+     48 |                 INITBITS();
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:46
+  引证行: 46
+  引证内容: state->check = crc32(0L, Z_NULL, 0);
+  初判倾向: VIOLATED
+  上下文源码:
+     43 |             if ((state->wrap & 2) && hold == 0x8b1f) {  /* gzip header */
+     44 |                 if (state->wbits == 0)
+     45 |                     state->wbits = 15;
+     46 |                 state->check = crc32(0L, Z_NULL, 0);
+     47 |                 CRC2(state->check, hold);
+     48 |                 INITBITS();
+     49 |                 state->mode = FLAGS;
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:47
+  引证行: 47
+  引证内容: CRC2(state->check, hold);
+  初判倾向: VIOLATED
+  上下文源码:
+     44 |                 if (state->wbits == 0)
+     45 |                     state->wbits = 15;
+     46 |                 state->check = crc32(0L, Z_NULL, 0);
+     47 |                 CRC2(state->check, hold);
+     48 |                 INITBITS();
+     49 |                 state->mode = FLAGS;
+     50 |                 break;
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:49
+  引证行: 49
+  引证内容: state->mode = FLAGS;
+  初判倾向: VIOLATED
+  上下文源码:
+     46 |                 state->check = crc32(0L, Z_NULL, 0);
+     47 |                 CRC2(state->check, hold);
+     48 |                 INITBITS();
+     49 |                 state->mode = FLAGS;
+     50 |                 break;
+     51 |             }
+     52 |             if (state->head != Z_NULL)
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:52
+  引证行: 52
+  引证内容: if (state->head != Z_NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+     49 |                 state->mode = FLAGS;
+     50 |                 break;
+     51 |             }
+     52 |             if (state->head != Z_NULL)
+     53 |                 state->head->done = -1;
+     54 |             if (!(state->wrap & 1) ||   /* check if zlib header allowed */
+     55 | #else
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:53
+  引证行: 53
+  引证内容: state->head->done = -1;
+  初判倾向: VIOLATED
+  上下文源码:
+     50 |                 break;
+     51 |             }
+     52 |             if (state->head != Z_NULL)
+     53 |                 state->head->done = -1;
+     54 |             if (!(state->wrap & 1) ||   /* check if zlib header allowed */
+     55 | #else
+     56 |             if (
+
+--- 步骤 17 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:54
+  引证行: 54
+  引证内容: if (!(state->wrap & 1) ||   /* check if zlib header allowed */
+  初判倾向: VIOLATED
+  上下文源码:
+     51 |             }
+     52 |             if (state->head != Z_NULL)
+     53 |                 state->head->done = -1;
+     54 |             if (!(state->wrap & 1) ||   /* check if zlib header allowed */
+     55 | #else
+     56 |             if (
+     57 | #endif
+
+--- 步骤 18 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:60
+  引证行: 60
+  引证内容: state->mode = BAD;
+  初判倾向: VIOLATED
+  上下文源码:
+     57 | #endif
+     58 |                 ((BITS(8) << 8) + (hold >> 8)) % 31) {
+     59 |                 strm->msg = (char *)"incorrect header check";
+     60 |                 state->mode = BAD;
+     61 |                 break;
+     62 |             }
+     63 |             if (BITS(4) != Z_DEFLATED) {
+
+--- 步骤 19 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:64
+  引证行: 64
+  引证内容: strm->msg = (char *)"unknown compression method";
+  初判倾向: VIOLATED
+  上下文源码:
+     61 |                 break;
+     62 |             }
+     63 |             if (BITS(4) != Z_DEFLATED) {
+     64 |                 strm->msg = (char *)"unknown compression method";
+     65 |                 state->mode = BAD;
+     66 |                 break;
+     67 |             }
+
+--- 步骤 20 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:65
+  引证行: 65
+  引证内容: state->mode = BAD;
+  初判倾向: VIOLATED
+  上下文源码:
+     62 |             }
+     63 |             if (BITS(4) != Z_DEFLATED) {
+     64 |                 strm->msg = (char *)"unknown compression method";
+     65 |                 state->mode = BAD;
+     66 |                 break;
+     67 |             }
+     68 |             DROPBITS(4);
+
+--- 步骤 21 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:70
+  引证行: 70
+  引证内容: if (state->wbits == 0)
+  初判倾向: VIOLATED
+  上下文源码:
+     67 |             }
+     68 |             DROPBITS(4);
+     69 |             len = BITS(4) + 8;
+     70 |             if (state->wbits == 0)
+     71 |                 state->wbits = len;
+     72 |             if (len > 15 || len > state->wbits) {
+     73 |                 strm->msg = (char *)"invalid window size";
+
+--- 步骤 22 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:71
+  引证行: 71
+  引证内容: state->wbits = len;
+  初判倾向: VIOLATED
+  上下文源码:
+     68 |             DROPBITS(4);
+     69 |             len = BITS(4) + 8;
+     70 |             if (state->wbits == 0)
+     71 |                 state->wbits = len;
+     72 |             if (len > 15 || len > state->wbits) {
+     73 |                 strm->msg = (char *)"invalid window size";
+     74 |                 state->mode = BAD;
+
+--- 步骤 23 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:72
+  引证行: 72
+  引证内容: if (len > 15 || len > state->wbits) {
+  初判倾向: VIOLATED
+  上下文源码:
+     69 |             len = BITS(4) + 8;
+     70 |             if (state->wbits == 0)
+     71 |                 state->wbits = len;
+     72 |             if (len > 15 || len > state->wbits) {
+     73 |                 strm->msg = (char *)"invalid window size";
+     74 |                 state->mode = BAD;
+     75 |                 break;
+
+--- 步骤 24 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:73
+  引证行: 73
+  引证内容: strm->msg = (char *)"invalid window size";
+  初判倾向: VIOLATED
+  上下文源码:
+     70 |             if (state->wbits == 0)
+     71 |                 state->wbits = len;
+     72 |             if (len > 15 || len > state->wbits) {
+     73 |                 strm->msg = (char *)"invalid window size";
+     74 |                 state->mode = BAD;
+     75 |                 break;
+     76 |             }
+
+--- 步骤 25 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:74
+  引证行: 74
+  引证内容: state->mode = BAD;
+  初判倾向: VIOLATED
+  上下文源码:
+     71 |                 state->wbits = len;
+     72 |             if (len > 15 || len > state->wbits) {
+     73 |                 strm->msg = (char *)"invalid window size";
+     74 |                 state->mode = BAD;
+     75 |                 break;
+     76 |             }
+     77 |             state->dmax = 1U << len;
+
+--- 步骤 26 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:78
+  引证行: 78
+  引证内容: state->flags = 0;               /* indicate zlib header */
+  初判倾向: VIOLATED
+  上下文源码:
+     75 |                 break;
+     76 |             }
+     77 |             state->dmax = 1U << len;
+     78 |             state->flags = 0;               /* indicate zlib header */
+     79 |             Tracev((stderr, "inflate:   zlib header ok\n"));
+     80 |             strm->adler = state->check = adler32(0L, Z_NULL, 0);
+     81 |             state->mode = hold & 0x200 ? DICTID : TYPE;
+
+--- 步骤 27 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:80
+  引证行: 80
+  引证内容: strm->adler = state->check = adler32(0L, Z_NULL, 0);
+  初判倾向: VIOLATED
+  上下文源码:
+     77 |             state->dmax = 1U << len;
+     78 |             state->flags = 0;               /* indicate zlib header */
+     79 |             Tracev((stderr, "inflate:   zlib header ok\n"));
+     80 |             strm->adler = state->check = adler32(0L, Z_NULL, 0);
+     81 |             state->mode = hold & 0x200 ? DICTID : TYPE;
+     82 |             INITBITS();
+     83 |             break;
+
+--- 步骤 28 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:81
+  引证行: 81
+  引证内容: state->mode = hold & 0x200 ? DICTID : TYPE;
+  初判倾向: VIOLATED
+  上下文源码:
+     78 |             state->flags = 0;               /* indicate zlib header */
+     79 |             Tracev((stderr, "inflate:   zlib header ok\n"));
+     80 |             strm->adler = state->check = adler32(0L, Z_NULL, 0);
+     81 |             state->mode = hold & 0x200 ? DICTID : TYPE;
+     82 |             INITBITS();
+     83 |             break;
+     84 | #ifdef GUNZIP
+
+--- 步骤 29 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:87
+  引证行: 87
+  引证内容: state->flags = (int)(hold);
+  初判倾向: VIOLATED
+  上下文源码:
+     84 | #ifdef GUNZIP
+     85 |         case FLAGS:
+     86 |             NEEDBITS(16);
+     87 |             state->flags = (int)(hold);
+     88 |             if ((state->flags & 0xff) != Z_DEFLATED) {
+     89 |                 strm->msg = (char *)"unknown compression method";
+     90 |                 state->mode = BAD;
+
+--- 步骤 30 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:88
+  引证行: 88
+  引证内容: if ((state->flags & 0xff) != Z_DEFLATED) {
+  初判倾向: VIOLATED
+  上下文源码:
+     85 |         case FLAGS:
+     86 |             NEEDBITS(16);
+     87 |             state->flags = (int)(hold);
+     88 |             if ((state->flags & 0xff) != Z_DEFLATED) {
+     89 |                 strm->msg = (char *)"unknown compression method";
+     90 |                 state->mode = BAD;
+     91 |                 break;
+
+--- 步骤 31 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:89
+  引证行: 89
+  引证内容: strm->msg = (char *)"unknown compression method";
+  初判倾向: VIOLATED
+  上下文源码:
+     86 |             NEEDBITS(16);
+     87 |             state->flags = (int)(hold);
+     88 |             if ((state->flags & 0xff) != Z_DEFLATED) {
+     89 |                 strm->msg = (char *)"unknown compression method";
+     90 |                 state->mode = BAD;
+     91 |                 break;
+     92 |             }
+
+--- 步骤 32 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:90
+  引证行: 90
+  引证内容: state->mode = BAD;
+  初判倾向: VIOLATED
+  上下文源码:
+     87 |             state->flags = (int)(hold);
+     88 |             if ((state->flags & 0xff) != Z_DEFLATED) {
+     89 |                 strm->msg = (char *)"unknown compression method";
+     90 |                 state->mode = BAD;
+     91 |                 break;
+     92 |             }
+     93 |             if (state->flags & 0xe000) {
+
+--- 步骤 33 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:93
+  引证行: 93
+  引证内容: if (state->flags & 0xe000) {
+  初判倾向: VIOLATED
+  上下文源码:
+     90 |                 state->mode = BAD;
+     91 |                 break;
+     92 |             }
+     93 |             if (state->flags & 0xe000) {
+     94 |                 strm->msg = (char *)"unknown header flags set";
+     95 |                 state->mode = BAD;
+     96 |                 break;
+
+--- 步骤 34 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:94
+  引证行: 94
+  引证内容: strm->msg = (char *)"unknown header flags set";
+  初判倾向: VIOLATED
+  上下文源码:
+     91 |                 break;
+     92 |             }
+     93 |             if (state->flags & 0xe000) {
+     94 |                 strm->msg = (char *)"unknown header flags set";
+     95 |                 state->mode = BAD;
+     96 |                 break;
+     97 |             }
+
+--- 步骤 35 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:95
+  引证行: 95
+  引证内容: state->mode = BAD;
+  初判倾向: VIOLATED
+  上下文源码:
+     92 |             }
+     93 |             if (state->flags & 0xe000) {
+     94 |                 strm->msg = (char *)"unknown header flags set";
+     95 |                 state->mode = BAD;
+     96 |                 break;
+     97 |             }
+     98 |             if (state->head != Z_NULL)
+
+--- 步骤 36 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:98
+  引证行: 98
+  引证内容: if (state->head != Z_NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+     95 |                 state->mode = BAD;
+     96 |                 break;
+     97 |             }
+     98 |             if (state->head != Z_NULL)
+     99 |                 state->head->text = (int)((hold >> 8) & 1);
+    100 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    101 |                 CRC2(state->check, hold);
+
+--- 步骤 37 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:99
+  引证行: 99
+  引证内容: state->head->text = (int)((hold >> 8) & 1);
+  初判倾向: VIOLATED
+  上下文源码:
+     96 |                 break;
+     97 |             }
+     98 |             if (state->head != Z_NULL)
+     99 |                 state->head->text = (int)((hold >> 8) & 1);
+    100 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    101 |                 CRC2(state->check, hold);
+    102 |             INITBITS();
+
+--- 步骤 38 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:100
+  引证行: 100
+  引证内容: if ((state->flags & 0x0200) && (state->wrap & 4))
+  初判倾向: VIOLATED
+  上下文源码:
+     97 |             }
+     98 |             if (state->head != Z_NULL)
+     99 |                 state->head->text = (int)((hold >> 8) & 1);
+    100 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    101 |                 CRC2(state->check, hold);
+    102 |             INITBITS();
+    103 |             state->mode = TIME;
+
+--- 步骤 39 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:101
+  引证行: 101
+  引证内容: CRC2(state->check, hold);
+  初判倾向: VIOLATED
+  上下文源码:
+     98 |             if (state->head != Z_NULL)
+     99 |                 state->head->text = (int)((hold >> 8) & 1);
+    100 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    101 |                 CRC2(state->check, hold);
+    102 |             INITBITS();
+    103 |             state->mode = TIME;
+    104 |                 /* fallthrough */
+
+--- 步骤 40 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:103
+  引证行: 103
+  引证内容: state->mode = TIME;
+  初判倾向: VIOLATED
+  上下文源码:
+    100 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    101 |                 CRC2(state->check, hold);
+    102 |             INITBITS();
+    103 |             state->mode = TIME;
+    104 |                 /* fallthrough */
+    105 |         case TIME:
+    106 |             NEEDBITS(32);
+
+--- 步骤 41 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:108
+  引证行: 108
+  引证内容: state->head->time = hold;
+  初判倾向: VIOLATED
+  上下文源码:
+    105 |         case TIME:
+    106 |             NEEDBITS(32);
+    107 |             if (state->head != Z_NULL)
+    108 |                 state->head->time = hold;
+    109 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    110 |                 CRC4(state->check, hold);
+    111 |             INITBITS();
+
+--- 步骤 42 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:109
+  引证行: 109
+  引证内容: if ((state->flags & 0x0200) && (state->wrap & 4))
+  初判倾向: VIOLATED
+  上下文源码:
+    106 |             NEEDBITS(32);
+    107 |             if (state->head != Z_NULL)
+    108 |                 state->head->time = hold;
+    109 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    110 |                 CRC4(state->check, hold);
+    111 |             INITBITS();
+    112 |             state->mode = OS;
+
+--- 步骤 43 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:110
+  引证行: 110
+  引证内容: CRC4(state->check, hold);
+  初判倾向: VIOLATED
+  上下文源码:
+    107 |             if (state->head != Z_NULL)
+    108 |                 state->head->time = hold;
+    109 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    110 |                 CRC4(state->check, hold);
+    111 |             INITBITS();
+    112 |             state->mode = OS;
+    113 |                 /* fallthrough */
+
+--- 步骤 44 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:116
+  引证行: 116
+  引证内容: if (state->head != Z_NULL) {
+  初判倾向: VIOLATED
+  上下文源码:
+    113 |                 /* fallthrough */
+    114 |         case OS:
+    115 |             NEEDBITS(16);
+    116 |             if (state->head != Z_NULL) {
+    117 |                 state->head->xflags = (int)(hold & 0xff);
+    118 |                 state->head->os = (int)(hold >> 8);
+    119 |             }
+
+--- 步骤 45 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:117
+  引证行: 117
+  引证内容: state->head->xflags = (int)(hold & 0xff);
+  初判倾向: VIOLATED
+  上下文源码:
+    114 |         case OS:
+    115 |             NEEDBITS(16);
+    116 |             if (state->head != Z_NULL) {
+    117 |                 state->head->xflags = (int)(hold & 0xff);
+    118 |                 state->head->os = (int)(hold >> 8);
+    119 |             }
+    120 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+
+--- 步骤 46 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:118
+  引证行: 118
+  引证内容: state->head->os = (int)(hold >> 8);
+  初判倾向: VIOLATED
+  上下文源码:
+    115 |             NEEDBITS(16);
+    116 |             if (state->head != Z_NULL) {
+    117 |                 state->head->xflags = (int)(hold & 0xff);
+    118 |                 state->head->os = (int)(hold >> 8);
+    119 |             }
+    120 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    121 |                 CRC2(state->check, hold);
+
+--- 步骤 47 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:120
+  引证行: 120
+  引证内容: if ((state->flags & 0x0200) && (state->wrap & 4))
+  初判倾向: VIOLATED
+  上下文源码:
+    117 |                 state->head->xflags = (int)(hold & 0xff);
+    118 |                 state->head->os = (int)(hold >> 8);
+    119 |             }
+    120 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    121 |                 CRC2(state->check, hold);
+    122 |             INITBITS();
+    123 |             state->mode = EXLEN;
+
+--- 步骤 48 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:121
+  引证行: 121
+  引证内容: CRC2(state->check, hold);
+  初判倾向: VIOLATED
+  上下文源码:
+    118 |                 state->head->os = (int)(hold >> 8);
+    119 |             }
+    120 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    121 |                 CRC2(state->check, hold);
+    122 |             INITBITS();
+    123 |             state->mode = EXLEN;
+    124 |                 /* fallthrough */
+
+--- 步骤 49 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:123
+  引证行: 123
+  引证内容: state->mode = EXLEN;
+  初判倾向: VIOLATED
+  上下文源码:
+    120 |             if ((state->flags & 0x0200) && (state->wrap & 4))
+    121 |                 CRC2(state->check, hold);
+    122 |             INITBITS();
+    123 |             state->mode = EXLEN;
+    124 |                 /* fallthrough */
+    125 |         case EXLEN:
+    126 |             if (state->flags & 0x0400) {
+
+--- 步骤 50 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:126
+  引证行: 126
+  引证内容: if (state->flags & 0x0400) {
+  初判倾向: VIOLATED
+  上下文源码:
+    123 |             state->mode = EXLEN;
+    124 |                 /* fallthrough */
+    125 |         case EXLEN:
+    126 |             if (state->flags & 0x0400) {
+    127 |                 NEEDBITS(16);
+    128 |                 state->length = (unsigned)(hold);
+    129 |                 if (state->head != Z_NULL)
+
+--- 步骤 51 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:129
+  引证行: 129
+  引证内容: if (state->head != Z_NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+    126 |             if (state->flags & 0x0400) {
+    127 |                 NEEDBITS(16);
+    128 |                 state->length = (unsigned)(hold);
+    129 |                 if (state->head != Z_NULL)
+    130 |                     state->head->extra_len = (unsigned)hold;
+    131 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    132 |                     CRC2(state->check, hold);
+
+--- 步骤 52 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:130
+  引证行: 130
+  引证内容: state->head->extra_len = (unsigned)hold;
+  初判倾向: VIOLATED
+  上下文源码:
+    127 |                 NEEDBITS(16);
+    128 |                 state->length = (unsigned)(hold);
+    129 |                 if (state->head != Z_NULL)
+    130 |                     state->head->extra_len = (unsigned)hold;
+    131 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    132 |                     CRC2(state->check, hold);
+    133 |                 INITBITS();
+
+--- 步骤 53 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:131
+  引证行: 131
+  引证内容: if ((state->flags & 0x0200) && (state->wrap & 4))
+  初判倾向: VIOLATED
+  上下文源码:
+    128 |                 state->length = (unsigned)(hold);
+    129 |                 if (state->head != Z_NULL)
+    130 |                     state->head->extra_len = (unsigned)hold;
+    131 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    132 |                     CRC2(state->check, hold);
+    133 |                 INITBITS();
+    134 |             }
+
+--- 步骤 54 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:132
+  引证行: 132
+  引证内容: CRC2(state->check, hold);
+  初判倾向: VIOLATED
+  上下文源码:
+    129 |                 if (state->head != Z_NULL)
+    130 |                     state->head->extra_len = (unsigned)hold;
+    131 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    132 |                     CRC2(state->check, hold);
+    133 |                 INITBITS();
+    134 |             }
+    135 |             else if (state->head != Z_NULL)
+
+--- 步骤 55 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:136
+  引证行: 136
+  引证内容: state->head->extra = Z_NULL;
+  初判倾向: VIOLATED
+  上下文源码:
+    133 |                 INITBITS();
+    134 |             }
+    135 |             else if (state->head != Z_NULL)
+    136 |                 state->head->extra = Z_NULL;
+    137 |             state->mode = EXTRA;
+    138 |                 /* fallthrough */
+    139 |         case EXTRA:
+
+--- 步骤 56 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:137
+  引证行: 137
+  引证内容: state->mode = EXTRA;
+  初判倾向: VIOLATED
+  上下文源码:
+    134 |             }
+    135 |             else if (state->head != Z_NULL)
+    136 |                 state->head->extra = Z_NULL;
+    137 |             state->mode = EXTRA;
+    138 |                 /* fallthrough */
+    139 |         case EXTRA:
+    140 |             if (state->flags & 0x0400) {
+
+--- 步骤 57 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:140
+  引证行: 140
+  引证内容: if (state->flags & 0x0400) {
+  初判倾向: VIOLATED
+  上下文源码:
+    137 |             state->mode = EXTRA;
+    138 |                 /* fallthrough */
+    139 |         case EXTRA:
+    140 |             if (state->flags & 0x0400) {
+    141 |                 copy = state->length;
+    142 |                 if (copy > have) copy = have;
+    143 |                 if (copy) {
+
+--- 步骤 58 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:144
+  引证行: 144
+  引证内容: len = state->head->extra_len - state->length;
+  初判倾向: VIOLATED
+  上下文源码:
+    141 |                 copy = state->length;
+    142 |                 if (copy > have) copy = have;
+    143 |                 if (copy) {
+    144 |                     len = state->head->extra_len - state->length;
+    145 |                     if (state->head != Z_NULL &&
+    146 |                         state->head->extra != Z_NULL &&
+    147 |                         len < state->head->extra_max) {
+
+--- 步骤 59 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:145
+  引证行: 145
+  引证内容: if (state->head != Z_NULL &&
+  初判倾向: VIOLATED
+  上下文源码:
+    142 |                 if (copy > have) copy = have;
+    143 |                 if (copy) {
+    144 |                     len = state->head->extra_len - state->length;
+    145 |                     if (state->head != Z_NULL &&
+    146 |                         state->head->extra != Z_NULL &&
+    147 |                         len < state->head->extra_max) {
+    148 |                         zmemcpy(state->head->extra + len, next,
+
+--- 步骤 60 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:146
+  引证行: 146
+  引证内容: state->head->extra != Z_NULL &&
+  初判倾向: VIOLATED
+  上下文源码:
+    143 |                 if (copy) {
+    144 |                     len = state->head->extra_len - state->length;
+    145 |                     if (state->head != Z_NULL &&
+    146 |                         state->head->extra != Z_NULL &&
+    147 |                         len < state->head->extra_max) {
+    148 |                         zmemcpy(state->head->extra + len, next,
+    149 |                                 len + copy > state->head->extra_max ?
+
+--- 步骤 61 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:147
+  引证行: 147
+  引证内容: len < state->head->extra_max) {
+  初判倾向: VIOLATED
+  上下文源码:
+    144 |                     len = state->head->extra_len - state->length;
+    145 |                     if (state->head != Z_NULL &&
+    146 |                         state->head->extra != Z_NULL &&
+    147 |                         len < state->head->extra_max) {
+    148 |                         zmemcpy(state->head->extra + len, next,
+    149 |                                 len + copy > state->head->extra_max ?
+    150 |                                 state->head->extra_max - len : copy);
+
+--- 步骤 62 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:148
+  引证行: 148
+  引证内容: zmemcpy(state->head->extra + len, next,
+  初判倾向: VIOLATED
+  上下文源码:
+    145 |                     if (state->head != Z_NULL &&
+    146 |                         state->head->extra != Z_NULL &&
+    147 |                         len < state->head->extra_max) {
+    148 |                         zmemcpy(state->head->extra + len, next,
+    149 |                                 len + copy > state->head->extra_max ?
+    150 |                                 state->head->extra_max - len : copy);
+    151 |                     }
+
+--- 步骤 63 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:152
+  引证行: 152
+  引证内容: if ((state->flags & 0x0200) && (state->wrap & 4))
+  初判倾向: VIOLATED
+  上下文源码:
+    149 |                                 len + copy > state->head->extra_max ?
+    150 |                                 state->head->extra_max - len : copy);
+    151 |                     }
+    152 |                     if ((state->flags & 0x0200) && (state->wrap & 4))
+    153 |                         state->check = crc32(state->check, next, copy);
+    154 |                     have -= copy;
+    155 |                     next += copy;
+
+--- 步骤 64 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:153
+  引证行: 153
+  引证内容: state->check = crc32(state->check, next, copy);
+  初判倾向: VIOLATED
+  上下文源码:
+    150 |                                 state->head->extra_max - len : copy);
+    151 |                     }
+    152 |                     if ((state->flags & 0x0200) && (state->wrap & 4))
+    153 |                         state->check = crc32(state->check, next, copy);
+    154 |                     have -= copy;
+    155 |                     next += copy;
+    156 |                     state->length -= copy;
+
+--- 步骤 65 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:158
+  引证行: 158
+  引证内容: if (state->length) goto inf_leave;
+  初判倾向: VIOLATED
+  上下文源码:
+    155 |                     next += copy;
+    156 |                     state->length -= copy;
+    157 |                 }
+    158 |                 if (state->length) goto inf_leave;
+    159 |             }
+    160 |             state->length = 0;
+    161 |             state->mode = NAME;
+
+--- 步骤 66 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:161
+  引证行: 161
+  引证内容: state->mode = NAME;
+  初判倾向: VIOLATED
+  上下文源码:
+    158 |                 if (state->length) goto inf_leave;
+    159 |             }
+    160 |             state->length = 0;
+    161 |             state->mode = NAME;
+    162 |                 /* fallthrough */
+    163 |         case NAME:
+    164 |             if (state->flags & 0x0800) {
+
+--- 步骤 67 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:164
+  引证行: 164
+  引证内容: if (state->flags & 0x0800) {
+  初判倾向: VIOLATED
+  上下文源码:
+    161 |             state->mode = NAME;
+    162 |                 /* fallthrough */
+    163 |         case NAME:
+    164 |             if (state->flags & 0x0800) {
+    165 |                 if (have == 0) goto inf_leave;
+    166 |                 copy = 0;
+    167 |                 do {
+
+--- 步骤 68 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:169
+  引证行: 169
+  引证内容: if (state->head != Z_NULL &&
+  初判倾向: VIOLATED
+  上下文源码:
+    166 |                 copy = 0;
+    167 |                 do {
+    168 |                     len = (unsigned)(next[copy++]);
+    169 |                     if (state->head != Z_NULL &&
+    170 |                             state->head->name != Z_NULL &&
+    171 |                             state->length < state->head->name_max)
+    172 |                         state->head->name[state->length++] = (Bytef)len;
+
+--- 步骤 69 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:171
+  引证行: 171
+  引证内容: state->length < state->head->name_max)
+  初判倾向: VIOLATED
+  上下文源码:
+    168 |                     len = (unsigned)(next[copy++]);
+    169 |                     if (state->head != Z_NULL &&
+    170 |                             state->head->name != Z_NULL &&
+    171 |                             state->length < state->head->name_max)
+    172 |                         state->head->name[state->length++] = (Bytef)len;
+    173 |                 } while (len && copy < have);
+    174 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+
+--- 步骤 70 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:172
+  引证行: 172
+  引证内容: state->head->name[state->length++] = (Bytef)len;
+  初判倾向: VIOLATED
+  上下文源码:
+    169 |                     if (state->head != Z_NULL &&
+    170 |                             state->head->name != Z_NULL &&
+    171 |                             state->length < state->head->name_max)
+    172 |                         state->head->name[state->length++] = (Bytef)len;
+    173 |                 } while (len && copy < have);
+    174 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    175 |                     state->check = crc32(state->check, next, copy);
+
+--- 步骤 71 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:174
+  引证行: 174
+  引证内容: if ((state->flags & 0x0200) && (state->wrap & 4))
+  初判倾向: VIOLATED
+  上下文源码:
+    171 |                             state->length < state->head->name_max)
+    172 |                         state->head->name[state->length++] = (Bytef)len;
+    173 |                 } while (len && copy < have);
+    174 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    175 |                     state->check = crc32(state->check, next, copy);
+    176 |                 have -= copy;
+    177 |                 next += copy;
+
+--- 步骤 72 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:175
+  引证行: 175
+  引证内容: state->check = crc32(state->check, next, copy);
+  初判倾向: VIOLATED
+  上下文源码:
+    172 |                         state->head->name[state->length++] = (Bytef)len;
+    173 |                 } while (len && copy < have);
+    174 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    175 |                     state->check = crc32(state->check, next, copy);
+    176 |                 have -= copy;
+    177 |                 next += copy;
+    178 |                 if (len) goto inf_leave;
+
+--- 步骤 73 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:180
+  引证行: 180
+  引证内容: else if (state->head != Z_NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+    177 |                 next += copy;
+    178 |                 if (len) goto inf_leave;
+    179 |             }
+    180 |             else if (state->head != Z_NULL)
+    181 |                 state->head->name = Z_NULL;
+    182 |             state->length = 0;
+    183 |             state->mode = COMMENT;
+
+--- 步骤 74 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:181
+  引证行: 181
+  引证内容: state->head->name = Z_NULL;
+  初判倾向: VIOLATED
+  上下文源码:
+    178 |                 if (len) goto inf_leave;
+    179 |             }
+    180 |             else if (state->head != Z_NULL)
+    181 |                 state->head->name = Z_NULL;
+    182 |             state->length = 0;
+    183 |             state->mode = COMMENT;
+    184 |                 /* fallthrough */
+
+--- 步骤 75 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:182
+  引证行: 182
+  引证内容: state->length = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+    179 |             }
+    180 |             else if (state->head != Z_NULL)
+    181 |                 state->head->name = Z_NULL;
+    182 |             state->length = 0;
+    183 |             state->mode = COMMENT;
+    184 |                 /* fallthrough */
+    185 |         case COMMENT:
+
+--- 步骤 76 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:183
+  引证行: 183
+  引证内容: state->mode = COMMENT;
+  初判倾向: VIOLATED
+  上下文源码:
+    180 |             else if (state->head != Z_NULL)
+    181 |                 state->head->name = Z_NULL;
+    182 |             state->length = 0;
+    183 |             state->mode = COMMENT;
+    184 |                 /* fallthrough */
+    185 |         case COMMENT:
+    186 |             if (state->flags & 0x1000) {
+
+--- 步骤 77 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:186
+  引证行: 186
+  引证内容: if (state->flags & 0x1000) {
+  初判倾向: VIOLATED
+  上下文源码:
+    183 |             state->mode = COMMENT;
+    184 |                 /* fallthrough */
+    185 |         case COMMENT:
+    186 |             if (state->flags & 0x1000) {
+    187 |                 if (have == 0) goto inf_leave;
+    188 |                 copy = 0;
+    189 |                 do {
+
+--- 步骤 78 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:191
+  引证行: 191
+  引证内容: if (state->head != Z_NULL &&
+  初判倾向: VIOLATED
+  上下文源码:
+    188 |                 copy = 0;
+    189 |                 do {
+    190 |                     len = (unsigned)(next[copy++]);
+    191 |                     if (state->head != Z_NULL &&
+    192 |                             state->head->comment != Z_NULL &&
+    193 |                             state->length < state->head->comm_max)
+    194 |                         state->head->comment[state->length++] = (Bytef)len;
+
+--- 步骤 79 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:192
+  引证行: 192
+  引证内容: state->head->comment != Z_NULL &&
+  初判倾向: VIOLATED
+  上下文源码:
+    189 |                 do {
+    190 |                     len = (unsigned)(next[copy++]);
+    191 |                     if (state->head != Z_NULL &&
+    192 |                             state->head->comment != Z_NULL &&
+    193 |                             state->length < state->head->comm_max)
+    194 |                         state->head->comment[state->length++] = (Bytef)len;
+    195 |                 } while (len && copy < have);
+
+--- 步骤 80 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:196
+  引证行: 196
+  引证内容: if ((state->flags & 0x0200) && (state->wrap & 4))
+  初判倾向: VIOLATED
+  上下文源码:
+    193 |                             state->length < state->head->comm_max)
+    194 |                         state->head->comment[state->length++] = (Bytef)len;
+    195 |                 } while (len && copy < have);
+    196 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    197 |                     state->check = crc32(state->check, next, copy);
+    198 |                 have -= copy;
+    199 |                 next += copy;
+
+--- 步骤 81 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:197
+  引证行: 197
+  引证内容: state->check = crc32(state->check, next, copy);
+  初判倾向: VIOLATED
+  上下文源码:
+    194 |                         state->head->comment[state->length++] = (Bytef)len;
+    195 |                 } while (len && copy < have);
+    196 |                 if ((state->flags & 0x0200) && (state->wrap & 4))
+    197 |                     state->check = crc32(state->check, next, copy);
+    198 |                 have -= copy;
+    199 |                 next += copy;
+    200 |                 if (len) goto inf_leave;
+
+--- 步骤 82 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:202
+  引证行: 202
+  引证内容: else if (state->head != Z_NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+    199 |                 next += copy;
+    200 |                 if (len) goto inf_leave;
+    201 |             }
+    202 |             else if (state->head != Z_NULL)
+    203 |                 state->head->comment = Z_NULL;
+    204 |             state->mode = HCRC;
+    205 |                 /* fallthrough */
+
+--- 步骤 83 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:204
+  引证行: 204
+  引证内容: state->mode = HCRC;
+  初判倾向: VIOLATED
+  上下文源码:
+    201 |             }
+    202 |             else if (state->head != Z_NULL)
+    203 |                 state->head->comment = Z_NULL;
+    204 |             state->mode = HCRC;
+    205 |                 /* fallthrough */
+    206 |         case HCRC:
+    207 |             if (state->flags & 0x0200) {
+
+--- 步骤 84 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:207
+  引证行: 207
+  引证内容: if (state->flags & 0x0200) {
+  初判倾向: VIOLATED
+  上下文源码:
+    204 |             state->mode = HCRC;
+    205 |                 /* fallthrough */
+    206 |         case HCRC:
+    207 |             if (state->flags & 0x0200) {
+    208 |                 NEEDBITS(16);
+    209 |                 if ((state->wrap & 4) && hold != (state->check & 0xffff)) {
+    210 |                     strm->msg = (char *)"header crc mismatch";
+
+--- 步骤 85 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:216
+  引证行: 216
+  引证内容: if (state->head != Z_NULL) {
+  初判倾向: VIOLATED
+  上下文源码:
+    213 |                 }
+    214 |                 INITBITS();
+    215 |             }
+    216 |             if (state->head != Z_NULL) {
+    217 |                 state->head->hcrc = (int)((state->flags >> 9) & 1);
+    218 |                 state->head->done = 1;
+    219 |             }
+
+--- 步骤 86 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:217
+  引证行: 217
+  引证内容: state->head->hcrc = (int)((state->flags >> 9) & 1);
+  初判倾向: VIOLATED
+  上下文源码:
+    214 |                 INITBITS();
+    215 |             }
+    216 |             if (state->head != Z_NULL) {
+    217 |                 state->head->hcrc = (int)((state->flags >> 9) & 1);
+    218 |                 state->head->done = 1;
+    219 |             }
+    220 |             strm->adler = state->check = crc32(0L, Z_NULL, 0);
+
+--- 步骤 87 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:218
+  引证行: 218
+  引证内容: state->head->done = 1;
+  初判倾向: VIOLATED
+  上下文源码:
+    215 |             }
+    216 |             if (state->head != Z_NULL) {
+    217 |                 state->head->hcrc = (int)((state->flags >> 9) & 1);
+    218 |                 state->head->done = 1;
+    219 |             }
+    220 |             strm->adler = state->check = crc32(0L, Z_NULL, 0);
+    221 |             state->mode = TYPE;
+
+--- 步骤 88 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:228
+  引证行: 228
+  引证内容: state->mode = DICT;
+  初判倾向: VIOLATED
+  上下文源码:
+    225 |             NEEDBITS(32);
+    226 |             strm->adler = state->check = ZSWAP32(hold);
+    227 |             INITBITS();
+    228 |             state->mode = DICT;
+    229 |                 /* fallthrough */
+    230 |         case DICT:
+    231 |             if (state->havedict == 0) {
+
+--- 步骤 89 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:231
+  引证行: 231
+  引证内容: if (state->havedict == 0) {
+  初判倾向: VIOLATED
+  上下文源码:
+    228 |             state->mode = DICT;
+    229 |                 /* fallthrough */
+    230 |         case DICT:
+    231 |             if (state->havedict == 0) {
+    232 |                 RESTORE();
+    233 |                 return Z_NEED_DICT;
+    234 |             }
+
+--- 步骤 90 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:236
+  引证行: 236
+  引证内容: state->mode = TYPE;
+  初判倾向: VIOLATED
+  上下文源码:
+    233 |                 return Z_NEED_DICT;
+    234 |             }
+    235 |             strm->adler = state->check = adler32(0L, Z_NULL, 0);
+    236 |             state->mode = TYPE;
+    237 |                 /* fallthrough */
+    238 |         case TYPE:
+    239 |             if (flush == Z_BLOCK || flush == Z_TREES) goto inf_leave;
+
+--- 步骤 91 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:244
+  引证行: 244
+  引证内容: state->mode = CHECK;
+  初判倾向: VIOLATED
+  上下文源码:
+    241 |         case TYPEDO:
+    242 |             if (state->last) {
+    243 |                 BYTEBITS();
+    244 |                 state->mode = CHECK;
+    245 |                 break;
+    246 |             }
+    247 |             NEEDBITS(3);
+
+--- 步骤 92 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:248
+  引证行: 248
+  引证内容: state->last = BITS(1);
+  初判倾向: VIOLATED
+  上下文源码:
+    245 |                 break;
+    246 |             }
+    247 |             NEEDBITS(3);
+    248 |             state->last = BITS(1);
+    249 |             DROPBITS(1);
+    250 |             switch (BITS(2)) {
+    251 |             case 0:                             /* stored block */
+
+--- 步骤 93 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:253
+  引证行: 253
+  引证内容: state->last ? " (last)" : ""));
+  初判倾向: VIOLATED
+  上下文源码:
+    250 |             switch (BITS(2)) {
+    251 |             case 0:                             /* stored block */
+    252 |                 Tracev((stderr, "inflate:     stored block%s\n",
+    253 |                         state->last ? " (last)" : ""));
+    254 |                 state->mode = STORED;
+    255 |                 break;
+    256 |             case 1:                             /* fixed block */
+
+--- 步骤 94 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:254
+  引证行: 254
+  引证内容: state->mode = STORED;
+  初判倾向: VIOLATED
+  上下文源码:
+    251 |             case 0:                             /* stored block */
+    252 |                 Tracev((stderr, "inflate:     stored block%s\n",
+    253 |                         state->last ? " (last)" : ""));
+    254 |                 state->mode = STORED;
+    255 |                 break;
+    256 |             case 1:                             /* fixed block */
+    257 |                 fixedtables(state);
+
+--- 步骤 95 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:259
+  引证行: 259
+  引证内容: state->last ? " (last)" : ""));
+  初判倾向: VIOLATED
+  上下文源码:
+    256 |             case 1:                             /* fixed block */
+    257 |                 fixedtables(state);
+    258 |                 Tracev((stderr, "inflate:     fixed codes block%s\n",
+    259 |                         state->last ? " (last)" : ""));
+    260 |                 state->mode = LEN_;             /* decode codes */
+    261 |                 if (flush == Z_TREES) {
+    262 |                     DROPBITS(2);
+
+--- 步骤 96 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:260
+  引证行: 260
+  引证内容: state->mode = LEN_;             /* decode codes */
+  初判倾向: VIOLATED
+  上下文源码:
+    257 |                 fixedtables(state);
+    258 |                 Tracev((stderr, "inflate:     fixed codes block%s\n",
+    259 |                         state->last ? " (last)" : ""));
+    260 |                 state->mode = LEN_;             /* decode codes */
+    261 |                 if (flush == Z_TREES) {
+    262 |                     DROPBITS(2);
+    263 |                     goto inf_leave;
+
+--- 步骤 97 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:268
+  引证行: 268
+  引证内容: state->last ? " (last)" : ""));
+  初判倾向: VIOLATED
+  上下文源码:
+    265 |                 break;
+    266 |             case 2:                             /* dynamic block */
+    267 |                 Tracev((stderr, "inflate:     dynamic codes block%s\n",
+    268 |                         state->last ? " (last)" : ""));
+    269 |                 state->mode = TABLE;
+    270 |                 break;
+    271 |             case 3:
+
+--- 步骤 98 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:269
+  引证行: 269
+  引证内容: state->mode = TABLE;
+  初判倾向: VIOLATED
+  上下文源码:
+    266 |             case 2:                             /* dynamic block */
+    267 |                 Tracev((stderr, "inflate:     dynamic codes block%s\n",
+    268 |                         state->last ? " (last)" : ""));
+    269 |                 state->mode = TABLE;
+    270 |                 break;
+    271 |             case 3:
+    272 |                 strm->msg = (char *)"invalid block type";
+
+--- 步骤 99 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:272
+  引证行: 272
+  引证内容: strm->msg = (char *)"invalid block type";
+  初判倾向: VIOLATED
+  上下文源码:
+    269 |                 state->mode = TABLE;
+    270 |                 break;
+    271 |             case 3:
+    272 |                 strm->msg = (char *)"invalid block type";
+    273 |                 state->mode = BAD;
+    274 |             }
+    275 |             DROPBITS(2);
+
+--- 步骤 100 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:281
+  引证行: 281
+  引证内容: strm->msg = (char *)"invalid stored block lengths";
+  初判倾向: VIOLATED
+  上下文源码:
+    278 |             BYTEBITS();                         /* go to byte boundary */
+    279 |             NEEDBITS(32);
+    280 |             if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
+    281 |                 strm->msg = (char *)"invalid stored block lengths";
+    282 |                 state->mode = BAD;
+    283 |                 break;
+    284 |             }
+
+--- 步骤 101 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:282
+  引证行: 282
+  引证内容: state->mode = BAD;
+  初判倾向: VIOLATED
+  上下文源码:
+    279 |             NEEDBITS(32);
+    280 |             if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
+    281 |                 strm->msg = (char *)"invalid stored block lengths";
+    282 |                 state->mode = BAD;
+    283 |                 break;
+    284 |             }
+    285 |             state->length = (unsigned)hold & 0xffff;
+
+--- 步骤 102 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:285
+  引证行: 285
+  引证内容: state->length = (unsigned)hold & 0xffff;
+  初判倾向: VIOLATED
+  上下文源码:
+    282 |                 state->mode = BAD;
+    283 |                 break;
+    284 |             }
+    285 |             state->length = (unsigned)hold & 0xffff;
+    286 |             Tracev((stderr, "inflate:       stored length %u\n",
+    287 |                     state->length));
+    288 |             INITBITS();
+
+--- 步骤 103 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:287
+  引证行: 287
+  引证内容: state->length));
+  初判倾向: VIOLATED
+  上下文源码:
+    284 |             }
+    285 |             state->length = (unsigned)hold & 0xffff;
+    286 |             Tracev((stderr, "inflate:       stored length %u\n",
+    287 |                     state->length));
+    288 |             INITBITS();
+    289 |             state->mode = COPY_;
+    290 |             if (flush == Z_TREES) goto inf_leave;
+
+--- 步骤 104 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:293
+  引证行: 293
+  引证内容: state->mode = COPY;
+  初判倾向: VIOLATED
+  上下文源码:
+    290 |             if (flush == Z_TREES) goto inf_leave;
+    291 |                 /* fallthrough */
+    292 |         case COPY_:
+    293 |             state->mode = COPY;
+    294 |                 /* fallthrough */
+    295 |         case COPY:
+    296 |             copy = state->length;
+
+--- 步骤 105 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:296
+  引证行: 296
+  引证内容: copy = state->length;
+  初判倾向: VIOLATED
+  上下文源码:
+    293 |             state->mode = COPY;
+    294 |                 /* fallthrough */
+    295 |         case COPY:
+    296 |             copy = state->length;
+    297 |             if (copy) {
+    298 |                 if (copy > have) copy = have;
+    299 |                 if (copy > left) copy = left;
+
+--- 步骤 106 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:314
+  引证行: 314
+  引证内容: state->nlen = BITS(5) + 257;
+  初判倾向: VIOLATED
+  上下文源码:
+    311 |             break;
+    312 |         case TABLE:
+    313 |             NEEDBITS(14);
+    314 |             state->nlen = BITS(5) + 257;
+    315 |             DROPBITS(5);
+    316 |             state->ndist = BITS(5) + 1;
+    317 |             DROPBITS(5);
+
+--- 步骤 107 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:316
+  引证行: 316
+  引证内容: state->ndist = BITS(5) + 1;
+  初判倾向: VIOLATED
+  上下文源码:
+    313 |             NEEDBITS(14);
+    314 |             state->nlen = BITS(5) + 257;
+    315 |             DROPBITS(5);
+    316 |             state->ndist = BITS(5) + 1;
+    317 |             DROPBITS(5);
+    318 |             state->ncode = BITS(4) + 4;
+    319 |             DROPBITS(4);
+
+--- 步骤 108 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:318
+  引证行: 318
+  引证内容: state->ncode = BITS(4) + 4;
+  初判倾向: VIOLATED
+  上下文源码:
+    315 |             DROPBITS(5);
+    316 |             state->ndist = BITS(5) + 1;
+    317 |             DROPBITS(5);
+    318 |             state->ncode = BITS(4) + 4;
+    319 |             DROPBITS(4);
+    320 | #ifndef PKZIP_BUG_WORKAROUND
+    321 |             if (state->nlen > 286 || state->ndist > 30) {
+
+--- 步骤 109 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:321
+  引证行: 321
+  引证内容: if (state->nlen > 286 || state->ndist > 30) {
+  初判倾向: VIOLATED
+  上下文源码:
+    318 |             state->ncode = BITS(4) + 4;
+    319 |             DROPBITS(4);
+    320 | #ifndef PKZIP_BUG_WORKAROUND
+    321 |             if (state->nlen > 286 || state->ndist > 30) {
+    322 |                 strm->msg = (char *)"too many length or distance symbols";
+    323 |                 state->mode = BAD;
+    324 |                 break;
+
+--- 步骤 110 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:322
+  引证行: 322
+  引证内容: strm->msg = (char *)"too many length or distance symbols";
+  初判倾向: VIOLATED
+  上下文源码:
+    319 |             DROPBITS(4);
+    320 | #ifndef PKZIP_BUG_WORKAROUND
+    321 |             if (state->nlen > 286 || state->ndist > 30) {
+    322 |                 strm->msg = (char *)"too many length or distance symbols";
+    323 |                 state->mode = BAD;
+    324 |                 break;
+    325 |             }
+
+--- 步骤 111 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:323
+  引证行: 323
+  引证内容: state->mode = BAD;
+  初判倾向: VIOLATED
+  上下文源码:
+    320 | #ifndef PKZIP_BUG_WORKAROUND
+    321 |             if (state->nlen > 286 || state->ndist > 30) {
+    322 |                 strm->msg = (char *)"too many length or distance symbols";
+    323 |                 state->mode = BAD;
+    324 |                 break;
+    325 |             }
+    326 | #endif
+
+--- 步骤 112 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:328
+  引证行: 328
+  引证内容: state->have = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+    325 |             }
+    326 | #endif
+    327 |             Tracev((stderr, "inflate:       table sizes ok\n"));
+    328 |             state->have = 0;
+    329 |             state->mode = LENLENS;
+    330 |                 /* fallthrough */
+    331 |         case LENLENS:
+
+--- 步骤 113 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:329
+  引证行: 329
+  引证内容: state->mode = LENLENS;
+  初判倾向: VIOLATED
+  上下文源码:
+    326 | #endif
+    327 |             Tracev((stderr, "inflate:       table sizes ok\n"));
+    328 |             state->have = 0;
+    329 |             state->mode = LENLENS;
+    330 |                 /* fallthrough */
+    331 |         case LENLENS:
+    332 |             while (state->have < state->ncode) {
+
+--- 步骤 114 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:334
+  引证行: 334
+  引证内容: state->lens[order[state->have++]] = (unsigned short)BITS(3);
+  初判倾向: VIOLATED
+  上下文源码:
+    331 |         case LENLENS:
+    332 |             while (state->have < state->ncode) {
+    333 |                 NEEDBITS(3);
+    334 |                 state->lens[order[state->have++]] = (unsigned short)BITS(3);
+    335 |                 DROPBITS(3);
+    336 |             }
+    337 |             while (state->have < 19)
+
+--- 步骤 115 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:362
+  引证行: 362
+  引证内容: state->lens[state->have++] = here.val;
+  初判倾向: VIOLATED
+  上下文源码:
+    359 |                 }
+    360 |                 if (here.val < 16) {
+    361 |                     DROPBITS(here.bits);
+    362 |                     state->lens[state->have++] = here.val;
+    363 |                 }
+    364 |                 else {
+    365 |                     if (here.val == 16) {
+
+--- 步骤 116 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:397
+  引证行: 397
+  引证内容: state->lens[state->have++] = (unsigned short)len;
+  初判倾向: VIOLATED
+  上下文源码:
+    394 |                         break;
+    395 |                     }
+    396 |                     while (copy--)
+    397 |                         state->lens[state->have++] = (unsigned short)len;
+    398 |                 }
+    399 |             }
+    400 | 
+
+--- 步骤 117 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:21
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 118 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:24
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 119 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:25
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 120 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:28
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 121 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:29
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 122 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:35
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 123 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:37
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 124 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:38
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 125 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:43
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 126 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:44
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 127 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:45
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 128 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:46
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 129 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:47
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 130 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:49
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 131 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:52
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 132 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:53
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 133 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:54
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 134 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:59
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 135 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:60
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 136 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:64
+  命中信号: Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check
+  筛选: keep
+
+--- 步骤 137 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:65
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 138 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:70
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 139 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:71
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 140 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:72
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 141 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:73
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 142 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:74
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 143 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:77
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 144 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:78
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 145 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:80
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 146 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:81
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 147 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:87
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 148 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:88
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 149 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:89
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 150 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:90
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 151 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:93
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 152 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:94
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 153 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:95
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 154 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:98
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 155 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:99
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 156 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:100
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 157 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:101
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 158 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:103
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 159 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:107
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 160 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:108
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 161 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:109
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 162 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:110
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 163 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:112
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 164 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:116
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 165 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:117
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 166 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:118
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 167 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:120
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 168 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:121
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 169 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:123
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 170 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:126
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 171 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:128
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 172 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:129
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 173 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:130
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 174 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:131
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 175 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:132
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 176 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:135
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 177 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:136
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 178 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:137
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 179 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:140
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 180 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:141
+  命中信号: Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check
+  筛选: keep
+
+--- 步骤 181 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:144
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 182 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:145
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 183 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:146
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 184 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:147
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 185 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:148
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 186 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:149
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 187 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:150
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 188 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:152
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 189 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:153
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 190 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:156
+  命中信号: Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check
+  筛选: keep
+
+--- 步骤 191 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:158
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 192 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:160
+  命中信号: Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check
+  筛选: keep
+
+--- 步骤 193 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:161
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 194 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:164
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 195 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:169
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 196 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:170
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 197 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:171
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 198 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:172
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 199 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:174
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 200 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:175
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 201 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:180
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 202 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:181
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 203 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:182
+  命中信号: Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check
+  筛选: keep
+
+--- 步骤 204 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:183
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 205 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:186
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 206 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:191
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 207 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:192
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 208 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:193
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 209 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:194
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 210 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:196
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 211 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:197
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 212 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:202
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 213 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:203
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 214 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:204
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 215 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:207
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 216 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:209
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 217 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:210
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 218 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:211
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 219 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:216
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 220 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:217
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 221 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:218
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 222 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:220
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 223 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:221
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 224 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:226
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 225 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:228
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 226 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:231
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 227 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:235
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 228 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:236
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 229 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:242
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 230 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:244
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 231 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:248
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 232 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:253
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 233 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:254
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 234 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:259
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 235 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:260
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 236 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:268
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 237 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:269
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 238 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:272
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 239 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:273
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 240 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:281
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 241 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:282
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 242 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:285
+  命中信号: Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check
+  筛选: keep
+
+--- 步骤 243 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:287
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 244 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:289
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 245 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:293
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 246 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:296
+  命中信号: Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check
+  筛选: keep
+
+--- 步骤 247 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:306
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 248 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:310
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 249 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:314
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 250 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:316
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 251 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:318
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 252 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:321
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 253 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:322
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 254 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:323
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 255 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:328
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 256 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:329
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 257 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:332
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 258 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:334
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 259 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:337
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 260 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:362
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 261 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:397
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  筛选: keep
+
+--- 步骤 262 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 263 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 264 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 265 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 266 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 267 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 268 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 269 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:38
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 270 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:43
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 271 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:44
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 272 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 273 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:46
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 274 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:47
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 275 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:49
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 276 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:52
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 277 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:53
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 278 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:54
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 279 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 280 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:60
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 281 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:64
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 282 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:65
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 283 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:70
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 284 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:71
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 285 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:72
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 286 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:73
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 287 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:74
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 288 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:77
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 289 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:78
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 290 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:80
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 291 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:81
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 292 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:87
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 293 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:88
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 294 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:89
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 295 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:90
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 296 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:93
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 297 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:94
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 298 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:95
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 299 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:98
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 300 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:99
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 301 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:100
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 302 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:101
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 303 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:103
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 304 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:107
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 305 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:108
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 306 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:109
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 307 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:110
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 308 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:112
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 309 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:116
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 310 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:117
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 311 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:118
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 312 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:120
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 313 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:121
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 314 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:123
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 315 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:126
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 316 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:128
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 317 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:129
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 318 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:130
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 319 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:131
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 320 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:132
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 321 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:135
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 322 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:136
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 323 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:137
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 324 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:140
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 325 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:141
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 326 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:144
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 327 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:145
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 328 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:146
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 329 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:147
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 330 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:148
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 331 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:149
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 332 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:150
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 333 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:152
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 334 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:153
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 335 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:156
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 336 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:158
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 337 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:160
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 338 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:161
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 339 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:164
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 340 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:169
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 341 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:170
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 342 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:171
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 343 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:172
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 344 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:174
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 345 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:175
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 346 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:180
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 347 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:181
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 348 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:182
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 349 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:183
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 350 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:186
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 351 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:191
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 352 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:192
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 353 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:193
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 354 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:194
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 355 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:196
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 356 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:197
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 357 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:202
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 358 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:203
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 359 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:204
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 360 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:207
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 361 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:209
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 362 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:210
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 363 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:211
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 364 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:216
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 365 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:217
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 366 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:218
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 367 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:220
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 368 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:221
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 369 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:226
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 370 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:228
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 371 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:231
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 372 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:235
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 373 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:236
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 374 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:242
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 375 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:244
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 376 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:248
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 377 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:253
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 378 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:254
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 379 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:259
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 380 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:260
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 381 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:268
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 382 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:269
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 383 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:272
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 384 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:273
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 385 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:281
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 386 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:282
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 387 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:285
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 388 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:287
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 389 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:289
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 390 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:293
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 391 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:296
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 392 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:306
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 393 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:310
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 394 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:314
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 395 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:316
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 396 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:318
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 397 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:321
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 398 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:322
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 399 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:323
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 400 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:328
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 401 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:329
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 402 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:332
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 403 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:334
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 404 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:337
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 405 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:362
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 406 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:397
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

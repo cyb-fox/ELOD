@@ -1,0 +1,78 @@
+{
+  "cwe_id": "CWE-820",
+  "name": "Missing Synchronization",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "race-condition",
+    "child_of": [
+      "CWE-662"
+    ],
+    "parent_of": [
+      "CWE-543",
+      "CWE-567",
+      "CWE-1096"
+    ]
+  },
+  "principle": "Code uses a shared resource concurrently without any synchronization. Unsynchronized access can expose stale, interleaved, or inconsistent state and can let attacker-influenced timing alter data or execution logic.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Go",
+    "Rust"
+  ],
+  "detection_signals": [
+    "pthread_create or std::thread or ExecutorService with shared mutable variable access and no pthread_mutex_lock/std::mutex/synchronized/ReentrantLock",
+    "global/static mutable variable read and written by multiple threads without atomic type or lock guard",
+    "shared FILE*/stdout/file descriptor written by forked processes or threads using putc/write/fflush with no flockfile/flock/fcntl lock",
+    "Java static mutable field updated outside synchronized method/block and not Atomic*",
+    "check-then-act on shared Map/List/cache such as containsKey()+put() or size()+get() with no lock",
+    "lazy singleton pattern if (instance == null) instance = new X() without synchronized, Lock, or volatile double-checking"
+  ],
+  "negative_signals": [
+    "every access to the shared resource is inside the same pthread_mutex_lock/unlock, synchronized(lock), or ReentrantLock lock/finally unlock",
+    "C++ access protected by std::lock_guard, std::unique_lock, or std::scoped_lock using the same mutex",
+    "shared counter/state implemented with std::atomic or Java AtomicInteger/AtomicReference atomic operations",
+    "state is immutable after construction using final/const and is only read concurrently",
+    "data is thread-local, stack-local, or passed by value with no shared mutable alias",
+    "ConcurrentHashMap or other concurrent collection uses atomic APIs such as computeIfAbsent, putIfAbsent, or compute"
+  ],
+  "false_defense_traps": [
+    "volatile alone used for compound operations such as ++, check-then-act, or lazy initialization",
+    "only writes are locked while reads of the same shared state are unlocked",
+    "different locks protect the same resource in different methods",
+    "Collections.synchronizedMap used but iteration occurs outside synchronized(map)",
+    "double-checked locking without volatile on the shared instance field"
+  ],
+  "verification_focus": "Is every concurrent access to the same mutable resource protected by one consistent synchronization mechanism or atomic operation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-820",
+        "CWE-362"
+      ],
+      "trigger": "two threads or processes access the same mutable resource and at least one writes without synchronization",
+      "consequence": "race condition causing corrupted data, stale reads, or altered execution logic"
+    },
+    {
+      "chain": [
+        "CWE-820",
+        "CWE-200"
+      ],
+      "trigger": "unsynchronized read observes partially updated or unintended shared state",
+      "consequence": "confidential application data can be exposed"
+    }
+  ],
+  "patch_principle": [
+    "Identify all shared mutable resources and all threads/processes that access them.",
+    "Guard every read and write with the same mutex, monitor, file lock, or lock object.",
+    "Use atomic types or concurrent collections for simple shared state and atomic compound operations.",
+    "Avoid shared mutable state by using immutable objects, thread-local storage, message passing, or joining before shared output.",
+    "Document lock ownership and keep lock/unlock in finally/RAII to prevent missed release paths."
+  ],
+  "minimal_examples": {
+    "vuln": "counter++; // shared static/global counter used by multiple threads",
+    "safe": "synchronized (lock) { counter++; }"
+  }
+}

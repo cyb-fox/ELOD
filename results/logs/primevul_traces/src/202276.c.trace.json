@@ -1,0 +1,88 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "block_insert:20"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 20,
+      "snippet": "for (lnum = oap->start.lnum + 1; lnum <= oap->end.lnum; lnum++)",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "block_insert:20",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "block_insert:20"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "lnum",
+        "oap",
+        "start"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start"
+      ]
+    },
+    "sink_id": "block_insert:20",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "block_insert:20"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "block_insert:20",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  }
+]

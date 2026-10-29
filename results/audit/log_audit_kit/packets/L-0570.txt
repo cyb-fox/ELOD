@@ -1,0 +1,106 @@
+=== 待审推理日志 L-0570 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 4 个。
+
+【推理轨迹】共 11 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load_buffer:25
+  引证行: 25
+  引证内容: if (main_mach0->hdr.filetype != MH_FILESET && prelink_range->range.size) {
+  初判倾向: VIOLATED
+  上下文源码:
+     22 | 	}
+     23 | 
+     24 | 	RCFValueDict *prelink_info = NULL;
+     25 | 	if (main_mach0->hdr.filetype != MH_FILESET && prelink_range->range.size) {
+     26 | 		prelink_info = r_cf_value_dict_parse (fbuf, prelink_range->range.offset,
+     27 | 				prelink_range->range.size, R_CF_OPTION_SKIP_NSDATA);
+     28 | 		if (!prelink_info) {
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load_buffer:26
+  引证行: 26
+  引证内容: prelink_info = r_cf_value_dict_parse (fbuf, prelink_range->range.offset,
+  初判倾向: VIOLATED
+  上下文源码:
+     23 | 
+     24 | 	RCFValueDict *prelink_info = NULL;
+     25 | 	if (main_mach0->hdr.filetype != MH_FILESET && prelink_range->range.size) {
+     26 | 		prelink_info = r_cf_value_dict_parse (fbuf, prelink_range->range.offset,
+     27 | 				prelink_range->range.size, R_CF_OPTION_SKIP_NSDATA);
+     28 | 		if (!prelink_info) {
+     29 | 			R_FREE (prelink_range);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load_buffer:45
+  引证行: 45
+  引证内容: obj->mach0 = main_mach0;
+  初判倾向: VIOLATED
+  上下文源码:
+     42 | 		}
+     43 | 	}
+     44 | 
+     45 | 	obj->mach0 = main_mach0;
+     46 | 	obj->rebase_info = rebase_info;
+     47 | 	obj->prelink_info = prelink_info;
+     48 | 	obj->cache_buf = fbuf;
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load_buffer:25
+  命中信号: memcpy/memmove/strncpy/read/write/malloc/new/vector::resize/Arrays.copyOf called with externally derived length not range-checked
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load_buffer:26
+  筛选: exclude
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load_buffer:27
+  命中信号: memcpy/memmove/strncpy/read/write/malloc/new/vector::resize/Arrays.copyOf called with externally derived length not range-checked
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load_buffer:45
+  筛选: exclude
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load_buffer:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load_buffer:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load_buffer:27
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load_buffer:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

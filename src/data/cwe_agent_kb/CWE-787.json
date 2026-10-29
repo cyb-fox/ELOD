@@ -1,0 +1,94 @@
+{
+  "cwe_id": "CWE-787",
+  "name": "Out-of-bounds Write",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-119"
+    ],
+    "parent_of": [
+      "CWE-120",
+      "CWE-121",
+      "CWE-122",
+      "CWE-123",
+      "CWE-124"
+    ]
+  },
+  "principle": "The program writes before the beginning or past the end of the intended buffer. This corrupts adjacent memory and can crash the process or overwrite control data for code execution.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Assembly",
+    "Java"
+  ],
+  "detection_signals": [
+    "strcpy, strcat, sprintf, gets, scanf(\"%s\") writing into fixed-size char buffer",
+    "memcpy, memmove, strncpy, read, recv size argument not bounded by destination capacity",
+    "array[index] = value where index comes from input, parsing, pointer subtraction, or arithmetic without index < length check",
+    "loop writes buf[i] with condition i <= len or i <= sizeof(buf)",
+    "malloc/calloc/new allocation size omits terminator, sentinel, element multiplier, or overflow check before writes",
+    "pointer write through p+n or p-- where n may be negative or greater than buffer length",
+    "Java JNI, sun.misc.Unsafe, ByteBuffer native address, or System.arraycopy into native/fixed buffer with unchecked length"
+  ],
+  "negative_signals": [
+    "write guarded by 0 <= index && index < capacity on the same buffer",
+    "copy length computed as min(source_length, destination_capacity - used - terminator_space)",
+    "snprintf(dst, sizeof dst, ...) or strlcpy/strlcat/memcpy_s with checked return/truncation handling",
+    "allocation uses checked multiplication/addition and includes space for NUL terminator or sentinel",
+    "Java ordinary array store with JVM bounds checks and no native/Unsafe access"
+  ],
+  "false_defense_traps": [
+    "strncpy can leave the destination unterminated when source length >= destination size",
+    "compiler canaries, /GS, FORTIFY_SOURCE, ASLR, PIE, NX are defense-in-depth, not bounds validation",
+    "checking source length before expansion or encoding misses output growth such as '&' to '&amp;'",
+    "casting negative length or return value to size_t can turn -1 into a huge copy size",
+    "checking only upper bound misses underwrite through negative index or pointer decrement"
+  ],
+  "verification_focus": "Can any write index, pointer, or copy length reach outside the destination buffer, including off-by-one, negative, and integer-overflow cases?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-787"
+      ],
+      "trigger": "off-by-one boundary or missing terminator space",
+      "consequence": "one-byte or sentinel write corrupts adjacent memory"
+    },
+    {
+      "chain": [
+        "CWE-131",
+        "CWE-787"
+      ],
+      "trigger": "allocated buffer size is smaller than the number of bytes or elements written",
+      "consequence": "heap or stack buffer overflow"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-787"
+      ],
+      "trigger": "integer overflow reduces allocation or bounds calculation before copy",
+      "consequence": "undersized buffer receives oversized write"
+    },
+    {
+      "chain": [
+        "CWE-822",
+        "CWE-787"
+      ],
+      "trigger": "untrusted or invalid pointer is used as a write destination",
+      "consequence": "write to unintended memory address"
+    }
+  ],
+  "patch_principle": [
+    "Validate every write offset and length against the destination buffer capacity before writing.",
+    "Use bounded APIs such as snprintf, memcpy_s, strlcpy/strlcat, or vetted safe string libraries and check truncation/errors.",
+    "Compute allocation sizes with checked arithmetic and include terminators, sentinels, and element-size multipliers.",
+    "Reject or truncate inputs before copy and after expansion/encoding size is known.",
+    "Enable ASan, FORTIFY_SOURCE, /GS, stack canaries, ASLR, PIE, and NX as defense-in-depth."
+  ],
+  "minimal_examples": {
+    "vuln": "int a[3]; a[3] = 7;",
+    "safe": "int a[3]; if (i >= 0 && i < 3) a[i] = 7;"
+  }
+}

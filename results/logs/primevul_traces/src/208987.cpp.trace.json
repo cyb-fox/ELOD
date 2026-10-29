@@ -1,0 +1,64 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "PlayerGeneric:8"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "mixer",
+        "isActive",
+        "isDeviceRemoved"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "one alias freed, then another alias to the same allocation is dereferenced or passed to a callee",
+        "free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)"
+      ]
+    },
+    "sink_id": "PlayerGeneric:8",
+    "state_delta": {
+      "object_live_at_use": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "PlayerGeneric:8"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "object_live_at_use"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.9
+    },
+    "sink_id": "PlayerGeneric:8",
+    "state_delta": {
+      "object_live_at_use": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "lifetime|use"
+  }
+]

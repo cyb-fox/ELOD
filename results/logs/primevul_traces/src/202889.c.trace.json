@@ -1,0 +1,262 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "esp6_output_head:8"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-787"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 8,
+      "snippet": "int tailen = esp->tailen;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "esp6_output_head:8",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "esp6_output_head:10"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 10,
+      "snippet": "if (x->encap) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "esp6_output_head:10",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "esp6_output_head:27"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-190"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 27,
+      "snippet": "struct sock *sk = skb->sk;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "esp6_output_head:27",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "esp6_output_head:8"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "tailen",
+        "esp"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "loop writes buf[i] with condition i <= len or i <= sizeof(buf)",
+        "strcpy, strcat, sprintf, gets, scanf(\"%s\") writing into fixed-size char buffer"
+      ]
+    },
+    "sink_id": "esp6_output_head:8",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "esp6_output_head:10"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "encap"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "`x = a - b` where `a` or `b` comes from input, packet length, or external state"
+      ]
+    },
+    "sink_id": "esp6_output_head:10",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "esp6_output_head:27"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "sock",
+        "sk",
+        "skb"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit",
+        "signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start"
+      ]
+    },
+    "sink_id": "esp6_output_head:27",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "esp6_output_head:8"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "esp6_output_head:8",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "esp6_output_head:10"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "esp6_output_head:10",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "esp6_output_head:27"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "esp6_output_head:27",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  }
+]

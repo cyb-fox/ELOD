@@ -1,0 +1,37 @@
+{
+  "cwe_id": "CWE-354",
+  "name": "Improper Validation of Integrity Check Value",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "data-exposure-and-trust",
+    "child_of": [],
+    "parent_of": []
+  },
+  "principle": "The product uses an integrity or authentication result without validating that the result is valid for the object and operation being consumed.",
+  "applicable_languages": ["C", "C++", "Java"],
+  "detection_signals": [
+    "A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value",
+    "A verification result is overwritten, inverted, or checked for the wrong object before a sensitive state transition or use",
+    "Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established"
+  ],
+  "negative_signals": [
+    "The verification result is checked on every path before the authenticated object is used",
+    "Failure, exception, and state-transition paths reject the object and do not continue with the unchecked value",
+    "The check binds the verified result to the same object, algorithm, and operation that the consumer uses"
+  ],
+  "false_defense_traps": [
+    "Calling a verification API without checking its return value",
+    "Checking only that a signature or checksum field is present",
+    "Validating one object and consuming a different alias or stale state"
+  ],
+  "verification_focus": "Is the integrity result for this exact object checked and enforced before any security-sensitive consumer or state transition?",
+  "patch_principle": [
+    "Fail closed when integrity verification fails or is unavailable",
+    "Bind verification results to the exact object and operation being consumed",
+    "Reject before changing security-sensitive state"
+  ],
+  "minimal_examples": {
+    "vuln": "verified = verify_signature(data, sig); use_authenticated(data);",
+    "safe": "if (!verify_signature(data, sig)) return ERROR; use_authenticated(data);"
+  }
+}

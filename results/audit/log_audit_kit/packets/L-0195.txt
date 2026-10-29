@@ -1,0 +1,87 @@
+=== 待审推理日志 L-0195 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 3 个；未决 0 个。
+
+【推理轨迹】共 8 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:7
+  引证行: 7
+  引证内容: if (*num_pols == 0 || !pols[0]) {
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | {
+      5 | 	int i;
+      6 | 
+      7 | 	if (*num_pols == 0 || !pols[0]) {
+      8 | 		*num_pols = 0;
+      9 | 		*num_xfrms = 0;
+     10 | 		return 0;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:18
+  引证行: 18
+  引证内容: if (pols[0]->action == XFRM_POLICY_ALLOW &&
+  初判倾向: VIOLATED
+  上下文源码:
+     15 | 	*num_xfrms = pols[0]->xfrm_nr;
+     16 | 
+     17 | #ifdef CONFIG_XFRM_SUB_POLICY
+     18 | 	if (pols[0]->action == XFRM_POLICY_ALLOW &&
+     19 | 	    pols[0]->type != XFRM_POLICY_TYPE_MAIN) {
+     20 | 		pols[1] = xfrm_policy_lookup_bytype(xp_net(pols[0]),
+     21 | 						    XFRM_POLICY_TYPE_MAIN,
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:7
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:18
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:20
+  筛选: keep
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:7
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:18
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:20
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-119, CWE-190

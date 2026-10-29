@@ -1,0 +1,70 @@
+{
+  "cwe_id": "CWE-124",
+  "name": "Buffer Underwrite ('Buffer Underflow')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-786",
+      "CWE-787"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product writes through an index or pointer that can refer before the start of a buffer. This corrupts adjacent memory and can cause crashes, policy bypass, or code execution.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "buf[index] = value where index is decremented and no index >= 0 check dominates the write",
+    "while/for loop writes buf[len] then executes len-- without len >= 0 or pointer >= buf guard",
+    "char *p = strstr(buf, needle); int idx = p - buf; write to &buf[idx] without p != NULL check",
+    "strcpy(&buf[idx], src) or memcpy(&buf[idx], src, n) where idx is signed and may be negative",
+    "pointer write through *p or p[i] after p-- or p -= n without p >= buf check",
+    "size/length arithmetic result is cast between signed and unsigned then used as destination offset before buffer"
+  ],
+  "negative_signals": [
+    "write guarded by index >= 0 && index < size before buf[index]",
+    "backward scan loop condition includes len >= 0 before every buf[len] write",
+    "pointer destination guarded by p >= buf && p < buf + size before write",
+    "strstr/memchr/find result checked for NULL or npos before pointer subtraction or indexing",
+    "destination offset type and validation prevent negative values before memcpy/strcpy/memmove"
+  ],
+  "false_defense_traps": [
+    "checking only index < size but not index >= 0",
+    "checking only upper buffer overflow while backward traversal can cross the lower bound",
+    "using strstr result in pointer arithmetic before checking for NULL",
+    "assuming empty or all-whitespace input cannot drive a decrement loop below zero",
+    "treating all buffer underflow reports as reads; CWE-124 requires a write"
+  ],
+  "verification_focus": "Can any write destination index or pointer evaluate to an address before the buffer start?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-124"
+      ],
+      "trigger": "range check omits the minimum bound and a negative index reaches a write",
+      "consequence": "memory before the buffer is overwritten"
+    },
+    {
+      "chain": [
+        "CWE-124",
+        "CWE-787"
+      ],
+      "trigger": "underwrite is an out-of-bounds write",
+      "consequence": "memory corruption, crash, or controlled code execution"
+    }
+  ],
+  "patch_principle": [
+    "Validate every computed index or pointer against the lower and upper buffer bounds before writing.",
+    "Add lower-bound termination checks to backward scans and decrement loops.",
+    "Check search results such as strstr or memchr for NULL before pointer arithmetic.",
+    "Use size_t or bounded abstractions carefully; do not cast negative signed offsets to unsigned.",
+    "Prefer memory-safe APIs or languages with automatic bounds checks."
+  ],
+  "minimal_examples": {
+    "vuln": "char *p = strstr(destBuf, \"Replace Me\"); int idx = p - destBuf; strcpy(&destBuf[idx], srcBuf);",
+    "safe": "char *p = strstr(destBuf, \"Replace Me\"); if (p != NULL) strcpy(p, srcBuf);"
+  }
+}

@@ -1,0 +1,73 @@
+=== 待审推理日志 L-0498 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 0 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: CopySliceData:28
+  引证行: 28
+  引证内容: if (!sss_[idx]->Get(key, &value)) {
+  初判倾向: VIOLATED
+  上下文源码:
+     25 |     CHECK_GE(idx, 0) << "Failed to find the index for filename " << fname;
+     26 |     // We read a record in the corresponding sstable
+     27 |     const string key = EncodeTensorNameSlice(name, slice_s);
+     28 |     if (!sss_[idx]->Get(key, &value)) {
+     29 |       VLOG(1) << "Failed to seek to the record for tensor " << name
+     30 |               << ", slice " << slice_s.DebugString()
+     31 |               << ": computed key = " << key;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: CopySliceData:41
+  引证行: 41
+  引证内容: tss->shape(), slice_s, slice,
+  初判倾向: VIOLATED
+  上下文源码:
+     38 |       return false;
+     39 |     }
+     40 |     CopyDataFromTensorSliceToTensorSlice(
+     41 |         tss->shape(), slice_s, slice,
+     42 |         checkpoint::TensorProtoData<T>(sts.data().data()), data);
+     43 |   }
+     44 |   return true;
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: CopySliceData:28
+  命中信号: Java assert request.getParameter(...), assert servlet/header/body value, or assert method argument in public/API entrypoint
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: CopySliceData:41
+  命中信号: expensive work on each request with no rate limiter, semaphore, or concurrency cap
+  命中信号: reads from socket/file into memory or disk until EOF with no quota, cap, or total-bytes counter
+  筛选: keep
+  义务 input_sanitized: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: CopySliceData:28
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: CopySliceData:41
+  违背的义务: input_sanitized
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 input_sanitized: ? -> VIOLATED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-400

@@ -1,0 +1,164 @@
+=== 待审推理日志 L-0558 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 6 个；未决 6 个。
+
+【推理轨迹】共 17 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: nfs4_file_open:4
+  引证行: 4
+  引证内容: struct dentry *dentry = file_dentry(filp);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | nfs4_file_open(struct inode *inode, struct file *filp)
+      2 | {
+      3 | 	struct nfs_open_context *ctx;
+      4 | 	struct dentry *dentry = file_dentry(filp);
+      5 | 	struct dentry *parent = NULL;
+      6 | 	struct inode *dir;
+      7 | 	unsigned openflags = filp->f_flags;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: nfs4_file_open:7
+  引证行: 7
+  引证内容: unsigned openflags = filp->f_flags;
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | 	struct dentry *dentry = file_dentry(filp);
+      5 | 	struct dentry *parent = NULL;
+      6 | 	struct inode *dir;
+      7 | 	unsigned openflags = filp->f_flags;
+      8 | 	struct iattr attr;
+      9 | 	int err;
+     10 | 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: nfs4_file_open:35
+  引证行: 35
+  引证内容: ctx = alloc_nfs_open_context(file_dentry(filp), filp->f_mode, filp);
+  初判倾向: VIOLATED
+  上下文源码:
+     32 | 	parent = dget_parent(dentry);
+     33 | 	dir = d_inode(parent);
+     34 | 
+     35 | 	ctx = alloc_nfs_open_context(file_dentry(filp), filp->f_mode, filp);
+     36 | 	err = PTR_ERR(ctx);
+     37 | 	if (IS_ERR(ctx))
+     38 | 		goto out;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: nfs4_file_open:44
+  引证行: 44
+  引证内容: filemap_write_and_wait(inode->i_mapping);
+  初判倾向: VIOLATED
+  上下文源码:
+     41 | 	if (openflags & O_TRUNC) {
+     42 | 		attr.ia_valid |= ATTR_SIZE;
+     43 | 		attr.ia_size = 0;
+     44 | 		filemap_write_and_wait(inode->i_mapping);
+     45 | 	}
+     46 | 
+     47 | 	inode = NFS_PROTO(dir)->open_context(dir, ctx, openflags, &attr, NULL);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: nfs4_file_open:47
+  引证行: 47
+  引证内容: inode = NFS_PROTO(dir)->open_context(dir, ctx, openflags, &attr, NULL);
+  初判倾向: VIOLATED
+  上下文源码:
+     44 | 		filemap_write_and_wait(inode->i_mapping);
+     45 | 	}
+     46 | 
+     47 | 	inode = NFS_PROTO(dir)->open_context(dir, ctx, openflags, &attr, NULL);
+     48 | 	if (IS_ERR(inode)) {
+     49 | 		err = PTR_ERR(inode);
+     50 | 		switch (err) {
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: nfs4_file_open:1
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: nfs4_file_open:4
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: nfs4_file_open:7
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: nfs4_file_open:35
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: nfs4_file_open:44
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: nfs4_file_open:47
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: nfs4_file_open:1
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: nfs4_file_open:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: nfs4_file_open:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: nfs4_file_open:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: nfs4_file_open:44
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: nfs4_file_open:47
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

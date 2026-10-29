@@ -1,0 +1,108 @@
+{
+  "schema": "elod_rq2_log_audit/2",
+  "audited_object": "the intermediate LLM's reasoning process and its trace (the full trajectory), not the source file and not the final label alone",
+  "scope": "agreement-based subset only",
+  "scope_note": "RQ2 uses a single primary scope: records on which both human reviewers independently assigned the same verdict. The number of records on which the two reviewers disagreed is reported as-is and is NOT arbitrated by any automatic rule and NOT resolved by any third reviewer. No consensus-by-arbitration number is produced.",
+  "n_records": 870,
+  "n_both_agree": 702,
+  "n_both_agree_rate": 0.8069,
+  "n_disagreements": 168,
+  "disagreement_pairs": {
+    "correct|too_aggressive": 141,
+    "correct|too_conservative": 26,
+    "too_aggressive|too_conservative": 1
+  },
+  "agreement": {
+    "verdict": {
+      "raw": 0.8069,
+      "cohen_kappa": 0.607,
+      "kappa_bootstrap_95ci": [
+        0.5537,
+        0.6572
+      ]
+    },
+    "evidence_grounded": {
+      "raw": 0.7609,
+      "cohen_kappa": 0.5355
+    },
+    "reasoning_agree": {
+      "exact": 0.5437,
+      "within_1": 0.9483,
+      "quadratic_weighted_kappa": 0.5488
+    }
+  },
+  "verdict_agreement_subset_distribution": {
+    "correct": 448,
+    "too_aggressive": 250,
+    "too_conservative": 4,
+    "total": 702
+  },
+  "verdict_agreement_subset_rate": {
+    "correct": 0.6382,
+    "too_aggressive": 0.3561,
+    "too_conservative": 0.0057
+  },
+  "reasoning_agree_mean": 2.703,
+  "reasoning_agree_agreement_subset_mean": 2.703,
+  "evidence_grounded_rate_both_yes": 0.4023,
+  "by_rq1_three_state": {
+    "vuln": {
+      "n_all": 344,
+      "n_both_agree": 251,
+      "agreement_verdict": {
+        "correct": 58,
+        "too_aggressive": 193
+      },
+      "agreement_verdict_rate": {
+        "correct": 0.2311,
+        "too_aggressive": 0.7689
+      }
+    },
+    "underdetermined": {
+      "n_all": 404,
+      "n_both_agree": 348,
+      "agreement_verdict": {
+        "correct": 343,
+        "too_conservative": 4,
+        "too_aggressive": 1
+      },
+      "agreement_verdict_rate": {
+        "correct": 0.9856,
+        "too_conservative": 0.0115,
+        "too_aggressive": 0.0029
+      }
+    },
+    "local_guard_observed": {
+      "n_all": 122,
+      "n_both_agree": 103,
+      "agreement_verdict": {
+        "correct": 47,
+        "too_aggressive": 56
+      },
+      "agreement_verdict_rate": {
+        "correct": 0.4563,
+        "too_aggressive": 0.5437
+      }
+    }
+  },
+  "by_side_agreement_subset": {
+    "vulnerable": {
+      "n": 346,
+      "correct": 210,
+      "too_aggressive": 133,
+      "too_conservative": 3
+    },
+    "patched": {
+      "n": 356,
+      "correct": 238,
+      "too_aggressive": 117,
+      "too_conservative": 1
+    }
+  },
+  "sources": {
+    "reviewer_A": "audit/log_audit_kit/打标表_评审A.csv",
+    "reviewer_B": "audit/log_audit_kit/打标表_评审B.csv"
+  },
+  "semantics_note": "Audited object: the intermediate LLM's reasoning process and its trace (the full trajectory), not the source file and not the final label alone. Two human experts independently blind-audited all 870 traces; the three fields are their judgements of that reasoning. verdict is a single axis: position of the conclusion relative to the evidence shown in the packet. correct includes an honest underdetermined; too_aggressive covers any determinate conclusion inside the trace that exceeds its evidence, including a zero-citation obligation flip or a safe_proved claim, not only a final vuln report. Consequently a near-zero too_aggressive on the underdetermined row is definitional, not a performance result; the trace-quality axis is carried by evidence_grounded and reasoning_agree.",
+  "revision_note": "This file was revised to remove an earlier consensus-by-arbitration block (n_arbitrated=168, verdict_consensus_distribution) that had no human arbiter behind it: only two reviewer tables exist in this package. All numbers here are restricted to the agreement-based subset (n=702) or reported as raw disagreement counts. The 168 disagreements are carried forward unmodified and are not resolved."
+}

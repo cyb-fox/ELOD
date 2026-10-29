@@ -1,0 +1,85 @@
+{
+  "cwe_id": "CWE-770",
+  "name": "Allocation of Resources Without Limits or Throttling",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [
+      "CWE-400",
+      "CWE-665"
+    ],
+    "parent_of": [
+      "CWE-774",
+      "CWE-789",
+      "CWE-1325"
+    ]
+  },
+  "principle": "Code allocates reusable resources for an actor without enforcing maximum size, count, rate, or quota. Attackers can force CPU, memory, file, socket, process, thread, or disk exhaustion and deny service to other users.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "C/C++ malloc(size), calloc(n,size), realloc(ptr,size), new[] or std::vector::resize(size) where size comes from request/input and has no upper-bound check",
+    "Java new byte[n], new Object[n], ByteBuffer.allocate(n), ArrayList(initialCapacity), StringBuilder(capacity) where n/capacity is request-controlled and not capped",
+    "accept(), ServerSocket.accept(), or socket handler loop creates fork(), pthread_create(), std::thread, new Thread(), or Executor task without max connection/thread/request limit",
+    "while/read loop writes request data to file, buffer, collection, or database until EOF with no byte counter or maximum total size",
+    "unbounded queue/map/list growth using add(), put(), push_back(), emplace(), offer(), or cache insert keyed by user input without eviction/quota",
+    "retry/poll/request processing loop lacks rate limiting, token bucket, semaphore, backpressure, or per-user/per-IP quota",
+    "open(), fopen(), socket(), epoll_create(), CreateFile-like handle allocation in request path without descriptor/handle count limit"
+  ],
+  "negative_signals": [
+    "input-controlled allocation size is checked against a fixed MAX_* constant before allocation",
+    "request loop increments totalBytes/items/connections and rejects or breaks when total exceeds a configured limit",
+    "resource acquisition is guarded by Semaphore, bounded ExecutorService/ThreadPoolExecutor, bounded queue, or connection pool with max size",
+    "per-user, per-IP, or authenticated-principal quota/rate limiter is enforced server-side before allocation",
+    "OS/environment resource limits are set and checked, such as setrlimit()/getrlimit(), cgroups, container memory limits, or JVM -Xmx plus application-level handling",
+    "allocation failure paths check NULL, std::bad_alloc, IOException, RejectedExecutionException, or offer() failure and fail closed"
+  ],
+  "false_defense_traps": [
+    "client-side size or rate checks without duplicate server-side enforcement",
+    "checking only size > 0 but not size <= MAX",
+    "authentication alone without per-principal quota or throttling",
+    "blacklisting suspicious values instead of allowlisting bounded ranges",
+    "global throttling only, allowing one attacker to degrade all valid users"
+  ],
+  "verification_focus": "Can an untrusted actor control the number, rate, or size of resource allocations without a server-side enforced maximum or throttle?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-20",
+        "CWE-770"
+      ],
+      "trigger": "Unvalidated input supplies allocation size, object count, loop count, or upload length",
+      "consequence": "Memory, disk, CPU, handle, thread, or process exhaustion causing denial of service"
+    },
+    {
+      "chain": [
+        "CWE-770",
+        "CWE-400"
+      ],
+      "trigger": "Repeated or oversized allocations exceed available resources",
+      "consequence": "Uncontrolled resource consumption and service unavailability"
+    },
+    {
+      "chain": [
+        "CWE-770",
+        "CWE-789"
+      ],
+      "trigger": "Single request-controlled size is passed to memory allocation without a maximum",
+      "consequence": "Excessive memory allocation causing process or system denial of service"
+    }
+  ],
+  "patch_principle": [
+    "Define explicit maximums for allocation size, object count, request rate, connection count, upload size, and protocol scale.",
+    "Enforce quotas and throttles server-side per user, tenant, IP, session, or privilege level before allocating resources.",
+    "Use bounded pools, bounded queues, semaphores, rate limiters, cache eviction, and OS/container resource limits.",
+    "Validate input with allowlisted numeric ranges and reject values outside configured limits.",
+    "Handle allocation failure safely and fail closed without cascading resource leaks."
+  ],
+  "minimal_examples": {
+    "vuln": "char *buf = malloc(request_len);",
+    "safe": "if (request_len <= MAX_REQUEST) char *buf = malloc(request_len); else reject();"
+  }
+}

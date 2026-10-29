@@ -1,0 +1,88 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "bookmark:27"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-78"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 27,
+      "snippet": "my_argv[0] = const_cast<char *>(\"/bin/sh\");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "bookmark:27",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|exec"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "bookmark:27"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "my_argv",
+        "const_cast",
+        "bin"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C/C++ execl(\"/bin/sh\", \"sh\", \"-c\", cmd, NULL) or execv shell with -c and external input"
+      ]
+    },
+    "sink_id": "bookmark:27",
+    "state_delta": {
+      "input_sanitized": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "injection|exec"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "bookmark:27"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "input_sanitized"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "bookmark:27",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "input_sanitized": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|exec"
+  }
+]

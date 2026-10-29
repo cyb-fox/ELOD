@@ -1,0 +1,59 @@
+=== 待审推理日志 L-0404 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 0 个。
+
+【推理轨迹】共 5 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gem_transmit:88
+  引证行: 88
+  引证内容: s->tx_desc_addr[q] = packet_desc_addr +
+  初判倾向: VIOLATED
+  上下文源码:
+     85 |                 if (tx_desc_get_wrap(desc)) {
+     86 |                     s->tx_desc_addr[q] = gem_get_tx_queue_base_addr(s, q);
+     87 |                 } else {
+     88 |                     s->tx_desc_addr[q] = packet_desc_addr +
+     89 |                                          4 * gem_get_desc_len(s, false);
+     90 |                 }
+     91 |                 DB_PRINT("TX descriptor next: 0x%08x\n", s->tx_desc_addr[q]);
+
+--- 步骤 2 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gem_transmit:86
+  命中信号: scanf("%s", buf) or fscanf(...,"%s",buf) with no field width and buf is a local stack array
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gem_transmit:88
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gem_transmit:86
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gem_transmit:88
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-121

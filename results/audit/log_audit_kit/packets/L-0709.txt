@@ -1,0 +1,97 @@
+=== 待审推理日志 L-0709 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 1 个。
+
+【推理轨迹】共 10 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: st21nfca_connectivity_event_received:36
+  引证行: 36
+  引证内容: memcpy(transaction->aid, &skb->data[2],
+  初判倾向: VIOLATED
+  上下文源码:
+     33 | 		if (transaction->aid_len > sizeof(transaction->aid))
+     34 | 			return -EINVAL;
+     35 | 
+     36 | 		memcpy(transaction->aid, &skb->data[2],
+     37 | 		       transaction->aid_len);
+     38 | 
+     39 | 		/* Check next byte is PARAMETERS tag (82) */
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: st21nfca_connectivity_event_received:50
+  引证行: 50
+  引证内容: memcpy(transaction->params, skb->data +
+  初判倾向: VIOLATED
+  上下文源码:
+     47 | 		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
+     48 | 			return -EINVAL;
+     49 | 
+     50 | 		memcpy(transaction->params, skb->data +
+     51 | 		       transaction->aid_len + 4, transaction->params_len);
+     52 | 
+     53 | 		r = nfc_se_transaction(hdev->ndev, host, transaction);
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: st21nfca_connectivity_event_received:5
+  筛选: keep
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: st21nfca_connectivity_event_received:12
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: st21nfca_connectivity_event_received:36
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: st21nfca_connectivity_event_received:50
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: st21nfca_connectivity_event_received:5
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: st21nfca_connectivity_event_received:12
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: st21nfca_connectivity_event_received:36
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.7
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: st21nfca_connectivity_event_received:50
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-119

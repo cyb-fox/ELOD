@@ -1,0 +1,327 @@
+=== 待审推理日志 L-0781 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 12 个；未决 11 个。
+
+【推理轨迹】共 35 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:48
+  引证行: 48
+  引证内容: regs[a] = regs[b];
+  初判倾向: VIOLATED
+  上下文源码:
+     45 |     }
+     46 | 
+     47 |     CASE(OP_MOVE, BB) {
+     48 |       regs[a] = regs[b];
+     49 |       NEXT;
+     50 |     }
+     51 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:276
+  引证行: 276
+  引证内容: e->stack[b] = *regs_a;
+  初判倾向: VIOLATED
+  上下文源码:
+    273 |         mrb_value *regs_a = regs + a;
+    274 | 
+    275 |         if (b < MRB_ENV_LEN(e)) {
+    276 |           e->stack[b] = *regs_a;
+    277 |           mrb_write_barrier(mrb, (struct RBasic*)e);
+    278 |         }
+    279 |       }
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:471
+  引证行: 471
+  引证内容: ci->stack[0] = recv;
+  初判倾向: VIOLATED
+  上下文源码:
+    468 |             syms = irep->syms;
+    469 |           }
+    470 |         }
+    471 |         ci->stack[0] = recv;
+    472 |         /* pop stackpos */
+    473 |         ci = cipop(mrb);
+    474 |         pc = ci->pc;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:516
+  引证行: 516
+  引证内容: mrb->c->ci->stack[0] = mrb_nil_value();
+  初判倾向: VIOLATED
+  上下文源码:
+    513 |         proc = m;
+    514 |         irep = m->body.irep;
+    515 |         if (!irep) {
+    516 |           mrb->c->ci->stack[0] = mrb_nil_value();
+    517 |           a = 0;
+    518 |           c = OP_R_NORMAL;
+    519 |           goto L_OP_RETURN_BODY;
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:527
+  引证行: 527
+  引证内容: regs[0] = MRB_PROC_ENV(m)->stack[0];
+  初判倾向: VIOLATED
+  上下文源码:
+    524 |           stack_clear(regs+nargs, irep->nregs-nargs);
+    525 |         }
+    526 |         if (MRB_PROC_ENV_P(m)) {
+    527 |           regs[0] = MRB_PROC_ENV(m)->stack[0];
+    528 |         }
+    529 |         pc = irep->iseq;
+    530 |       }
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:582
+  引证行: 582
+  引证内容: ci->stack[0] = recv;
+  初判倾向: VIOLATED
+  上下文源码:
+    579 |       ci = cipush(mrb, a, 0, cls, NULL, mid, b);
+    580 | 
+    581 |       /* prepare stack */
+    582 |       ci->stack[0] = recv;
+    583 | 
+    584 |       if (MRB_METHOD_CFUNC_P(m)) {
+    585 |         mrb_value v;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:608
+  引证行: 608
+  引证内容: mrb->c->ci->stack[0] = v;
+  初判倾向: VIOLATED
+  上下文源码:
+    605 |             syms = irep->syms;
+    606 |           }
+    607 |         }
+    608 |         mrb->c->ci->stack[0] = v;
+    609 |         ci = cipop(mrb);
+    610 |         pc = ci->pc;
+    611 |       }
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:966
+  引证行: 966
+  引证内容: while (cibase <= ci && ci->proc != dst) {
+  初判倾向: VIOLATED
+  上下文源码:
+    963 |               }
+    964 |             }
+    965 |             /* check jump destination */
+    966 |             while (cibase <= ci && ci->proc != dst) {
+    967 |               if (ci->cci > CINFO_NONE) { /* jump cross C boundary */
+    968 |                 localjump_error(mrb, LOCALJUMP_ERROR_RETURN);
+    969 |                 goto L_RAISE;
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:978
+  引证行: 978
+  引证内容: while (cibase <= ci && ci->proc != dst) {
+  初判倾向: VIOLATED
+  上下文源码:
+    975 |               goto L_RAISE;
+    976 |             }
+    977 |             ci = mrb->c->ci;
+    978 |             while (cibase <= ci && ci->proc != dst) {
+    979 |               CHECKPOINT_RESTORE(RBREAK_TAG_RETURN_BLOCK) {
+    980 |                 cibase = mrb->c->cibase;
+    981 |                 dst = top_proc(mrb, proc);
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:1002
+  引证行: 1002
+  引证内容: regs[irep->nlocals] = v;
+  初判倾向: VIOLATED
+  上下文源码:
+     999 |             c = mrb->c;
+    1000 | 
+    1001 |             if (!c->prev) { /* toplevel return */
+    1002 |               regs[irep->nlocals] = v;
+    1003 |               goto CHECKPOINT_LABEL_MAKE(RBREAK_TAG_STOP);
+    1004 |             }
+    1005 |             if (!c->vmexec && c->prev->ci == c->prev->cibase) {
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mrb_vm_exec:1648
+  引证行: 1648
+  引证内容: regs[a] = mrb_obj_value(mrb->object_class);
+  初判倾向: VIOLATED
+  上下文源码:
+    1645 |     }
+    1646 | 
+    1647 |     CASE(OP_OCLASS, B) {
+    1648 |       regs[a] = mrb_obj_value(mrb->object_class);
+    1649 |       NEXT;
+    1650 |     }
+    1651 | 
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:48
+  命中信号: strlen(buf), printf("%s", buf), strcpy(dst, buf), or strcmp(buf, x) on a buffer that may lack a NUL within its allocated size
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:55
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:276
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:471
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:516
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:527
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:582
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:608
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:966
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:978
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:1002
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mrb_vm_exec:1648
+  命中信号: strlen(buf), printf("%s", buf), strcpy(dst, buf), or strcmp(buf, x) on a buffer that may lack a NUL within its allocated size
+  筛选: keep
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:48
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:55
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:276
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:471
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:516
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:527
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:582
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:608
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:966
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:978
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:1002
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mrb_vm_exec:1648
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

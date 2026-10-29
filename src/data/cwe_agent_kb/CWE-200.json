@@ -1,0 +1,95 @@
+{
+  "cwe_id": "CWE-200",
+  "name": "Exposure of Sensitive Information to an Unauthorized Actor",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "data-exposure-and-trust",
+    "child_of": [
+      "CWE-668"
+    ],
+    "parent_of": [
+      "CWE-201",
+      "CWE-203",
+      "CWE-209",
+      "CWE-213",
+      "CWE-215",
+      "CWE-359",
+      "CWE-497",
+      "CWE-538",
+      "CWE-1273"
+    ]
+  },
+  "principle": "The product writes, returns, logs, stores, or reveals sensitive information across a boundary to an actor that is not explicitly authorized. This is dangerous because confidentiality is lost and the data can enable privacy harm, credential theft, reconnaissance, or follow-on attacks.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "JavaScript",
+    "PHP",
+    "Python",
+    "C#",
+    "Go"
+  ],
+  "detection_signals": [
+    "HTTP response writes sensitive variables: password, passwd, token, secret, apiKey, ssn, creditCard, healthRecord, location",
+    "catch block sends exception details to client: e.printStackTrace(response.getWriter()), res.sendError(..., e.getMessage()), return stackTrace",
+    "logging call includes sensitive data: log.*, printf, System.out.println, NSLog, console.log with password/token/session/cookie/query/user object",
+    "debug-gated client output: if (debug) response.write(...), debugEnabled prints account, path, config, headers, environment",
+    "authentication response distinguishes states: \"user not found\" vs \"bad password\", different status codes, different timing paths",
+    "API returns full entity/object serialization: return user, JSON.stringify(user), ObjectMapper.writeValue(user) including private fields",
+    "externally reachable file/cache contains secrets: public/static/uploads/debug.log, .env, config.properties, core dump, backup file"
+  ],
+  "negative_signals": [
+    "authorization check immediately dominates sensitive output: if (!canViewSensitive(user, subject)) return 403",
+    "response DTO allowlists non-sensitive fields only: UserPublicDto(id,name), @JsonIgnore on password/token/ssn",
+    "sensitive fields are masked/redacted before sink: redact(token), maskCard(card), logSafe(user)",
+    "client-facing error is constant and generic: return \"Invalid username or password\"; internal stack trace logged only to restricted log",
+    "debug output compiled out or blocked in production: #ifndef NDEBUG, assert !isProduction(), debug endpoint requires admin role",
+    "logs are structured with denylisted/allowlisted fields and no raw object toString() or full request dump"
+  ],
+  "false_defense_traps": [
+    "Only hiding field names while still returning values or raw objects",
+    "Relying on HTTPS while sending secrets to an unauthorized user",
+    "Debug output protected only by a request parameter, cookie, or client-side flag",
+    "Logging full objects because toString()/JSON serialization seems harmless",
+    "Different error text, status code, or timing that still allows user/account enumeration"
+  ],
+  "verification_focus": "Does code explicitly manage, transmit, store, cleanse, or expose sensitive information in a way an unauthorized actor can observe?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-209",
+        "CWE-200"
+      ],
+      "trigger": "exception message or stack trace is returned to the client",
+      "consequence": "attacker reads paths, configuration names, SQL details, or internal state"
+    },
+    {
+      "chain": [
+        "CWE-203",
+        "CWE-200"
+      ],
+      "trigger": "externally visible response, status, or timing differs for secret-dependent states",
+      "consequence": "attacker infers valid users, records, or internal decisions"
+    },
+    {
+      "chain": [
+        "CWE-200",
+        "CWE-89"
+      ],
+      "trigger": "exposed table names, column names, or SQL text guide payload construction",
+      "consequence": "attacker improves SQL injection exploitation"
+    }
+  ],
+  "patch_principle": [
+    "Define trust boundaries and never send sensitive data outside the authorized boundary.",
+    "Return minimal allowlisted fields; use separate public DTOs instead of serializing internal objects.",
+    "Use generic client errors; keep detailed diagnostics only in access-controlled internal logs.",
+    "Redact or omit secrets from logs, debug output, files, caches, and telemetry.",
+    "Remove production debug output and enforce least privilege for data collection and access."
+  ],
+  "minimal_examples": {
+    "vuln": "resp.getWriter().println(\"token=\" + user.getApiToken());",
+    "safe": "resp.getWriter().println(publicUserDto(user));"
+  }
+}

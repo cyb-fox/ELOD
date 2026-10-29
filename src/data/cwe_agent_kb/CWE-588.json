@@ -1,0 +1,69 @@
+{
+  "cwe_id": "CWE-588",
+  "name": "Attempt to Access Child of a Non-structure Pointer",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-704",
+      "CWE-758"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code casts a non-structure object, function, or incompatible pointer to a structure pointer and then accesses a field. The field access uses an invalid layout and can corrupt adjacent memory or crash.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "C cast '(struct T *)expr' followed by '->field' where expr type is scalar, function pointer, or unrelated pointer",
+    "C++ 'reinterpret_cast<T *>(expr)->field' where T is struct/class and expr is not a T object",
+    "assignment through casted field like '((struct T *)p)->field = value'",
+    "function symbol or function pointer cast to 'struct T *' then dereferenced",
+    "'void *', 'char *', or integer value cast to 'struct T *' with no allocation/object provenance for T",
+    "pointer arithmetic or invalid offset cast to 'struct T *' then field access"
+  ],
+  "negative_signals": [
+    "pointer variable declared as 'struct T *' and initialized from '&obj' where obj has type 'struct T'",
+    "object allocated with 'malloc(sizeof(struct T))' or 'new T' before 'ptr->field'",
+    "C++ 'dynamic_cast<T *>(p)' result checked for non-null before '->field'",
+    "C++ 'static_cast<T *>(base)' where base is a valid base class subobject of T",
+    "field access uses a real object: 'obj.field' or '(&obj)->field' with matching struct type"
+  ],
+  "false_defense_traps": [
+    "Casting through 'void *' before 'struct T *' does not prove the underlying object is T",
+    "Checking pointer for NULL does not prove the pointer refers to a struct T object",
+    "Checking alignment does not prove the pointer has the correct structure layout",
+    "Comparing buffer length to 'sizeof(struct T)' does not prove valid object lifetime or effective type",
+    "Union or type-punning casts can still use the wrong active member or invalid offset"
+  ],
+  "verification_focus": "Does the pointer used with '->field' actually point to a live object of the target struct/class type at that address?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-704",
+        "CWE-588"
+      ],
+      "trigger": "incompatible cast to a struct/class pointer is followed by field dereference",
+      "consequence": "memory corruption or crash from invalid object layout"
+    },
+    {
+      "chain": [
+        "CWE-588",
+        "CWE-758"
+      ],
+      "trigger": "field access relies on nonportable behavior after an invalid cast",
+      "consequence": "undefined or implementation-defined execution behavior"
+    }
+  ],
+  "patch_principle": [
+    "Remove incompatible casts to structure pointers; preserve the real object type.",
+    "Allocate or obtain a real instance of the target struct/class before field access.",
+    "Use typed APIs instead of passing raw 'void *', integers, or function pointers as objects.",
+    "Review all casts to 'struct T *' or 'T *' and prove object provenance, alignment, lifetime, and type."
+  ],
+  "minimal_examples": {
+    "vuln": "((struct foo *)main)->i = 2;",
+    "safe": "struct foo f; f.i = 2;"
+  }
+}

@@ -1,0 +1,191 @@
+=== 待审推理日志 L-0618 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 7 个。
+
+【推理轨迹】共 20 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dostor:145
+  引证行: 145
+  引证内容: shm_data_cur->state = FTPWHO_STATE_UPLOAD;
+  初判倾向: VIOLATED
+  上下文源码:
+    142 |         const size_t sl = strlen(name);
+    143 | 
+    144 |         ftpwho_lock();
+    145 |         shm_data_cur->state = FTPWHO_STATE_UPLOAD;
+    146 |         shm_data_cur->download_total_size = (off_t) 0U;
+    147 |         shm_data_cur->download_current_size = (off_t) filesize;
+    148 |         shm_data_cur->restartat = restartat;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dostor:146
+  引证行: 146
+  引证内容: shm_data_cur->download_total_size = (off_t) 0U;
+  初判倾向: VIOLATED
+  上下文源码:
+    143 | 
+    144 |         ftpwho_lock();
+    145 |         shm_data_cur->state = FTPWHO_STATE_UPLOAD;
+    146 |         shm_data_cur->download_total_size = (off_t) 0U;
+    147 |         shm_data_cur->download_current_size = (off_t) filesize;
+    148 |         shm_data_cur->restartat = restartat;
+    149 |         (void) time(&shm_data_cur->xfer_date);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dostor:148
+  引证行: 148
+  引证内容: shm_data_cur->restartat = restartat;
+  初判倾向: VIOLATED
+  上下文源码:
+    145 |         shm_data_cur->state = FTPWHO_STATE_UPLOAD;
+    146 |         shm_data_cur->download_total_size = (off_t) 0U;
+    147 |         shm_data_cur->download_current_size = (off_t) filesize;
+    148 |         shm_data_cur->restartat = restartat;
+    149 |         (void) time(&shm_data_cur->xfer_date);
+    150 |         if (sl < sizeof shm_data_cur->filename) {
+    151 |             memcpy(shm_data_cur->filename, name, sl);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dostor:151
+  引证行: 151
+  引证内容: memcpy(shm_data_cur->filename, name, sl);
+  初判倾向: VIOLATED
+  上下文源码:
+    148 |         shm_data_cur->restartat = restartat;
+    149 |         (void) time(&shm_data_cur->xfer_date);
+    150 |         if (sl < sizeof shm_data_cur->filename) {
+    151 |             memcpy(shm_data_cur->filename, name, sl);
+    152 |             shm_data_cur->filename[sl] = 0;
+    153 |         } else {
+    154 |             memcpy(shm_data_cur->filename,
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dostor:152
+  引证行: 152
+  引证内容: shm_data_cur->filename[sl] = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+    149 |         (void) time(&shm_data_cur->xfer_date);
+    150 |         if (sl < sizeof shm_data_cur->filename) {
+    151 |             memcpy(shm_data_cur->filename, name, sl);
+    152 |             shm_data_cur->filename[sl] = 0;
+    153 |         } else {
+    154 |             memcpy(shm_data_cur->filename,
+    155 |                    &name[sl - sizeof shm_data_cur->filename - 1U],
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dostor:154
+  引证行: 154
+  引证内容: memcpy(shm_data_cur->filename,
+  初判倾向: VIOLATED
+  上下文源码:
+    151 |             memcpy(shm_data_cur->filename, name, sl);
+    152 |             shm_data_cur->filename[sl] = 0;
+    153 |         } else {
+    154 |             memcpy(shm_data_cur->filename,
+    155 |                    &name[sl - sizeof shm_data_cur->filename - 1U],
+    156 |                    sizeof shm_data_cur->filename);
+    157 |         }
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dostor:145
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dostor:146
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dostor:147
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dostor:148
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dostor:151
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dostor:152
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dostor:154
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dostor:145
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dostor:146
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dostor:147
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dostor:148
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dostor:151
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dostor:152
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dostor:154
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

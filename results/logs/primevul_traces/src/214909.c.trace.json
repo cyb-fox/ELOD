@@ -1,0 +1,78 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "mlx5_fpga_conn_create_cq:5"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-369"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 5,
+      "snippet": "u32 temp_cqc[MLX5_ST_SZ_DW(cqc)] = {0};",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "mlx5_fpga_conn_create_cq:5",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "u32",
+        "temp_cqc",
+        "cqc"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "average/rate expression like total / count where count can be 0",
+        "binary % operator with RHS variable or expression not proven nonzero"
+      ]
+    },
+    "sink_id": "mlx5_fpga_conn_create_cq:5",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "mlx5_fpga_conn_create_cq:5",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "numeric|arith"
+  }
+]

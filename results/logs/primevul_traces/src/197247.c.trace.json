@@ -1,0 +1,91 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "InferShapesForFunctionSubNode:14"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-125"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 14,
+      "snippet": "if (index < 0 || outer_context->num_inputs() <= index) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "InferShapesForFunctionSubNode:14",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "InferShapesForFunctionSubNode:14"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "index",
+        "outer_context",
+        "num_inputs"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "array[index] read guarded only by index < len with no index >= 0 check"
+      ]
+    },
+    "sink_id": "InferShapesForFunctionSubNode:14",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "InferShapesForFunctionSubNode:14"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "InferShapesForFunctionSubNode:14",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  }
+]

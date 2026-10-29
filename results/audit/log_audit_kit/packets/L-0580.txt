@@ -1,0 +1,436 @@
+=== 待审推理日志 L-0580 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 16 个；未决 16 个。
+
+【推理轨迹】共 47 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:3
+  引证行: 3
+  引证内容: struct kiocb *kiocb = &req->rw.kiocb;
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | static int io_rw_init_file(struct io_kiocb *req, fmode_t mode)
+      2 | {
+      3 | 	struct kiocb *kiocb = &req->rw.kiocb;
+      4 | 	struct io_ring_ctx *ctx = req->ctx;
+      5 | 	struct file *file = req->file;
+      6 | 	int ret;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:4
+  引证行: 4
+  引证内容: struct io_ring_ctx *ctx = req->ctx;
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | static int io_rw_init_file(struct io_kiocb *req, fmode_t mode)
+      2 | {
+      3 | 	struct kiocb *kiocb = &req->rw.kiocb;
+      4 | 	struct io_ring_ctx *ctx = req->ctx;
+      5 | 	struct file *file = req->file;
+      6 | 	int ret;
+      7 | 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:5
+  引证行: 5
+  引证内容: struct file *file = req->file;
+  初判倾向: VIOLATED
+  上下文源码:
+      2 | {
+      3 | 	struct kiocb *kiocb = &req->rw.kiocb;
+      4 | 	struct io_ring_ctx *ctx = req->ctx;
+      5 | 	struct file *file = req->file;
+      6 | 	int ret;
+      7 | 
+      8 | 	if (unlikely(!file || !(file->f_mode & mode)))
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:8
+  引证行: 8
+  引证内容: if (unlikely(!file || !(file->f_mode & mode)))
+  初判倾向: VIOLATED
+  上下文源码:
+      5 | 	struct file *file = req->file;
+      6 | 	int ret;
+      7 | 
+      8 | 	if (unlikely(!file || !(file->f_mode & mode)))
+      9 | 		return -EBADF;
+     10 | 
+     11 | 	if (!io_req_ffs_set(req))
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:12
+  引证行: 12
+  引证内容: req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
+  初判倾向: VIOLATED
+  上下文源码:
+      9 | 		return -EBADF;
+     10 | 
+     11 | 	if (!io_req_ffs_set(req))
+     12 | 		req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
+     13 | 
+     14 | 	kiocb->ki_flags = iocb_flags(file);
+     15 | 	ret = kiocb_set_rw_flags(kiocb, req->rw.flags);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:14
+  引证行: 14
+  引证内容: kiocb->ki_flags = iocb_flags(file);
+  初判倾向: VIOLATED
+  上下文源码:
+     11 | 	if (!io_req_ffs_set(req))
+     12 | 		req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
+     13 | 
+     14 | 	kiocb->ki_flags = iocb_flags(file);
+     15 | 	ret = kiocb_set_rw_flags(kiocb, req->rw.flags);
+     16 | 	if (unlikely(ret))
+     17 | 		return ret;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:15
+  引证行: 15
+  引证内容: ret = kiocb_set_rw_flags(kiocb, req->rw.flags);
+  初判倾向: VIOLATED
+  上下文源码:
+     12 | 		req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
+     13 | 
+     14 | 	kiocb->ki_flags = iocb_flags(file);
+     15 | 	ret = kiocb_set_rw_flags(kiocb, req->rw.flags);
+     16 | 	if (unlikely(ret))
+     17 | 		return ret;
+     18 | 
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:24
+  引证行: 24
+  引证内容: if ((kiocb->ki_flags & IOCB_NOWAIT) ||
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
+     22 | 	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
+     23 | 	 */
+     24 | 	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
+     25 | 	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
+     26 | 		req->flags |= REQ_F_NOWAIT;
+     27 | 
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:25
+  引证行: 25
+  引证内容: ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
+  初判倾向: VIOLATED
+  上下文源码:
+     22 | 	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
+     23 | 	 */
+     24 | 	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
+     25 | 	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
+     26 | 		req->flags |= REQ_F_NOWAIT;
+     27 | 
+     28 | 	if (ctx->flags & IORING_SETUP_IOPOLL) {
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:26
+  引证行: 26
+  引证内容: req->flags |= REQ_F_NOWAIT;
+  初判倾向: VIOLATED
+  上下文源码:
+     23 | 	 */
+     24 | 	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
+     25 | 	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
+     26 | 		req->flags |= REQ_F_NOWAIT;
+     27 | 
+     28 | 	if (ctx->flags & IORING_SETUP_IOPOLL) {
+     29 | 		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:28
+  引证行: 28
+  引证内容: if (ctx->flags & IORING_SETUP_IOPOLL) {
+  初判倾向: VIOLATED
+  上下文源码:
+     25 | 	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
+     26 | 		req->flags |= REQ_F_NOWAIT;
+     27 | 
+     28 | 	if (ctx->flags & IORING_SETUP_IOPOLL) {
+     29 | 		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+     30 | 			return -EOPNOTSUPP;
+     31 | 
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:29
+  引证行: 29
+  引证内容: if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+  初判倾向: VIOLATED
+  上下文源码:
+     26 | 		req->flags |= REQ_F_NOWAIT;
+     27 | 
+     28 | 	if (ctx->flags & IORING_SETUP_IOPOLL) {
+     29 | 		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+     30 | 			return -EOPNOTSUPP;
+     31 | 
+     32 | 		kiocb->private = NULL;
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:32
+  引证行: 32
+  引证内容: kiocb->private = NULL;
+  初判倾向: VIOLATED
+  上下文源码:
+     29 | 		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+     30 | 			return -EOPNOTSUPP;
+     31 | 
+     32 | 		kiocb->private = NULL;
+     33 | 		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
+     34 | 		kiocb->ki_complete = io_complete_rw_iopoll;
+     35 | 		req->iopoll_completed = 0;
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:33
+  引证行: 33
+  引证内容: kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
+  初判倾向: VIOLATED
+  上下文源码:
+     30 | 			return -EOPNOTSUPP;
+     31 | 
+     32 | 		kiocb->private = NULL;
+     33 | 		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
+     34 | 		kiocb->ki_complete = io_complete_rw_iopoll;
+     35 | 		req->iopoll_completed = 0;
+     36 | 	} else {
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: io_rw_init_file:34
+  引证行: 34
+  引证内容: kiocb->ki_complete = io_complete_rw_iopoll;
+  初判倾向: VIOLATED
+  上下文源码:
+     31 | 
+     32 | 		kiocb->private = NULL;
+     33 | 		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
+     34 | 		kiocb->ki_complete = io_complete_rw_iopoll;
+     35 | 		req->iopoll_completed = 0;
+     36 | 	} else {
+     37 | 		if (kiocb->ki_flags & IOCB_HIPRI)
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:3
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:4
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:5
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:8
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:12
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:14
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:15
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:24
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:25
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:26
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:28
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:29
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:32
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:33
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:34
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: io_rw_init_file:35
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:3
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:12
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 44 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 45 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:33
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 46 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 47 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: io_rw_init_file:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

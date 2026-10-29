@@ -1,0 +1,92 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Compute:2"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-362"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 2,
+      "snippet": "const Tensor& rhs = context->input(1);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "Compute:2",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "Compute:2"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "rhs",
+        "context",
+        "input"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "signal handler reads/writes global state or calls malloc(), free(), printf(), or other non-async-signal-safe functions",
+        "pthread_mutex_lock(), pthread_mutex_trylock(), mtx_lock(), or lock acquisition return value ignored before shared-resource access"
+      ]
+    },
+    "sink_id": "Compute:2",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "Compute:2"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "Compute:2",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  }
+]

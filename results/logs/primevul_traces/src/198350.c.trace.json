@@ -1,0 +1,172 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "net_bind:20"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-416"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 20,
+      "snippet": "snprintf(strport, sizeof(strport), \"%hu\", *port);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "net_bind:20",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "net_bind:28"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-476"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 28,
+      "snippet": "for (ptr = servinfo, fd = -1; ptr != NULL; ptr = ptr->ai_next)",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "net_bind:28",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "net_bind:20"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "strport",
+        "hu"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "one alias freed, then another alias to the same allocation is dereferenced or passed to a callee",
+        "free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)"
+      ]
+    },
+    "sink_id": "net_bind:20",
+    "state_delta": {
+      "object_live_at_use": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "net_bind:28"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "ptr",
+        "servinfo",
+        "fd"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization"
+      ]
+    },
+    "sink_id": "net_bind:28",
+    "state_delta": {
+      "null_guard": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "nullptr|deref"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "net_bind:20"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "object_live_at_use"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.9
+    },
+    "sink_id": "net_bind:20",
+    "state_delta": {
+      "object_live_at_use": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "net_bind:28"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "null_guard"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "net_bind:28",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "null_guard": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "nullptr|deref"
+  }
+]

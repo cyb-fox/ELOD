@@ -1,0 +1,281 @@
+{
+  "kind": "threshold_sweep",
+  "component": "admission_gate / threshold gate (VULN_CONF_MIN)",
+  "source": "predictions/rq1_primevul.jsonl",
+  "source_sha256": "6782fe123bea85bdb5aaae6e69b76f43f2a49fb4e76fb47e396dec4c2207bdfe",
+  "files": 870,
+  "pairs": 435,
+  "shipped_threshold": 0.5,
+  "recompute": "offline log recomputation; no LLM calls, proposal and adjudication layers unchanged",
+  "sweep": {
+    "detection": {
+      "0.0": {
+        "files": {
+          "TP": 286,
+          "FP": 219,
+          "TN": 216,
+          "FN": 149,
+          "N": 870,
+          "accuracy": 0.577,
+          "precision": 0.5663,
+          "recall": 0.6575,
+          "f1": 0.6085,
+          "fpr": 0.5034
+        },
+        "pairs": {
+          "P-C": 129,
+          "P-R": 62,
+          "P-V": 157,
+          "P-B": 87,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.2966
+      },
+      "0.5": {
+        "files": {
+          "TP": 224,
+          "FP": 120,
+          "TN": 315,
+          "FN": 211,
+          "N": 870,
+          "accuracy": 0.6195,
+          "precision": 0.6512,
+          "recall": 0.5149,
+          "f1": 0.5751,
+          "fpr": 0.2759
+        },
+        "pairs": {
+          "P-C": 151,
+          "P-B": 164,
+          "P-V": 73,
+          "P-R": 47,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.3471
+      },
+      "0.55": {
+        "files": {
+          "TP": 224,
+          "FP": 120,
+          "TN": 315,
+          "FN": 211,
+          "N": 870,
+          "accuracy": 0.6195,
+          "precision": 0.6512,
+          "recall": 0.5149,
+          "f1": 0.5751,
+          "fpr": 0.2759
+        },
+        "pairs": {
+          "P-C": 151,
+          "P-B": 164,
+          "P-V": 73,
+          "P-R": 47,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.3471
+      },
+      "0.6": {
+        "files": {
+          "TP": 224,
+          "FP": 120,
+          "TN": 315,
+          "FN": 211,
+          "N": 870,
+          "accuracy": 0.6195,
+          "precision": 0.6512,
+          "recall": 0.5149,
+          "f1": 0.5751,
+          "fpr": 0.2759
+        },
+        "pairs": {
+          "P-C": 151,
+          "P-B": 164,
+          "P-V": 73,
+          "P-R": 47,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.3471
+      },
+      "0.7": {
+        "files": {
+          "TP": 66,
+          "FP": 29,
+          "TN": 406,
+          "FN": 369,
+          "N": 870,
+          "accuracy": 0.5425,
+          "precision": 0.6947,
+          "recall": 0.1517,
+          "f1": 0.2491,
+          "fpr": 0.0667
+        },
+        "pairs": {
+          "P-B": 356,
+          "P-C": 50,
+          "P-V": 16,
+          "P-R": 13,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.1149
+      },
+      "0.9": {
+        "files": {
+          "TP": 45,
+          "FP": 14,
+          "TN": 421,
+          "FN": 390,
+          "N": 870,
+          "accuracy": 0.5356,
+          "precision": 0.7627,
+          "recall": 0.1034,
+          "f1": 0.1822,
+          "fpr": 0.0322
+        },
+        "pairs": {
+          "P-B": 380,
+          "P-C": 41,
+          "P-V": 4,
+          "P-R": 10,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.0943
+      }
+    },
+    "cwe-family": {
+      "0.0": {
+        "files": {
+          "TP": 122,
+          "FP": 80,
+          "TN": 355,
+          "FN": 313,
+          "N": 870,
+          "accuracy": 0.5483,
+          "precision": 0.604,
+          "recall": 0.2805,
+          "f1": 0.383,
+          "fpr": 0.1839
+        },
+        "pairs": {
+          "P-B": 278,
+          "P-C": 77,
+          "P-V": 45,
+          "P-R": 35,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.177
+      },
+      "0.5": {
+        "files": {
+          "TP": 95,
+          "FP": 47,
+          "TN": 388,
+          "FN": 340,
+          "N": 870,
+          "accuracy": 0.5552,
+          "precision": 0.669,
+          "recall": 0.2184,
+          "f1": 0.3293,
+          "fpr": 0.108
+        },
+        "pairs": {
+          "P-B": 318,
+          "P-C": 70,
+          "P-V": 25,
+          "P-R": 22,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.1609
+      },
+      "0.55": {
+        "files": {
+          "TP": 95,
+          "FP": 47,
+          "TN": 388,
+          "FN": 340,
+          "N": 870,
+          "accuracy": 0.5552,
+          "precision": 0.669,
+          "recall": 0.2184,
+          "f1": 0.3293,
+          "fpr": 0.108
+        },
+        "pairs": {
+          "P-B": 318,
+          "P-C": 70,
+          "P-V": 25,
+          "P-R": 22,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.1609
+      },
+      "0.6": {
+        "files": {
+          "TP": 95,
+          "FP": 47,
+          "TN": 388,
+          "FN": 340,
+          "N": 870,
+          "accuracy": 0.5552,
+          "precision": 0.669,
+          "recall": 0.2184,
+          "f1": 0.3293,
+          "fpr": 0.108
+        },
+        "pairs": {
+          "P-B": 318,
+          "P-C": 70,
+          "P-V": 25,
+          "P-R": 22,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.1609
+      },
+      "0.7": {
+        "files": {
+          "TP": 33,
+          "FP": 15,
+          "TN": 420,
+          "FN": 402,
+          "N": 870,
+          "accuracy": 0.5207,
+          "precision": 0.6875,
+          "recall": 0.0759,
+          "f1": 0.1366,
+          "fpr": 0.0345
+        },
+        "pairs": {
+          "P-B": 394,
+          "P-C": 26,
+          "P-V": 7,
+          "P-R": 8,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.0598
+      },
+      "0.9": {
+        "files": {
+          "TP": 23,
+          "FP": 8,
+          "TN": 427,
+          "FN": 412,
+          "N": 870,
+          "accuracy": 0.5172,
+          "precision": 0.7419,
+          "recall": 0.0529,
+          "f1": 0.0987,
+          "fpr": 0.0184
+        },
+        "pairs": {
+          "P-B": 406,
+          "P-C": 21,
+          "P-V": 2,
+          "P-R": 6,
+          "pairs": 435
+        },
+        "pair_accuracy": 0.0483
+      }
+    }
+  },
+  "note": "thr=0.0 removes the threshold gate only. Removing the whole admission layer additionally forbids underdetermined records from becoming positive; that variant is reported as the accept_all arm of the component ablation."
+}

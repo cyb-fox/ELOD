@@ -1,0 +1,2264 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:36"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 36,
+      "snippet": "switch (ehdr->e_type) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:36",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:63"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 63,
+      "snippet": "switch (ehdr->e_type) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:63",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:144"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-457"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 144,
+      "snippet": "PRINT_HEADER_EXP(\"e_machine:\", ehdr->e_machine, tmp);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:144",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:159"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 159,
+      "snippet": "PRINT_HEADER_EXP(\"e_version:\", ehdr->e_version, tmp);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:159",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:162"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 162,
+      "snippet": "PRINT_HEADER(\"e_shoff:\", ehdr->e_shoff);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:162",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:163"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 163,
+      "snippet": "PRINT_HEADER(\"e_flags:\", ehdr->e_flags);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:163",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:164"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-20"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 164,
+      "snippet": "PRINT_HEADER(\"e_ehsize:\", ehdr->e_ehsize);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:164",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:261"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 261,
+      "snippet": "strcpy(flag, \"   \");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:261",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:314"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-20"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 314,
+      "snippet": "strcpy(flag, \"   \");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:314",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:356"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 356,
+      "snippet": "memset(value, 0, 50);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:356",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:367"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 367,
+      "snippet": "snprintf(value, 50, \"Shared library: [%s]\", name);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:367",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:484"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 484,
+      "snippet": "snprintf(value, 50, \"Flags: %d\", dyn[i].d_un.d_val);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:484",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:646"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-20"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 646,
+      "snippet": "snprintf(value, 50, \"Flags: %s\", \"PIE\");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:646",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:650"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 650,
+      "snippet": "snprintf(value, 50, \"Flags: %d\", dyn[i].d_un.d_val);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:650",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:909"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-20"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 909,
+      "snippet": "strcpy(&name[15 - 6], \"[...]\");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:909",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:911"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-457"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 911,
+      "snippet": "strcpy(flag, \"   \");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:911",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:964"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 964,
+      "snippet": "strcpy(flag, \"   \");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:964",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:1006"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1006,
+      "snippet": "memset(value, 0, 50);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:1006",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:1007"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-20"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1007,
+      "snippet": "snprintf(value, 50, \"0x%x\", dyn[i].d_un.d_val);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:1007",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 20,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:1017"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1017,
+      "snippet": "snprintf(value, 50, \"Shared library: [%s]\", name);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:1017",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 21,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:1134"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-457"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1134,
+      "snippet": "snprintf(value, 50, \"Flags: %d\", dyn[i].d_un.d_val);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:1134",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 22,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:1296"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-119"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1296,
+      "snippet": "snprintf(value, 50, \"Flags: %s\", \"PIE\");",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:1296",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 23,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "parse:1300"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-134"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1300,
+      "snippet": "snprintf(value, 50, \"Flags: %d\", dyn[i].d_un.d_val);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "parse:1300",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 24,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ehdr",
+        "e_type"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "parse:36",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 25,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_type",
+        "ehdr",
+        "tmp"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "parse:61",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 26,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ehdr",
+        "e_type"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "parse:63",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 27,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_machine",
+        "ehdr",
+        "tmp"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C++ class primitive member or pointer member missing from all constructors' initializer lists and later read",
+        "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment"
+      ]
+    },
+    "sink_id": "parse:144",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 28,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "ehdr",
+        "e_version"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "parse:146",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 29,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_version",
+        "ehdr",
+        "tmp"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "parse:159",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 30,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_entry",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "parse:160",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 31,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_phoff",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C++ class primitive member or pointer member missing from all constructors' initializer lists and later read",
+        "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment"
+      ]
+    },
+    "sink_id": "parse:161",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 32,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_shoff",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "parse:162",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 33,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_flags",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "parse:163",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 34,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_ehsize",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value",
+        "client-side JavaScript or UI validation exists but server-side C/C++/Java handler uses the same field without validation"
+      ]
+    },
+    "sink_id": "parse:164",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 35,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_phentsize",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "parse:165",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 36,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_phnum",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C++ class primitive member or pointer member missing from all constructors' initializer lists and later read",
+        "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment"
+      ]
+    },
+    "sink_id": "parse:166",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 37,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "e_shentsize",
+        "ehdr"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width",
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "parse:167",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 38,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "name"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value",
+        "client-side JavaScript or UI validation exists but server-side C/C++/Java handler uses the same field without validation"
+      ]
+    },
+    "sink_id": "parse:259",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 39,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "flag"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "parse:261",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 40,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "flag"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value",
+        "client-side JavaScript or UI validation exists but server-side C/C++/Java handler uses the same field without validation"
+      ]
+    },
+    "sink_id": "parse:314",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 41,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "value"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "parse:356",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 42,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "dyn"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment"
+      ]
+    },
+    "sink_id": "parse:357",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 43,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "library"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width"
+      ]
+    },
+    "sink_id": "parse:367",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 44,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "dyn"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "parse:484",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 45,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value"
+      ]
+    },
+    "sink_id": "parse:646",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 46,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "dyn"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "parse:650",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 47,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "name"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value",
+        "client-side JavaScript or UI validation exists but server-side C/C++/Java handler uses the same field without validation"
+      ]
+    },
+    "sink_id": "parse:909",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 48,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "flag"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C++ class primitive member or pointer member missing from all constructors' initializer lists and later read",
+        "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment"
+      ]
+    },
+    "sink_id": "parse:911",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 49,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcpy",
+        "flag"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer"
+      ]
+    },
+    "sink_id": "parse:964",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 50,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "memset",
+        "value"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "dynamic format source contains or accepts %n, %x, %p, or %s directives",
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "parse:1006",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 51,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "dyn"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value"
+      ]
+    },
+    "sink_id": "parse:1007",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 52,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "library"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization",
+        "URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation"
+      ]
+    },
+    "sink_id": "parse:1017",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 53,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "dyn"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C++ class primitive member or pointer member missing from all constructors' initializer lists and later read",
+        "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment"
+      ]
+    },
+    "sink_id": "parse:1134",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 54,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "scanf(\"%s\", buf) or fscanf(\"%s\", buf) without a field width"
+      ]
+    },
+    "sink_id": "parse:1296",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 55,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "snprintf",
+        "value",
+        "dyn"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)"
+      ]
+    },
+    "sink_id": "parse:1300",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 56,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:36",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 57,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:61",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 58,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:63",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 59,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:144",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 60,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:146",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 61,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:159",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 62,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:160",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 63,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:161",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 64,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:162",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 65,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:163",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 66,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:164",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 67,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:165",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 68,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:166",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 69,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:167",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 70,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:259",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 71,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:261",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 72,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:314",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 73,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:356",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 74,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:357",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 75,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:367",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 76,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:484",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 77,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:646",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 78,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:650",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 79,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:909",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 80,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:911",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 81,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:964",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 82,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:1006",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  },
+  {
+    "step": 83,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:1007",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 84,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:1017",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 85,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:1134",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 86,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:1296",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "buffer|mem"
+  },
+  {
+    "step": 87,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "parse:1300",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "format_string_fixed": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "injection|format"
+  }
+]

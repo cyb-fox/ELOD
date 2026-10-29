@@ -1,0 +1,79 @@
+{
+  "cwe_id": "CWE-125",
+  "name": "Out-of-bounds Read",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-119"
+    ],
+    "parent_of": [
+      "CWE-126",
+      "CWE-127"
+    ]
+  },
+  "principle": "Code reads from an array, pointer, or string using an index, offset, or length that can fall outside the intended buffer. This can disclose adjacent memory, reveal addresses for later exploitation, or crash the process.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "array[index] read guarded only by index < len with no index >= 0 check",
+    "buf[offset] or *(buf + offset) where offset is input-derived and not checked against buffer size",
+    "for/while loop reads buf[i] while i < untrusted_len without untrusted_len <= actual_buf_size",
+    "memcpy(dst, src, len), memmove(dst, src, len), write(fd, src, len), or send(fd, src, len) where len can exceed src buffer size",
+    "strlen(buf), printf(\"%s\", buf), strcpy(dst, buf), or strcmp(buf, x) on a buffer that may lack a NUL within its allocated size",
+    "C++ vector/string operator[] read with external index and no prior range check"
+  ],
+  "negative_signals": [
+    "read guarded by index >= 0 && index < len where len is the actual element count",
+    "offset checked with offset <= size && read_len <= size - offset before pointer read",
+    "length clamped with len = min(requested_len, actual_buf_size) before memcpy/send/write source read",
+    "bounded string scan uses strnlen(buf, buf_size) or memchr(buf, '\\0', buf_size) before treating buf as a C string",
+    "C++ read uses vector::at() or string::at() and exception is handled without exposing memory"
+  ],
+  "false_defense_traps": [
+    "Checking only index < len misses negative index under-read",
+    "Trusting protocol or struct length fields without comparing to received buffer size",
+    "Relying on a NUL sentinel in untrusted or fixed-size input",
+    "Casting a signed index to size_t before validation hides negative values as huge positives",
+    "Assuming out-of-bounds read is only DoS; leaked addresses or secrets can aid later attacks"
+  ],
+  "verification_focus": "Can every read index, pointer offset, and read length be proven within the intended buffer bounds at the read site?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-823",
+        "CWE-125"
+      ],
+      "trigger": "out-of-range pointer offset is dereferenced for reading",
+      "consequence": "read before or after the buffer, causing memory disclosure or crash"
+    },
+    {
+      "chain": [
+        "CWE-822",
+        "CWE-125"
+      ],
+      "trigger": "untrusted pointer is dereferenced for reading without validating object bounds",
+      "consequence": "attacker-controlled address range may be read"
+    },
+    {
+      "chain": [
+        "CWE-125",
+        "CWE-200"
+      ],
+      "trigger": "out-of-bounds bytes contain secrets, PII, keys, or memory addresses",
+      "consequence": "sensitive information exposure and possible ASLR bypass"
+    }
+  ],
+  "patch_principle": [
+    "Validate lower and upper bounds before every indexed or pointer-based read",
+    "Compare untrusted length fields against the actual buffer size before loops or bulk reads",
+    "Use bounded string APIs and do not depend on untrusted sentinel termination",
+    "Prefer memory-safe containers or checked accessors where practical"
+  ],
+  "minimal_examples": {
+    "vuln": "if (index < len) value = array[index];",
+    "safe": "if (index >= 0 && index < len) value = array[index];"
+  }
+}

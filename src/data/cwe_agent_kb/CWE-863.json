@@ -1,0 +1,80 @@
+{
+  "cwe_id": "CWE-863",
+  "name": "Incorrect Authorization",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-285"
+    ],
+    "parent_of": [
+      "CWE-41",
+      "CWE-551",
+      "CWE-639",
+      "CWE-647",
+      "CWE-804",
+      "CWE-942",
+      "CWE-1244"
+    ]
+  },
+  "principle": "The product attempts an authorization check for a resource or action but applies the wrong rule, subject, object, order, or trust boundary. This lets an actor bypass intended access restrictions to read, modify, execute, or consume protected resources.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "Java controller/servlet uses request.getParameter(\"id\") or path variable to load/update/delete an object without hasPermission/isOwner/ACL check",
+    "authorization decision uses Cookie/Header/request parameter such as role, userId, isAdmin, tenantId directly",
+    "code checks only isAuthenticated(), session != null, or login state before privileged read/write/admin action",
+    "Spring @GetMapping/@PostMapping/@PutMapping/@DeleteMapping on sensitive resource lacks @PreAuthorize/@Secured and has no service-layer permission check",
+    "SQL SELECT/UPDATE/DELETE uses WHERE id = ? from user input without owner_id/tenant_id/current_user predicate or ACL join",
+    "C/C++ request/message handler executes privileged opcode based on client-supplied uid/role without server-side ACL lookup",
+    "file/database/resource access occurs before AccessController.checkPermission, Subject.checkPermission, hasRole, or hasPermission call"
+  ],
+  "negative_signals": [
+    "server-side permission check binds current authenticated principal to target object before access",
+    "SQL query constrains resource by both object id and current user/tenant/ACL membership",
+    "Spring method has @PreAuthorize/@PostAuthorize/@Secured expressing required role and object permission",
+    "central authorization filter/interceptor is mapped to all sensitive routes and denies by default",
+    "role/user/tenant values are derived from server-side session/security context, not client-controlled fields",
+    "object-level owner/ACL check is repeated in service layer before read, update, delete, or execute"
+  ],
+  "false_defense_traps": [
+    "hiding buttons, links, or pages in client-side UI without server-side checks",
+    "checking authentication only and assuming any logged-in user is authorized",
+    "RBAC role check without object-level or tenant-level authorization",
+    "trusting role/userId/tenantId from cookies, headers, hidden fields, or request parameters",
+    "checking authorization before path parsing/canonicalization or before resolving the final resource"
+  ],
+  "verification_focus": "Does every protected action authorize the current server-side principal against the exact target resource and operation before access?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-863",
+        "CWE-639"
+      ],
+      "trigger": "resource key or object id is user-controlled and not checked against the principal",
+      "consequence": "horizontal authorization bypass to read or modify another user's data"
+    },
+    {
+      "chain": [
+        "CWE-863",
+        "CWE-551"
+      ],
+      "trigger": "authorization is performed before parsing, canonicalization, or final resource resolution",
+      "consequence": "bypass of access control through alternate path or representation"
+    }
+  ],
+  "patch_principle": [
+    "Enforce deny-by-default server-side authorization on every sensitive endpoint and operation.",
+    "Bind checks to business objects: subject, action, resource id, owner, tenant, and ACL/role.",
+    "Use vetted authorization frameworks or centralized policy checks, with service-layer enforcement.",
+    "Never trust client-supplied role, user, tenant, or privilege fields for authorization.",
+    "Canonicalize and resolve the resource before making the authorization decision."
+  ],
+  "minimal_examples": {
+    "vuln": "if (user.isAuthenticated()) return records.get(request.getParameter(\"patientId\"));",
+    "safe": "return records.getIfAuthorized(user.getId(), request.getParameter(\"patientId\"));"
+  }
+}

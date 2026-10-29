@@ -1,0 +1,161 @@
+=== 待审推理日志 L-0797 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 6 个；未决 6 个。
+
+【推理轨迹】共 17 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DecodePngV2:42
+  引证行: 42
+  引证内容: context->allocate_output(
+  初判倾向: VIOLATED
+  上下文源码:
+     39 |     if (op_type_ == "DecodeGif") {
+     40 |       OP_REQUIRES_OK(
+     41 |           context,
+     42 |           context->allocate_output(
+     43 |               0, TensorShape({1, height, width, decode.channels}), &output));
+     44 |     } else {
+     45 |       OP_REQUIRES_OK(
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DecodePngV2:47
+  引证行: 47
+  引证内容: context->allocate_output(
+  初判倾向: VIOLATED
+  上下文源码:
+     44 |     } else {
+     45 |       OP_REQUIRES_OK(
+     46 |           context,
+     47 |           context->allocate_output(
+     48 |               0, TensorShape({height, width, decode.channels}), &output));
+     49 |     }
+     50 | 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DecodePngV2:72
+  引证行: 72
+  引证内容: reinterpret_cast<png_bytep>(output->flat<uint8>().data()),
+  初判倾向: VIOLATED
+  上下文源码:
+     69 |       OP_REQUIRES(
+     70 |           context,
+     71 |           png::CommonFinishDecode(
+     72 |               reinterpret_cast<png_bytep>(output->flat<uint8>().data()),
+     73 |               decode.channels * width * sizeof(uint8), &decode),
+     74 |           errors::InvalidArgument("Invalid PNG data, size ", input.size()));
+     75 |     } else if (data_type_ == DataType::DT_UINT16) {
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DecodePngV2:97
+  引证行: 97
+  引证内容: const auto& device = context->eigen_device<Eigen::ThreadPoolDevice>();
+  初判倾向: VIOLATED
+  上下文源码:
+     94 | 
+     95 |       // Convert uint16 image data to desired data type.
+     96 |       // Use eigen threadpooling to speed up the copy operation.
+     97 |       const auto& device = context->eigen_device<Eigen::ThreadPoolDevice>();
+     98 |       TTypes<uint16, 3>::UnalignedConstTensor buf(buffer.get(), height, width,
+     99 |                                                   decode.channels);
+    100 |       float scale = 1. / std::numeric_limits<uint16>::max();
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DecodePngV2:102
+  引证行: 102
+  引证内容: output->tensor<float, 3>().device(device) = buf.cast<float>() * scale;
+  初判倾向: VIOLATED
+  上下文源码:
+     99 |                                                   decode.channels);
+    100 |       float scale = 1. / std::numeric_limits<uint16>::max();
+    101 |       // Fill output tensor with desired dtype.
+    102 |       output->tensor<float, 3>().device(device) = buf.cast<float>() * scale;
+    103 |     }
+    104 |   }
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DecodePngV2:42
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DecodePngV2:47
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DecodePngV2:72
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DecodePngV2:79
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DecodePngV2:97
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DecodePngV2:102
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DecodePngV2:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DecodePngV2:47
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DecodePngV2:72
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DecodePngV2:79
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DecodePngV2:97
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DecodePngV2:102
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

@@ -1,0 +1,288 @@
+=== 待审推理日志 L-0579 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 11 个；未决 11 个。
+
+【推理轨迹】共 31 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:7
+  引证行: 7
+  引证内容: if (!inode->i_nlink && !is_bad_inode(inode)) {
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | 
+      5 | 	jfs_info("In jfs_evict_inode, inode = 0x%p", inode);
+      6 | 
+      7 | 	if (!inode->i_nlink && !is_bad_inode(inode)) {
+      8 | 		dquot_initialize(inode);
+      9 | 
+     10 | 		if (JFS_IP(inode)->fileset == FILESYSTEM_I) {
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:11
+  引证行: 11
+  引证内容: struct inode *ipimap = JFS_SBI(inode->i_sb)->ipimap;
+  初判倾向: VIOLATED
+  上下文源码:
+      8 | 		dquot_initialize(inode);
+      9 | 
+     10 | 		if (JFS_IP(inode)->fileset == FILESYSTEM_I) {
+     11 | 			struct inode *ipimap = JFS_SBI(inode->i_sb)->ipimap;
+     12 | 			truncate_inode_pages_final(&inode->i_data);
+     13 | 
+     14 | 			if (test_cflag(COMMIT_Freewmap, inode))
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:12
+  引证行: 12
+  引证内容: truncate_inode_pages_final(&inode->i_data);
+  初判倾向: VIOLATED
+  上下文源码:
+      9 | 
+     10 | 		if (JFS_IP(inode)->fileset == FILESYSTEM_I) {
+     11 | 			struct inode *ipimap = JFS_SBI(inode->i_sb)->ipimap;
+     12 | 			truncate_inode_pages_final(&inode->i_data);
+     13 | 
+     14 | 			if (test_cflag(COMMIT_Freewmap, inode))
+     15 | 				jfs_free_zero_link(inode);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:17
+  引证行: 17
+  引证内容: if (ipimap && JFS_IP(ipimap)->i_imap)
+  初判倾向: VIOLATED
+  上下文源码:
+     14 | 			if (test_cflag(COMMIT_Freewmap, inode))
+     15 | 				jfs_free_zero_link(inode);
+     16 | 
+     17 | 			if (ipimap && JFS_IP(ipimap)->i_imap)
+     18 | 				diFree(inode);
+     19 | 
+     20 | 			/*
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:26
+  引证行: 26
+  引证内容: truncate_inode_pages_final(&inode->i_data);
+  初判倾向: VIOLATED
+  上下文源码:
+     23 | 			dquot_free_inode(inode);
+     24 | 		}
+     25 | 	} else {
+     26 | 		truncate_inode_pages_final(&inode->i_data);
+     27 | 	}
+     28 | 	clear_inode(inode);
+     29 | 	dquot_drop(inode);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:31
+  引证行: 31
+  引证内容: BUG_ON(!list_empty(&ji->anon_inode_list));
+  初判倾向: VIOLATED
+  上下文源码:
+     28 | 	clear_inode(inode);
+     29 | 	dquot_drop(inode);
+     30 | 
+     31 | 	BUG_ON(!list_empty(&ji->anon_inode_list));
+     32 | 
+     33 | 	spin_lock_irq(&ji->ag_lock);
+     34 | 	if (ji->active_ag != -1) {
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:33
+  引证行: 33
+  引证内容: spin_lock_irq(&ji->ag_lock);
+  初判倾向: VIOLATED
+  上下文源码:
+     30 | 
+     31 | 	BUG_ON(!list_empty(&ji->anon_inode_list));
+     32 | 
+     33 | 	spin_lock_irq(&ji->ag_lock);
+     34 | 	if (ji->active_ag != -1) {
+     35 | 		struct bmap *bmap = JFS_SBI(inode->i_sb)->bmap;
+     36 | 		atomic_dec(&bmap->db_active[ji->active_ag]);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:34
+  引证行: 34
+  引证内容: if (ji->active_ag != -1) {
+  初判倾向: VIOLATED
+  上下文源码:
+     31 | 	BUG_ON(!list_empty(&ji->anon_inode_list));
+     32 | 
+     33 | 	spin_lock_irq(&ji->ag_lock);
+     34 | 	if (ji->active_ag != -1) {
+     35 | 		struct bmap *bmap = JFS_SBI(inode->i_sb)->bmap;
+     36 | 		atomic_dec(&bmap->db_active[ji->active_ag]);
+     37 | 		ji->active_ag = -1;
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: jfs_evict_inode:36
+  引证行: 36
+  引证内容: atomic_dec(&bmap->db_active[ji->active_ag]);
+  初判倾向: VIOLATED
+  上下文源码:
+     33 | 	spin_lock_irq(&ji->ag_lock);
+     34 | 	if (ji->active_ag != -1) {
+     35 | 		struct bmap *bmap = JFS_SBI(inode->i_sb)->bmap;
+     36 | 		atomic_dec(&bmap->db_active[ji->active_ag]);
+     37 | 		ji->active_ag = -1;
+     38 | 	}
+     39 | 	spin_unlock_irq(&ji->ag_lock);
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:7
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:10
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:11
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:12
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:17
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:26
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:31
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:33
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:34
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:35
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: jfs_evict_inode:36
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:10
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:12
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:33
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: jfs_evict_inode:36
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

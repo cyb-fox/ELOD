@@ -1,0 +1,203 @@
+=== 待审推理日志 L-0701 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 7 个。
+
+【推理轨迹】共 21 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:23
+  引证行: 23
+  引证内容: const Tensor& orig_input_tensor_shape = context->input(0);
+  初判倾向: VIOLATED
+  上下文源码:
+     20 |         EigenDoubleMatrixMap;
+     21 | 
+     22 |     // Grab the inputs.
+     23 |     const Tensor& orig_input_tensor_shape = context->input(0);
+     24 |     OP_REQUIRES(context,
+     25 |                 orig_input_tensor_shape.dims() == 1 &&
+     26 |                     orig_input_tensor_shape.NumElements() == 4,
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:29
+  引证行: 29
+  引证内容: const Tensor& out_backprop = context->input(1);
+  初判倾向: VIOLATED
+  上下文源码:
+     26 |                     orig_input_tensor_shape.NumElements() == 4,
+     27 |                 errors::InvalidArgument("original input tensor shape must be"
+     28 |                                         "1-dimensional and 4 elements"));
+     29 |     const Tensor& out_backprop = context->input(1);
+     30 |     const Tensor& row_seq_tensor = context->input(2);
+     31 |     const Tensor& col_seq_tensor = context->input(3);
+     32 | 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:30
+  引证行: 30
+  引证内容: const Tensor& row_seq_tensor = context->input(2);
+  初判倾向: VIOLATED
+  上下文源码:
+     27 |                 errors::InvalidArgument("original input tensor shape must be"
+     28 |                                         "1-dimensional and 4 elements"));
+     29 |     const Tensor& out_backprop = context->input(1);
+     30 |     const Tensor& row_seq_tensor = context->input(2);
+     31 |     const Tensor& col_seq_tensor = context->input(3);
+     32 | 
+     33 |     const int64_t out_batch = out_backprop.dim_size(0);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:31
+  引证行: 31
+  引证内容: const Tensor& col_seq_tensor = context->input(3);
+  初判倾向: VIOLATED
+  上下文源码:
+     28 |                                         "1-dimensional and 4 elements"));
+     29 |     const Tensor& out_backprop = context->input(1);
+     30 |     const Tensor& row_seq_tensor = context->input(2);
+     31 |     const Tensor& col_seq_tensor = context->input(3);
+     32 | 
+     33 |     const int64_t out_batch = out_backprop.dim_size(0);
+     34 |     const int64_t out_rows = out_backprop.dim_size(1);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:81
+  引证行: 81
+  引证内容: OP_REQUIRES_OK(context, context->forward_input_or_allocate_temp(
+  初判倾向: VIOLATED
+  上下文源码:
+     78 | 
+     79 |     // Create intermediate in_backprop.
+     80 |     Tensor in_backprop_tensor_temp;
+     81 |     OP_REQUIRES_OK(context, context->forward_input_or_allocate_temp(
+     82 |                                 {0}, DataTypeToEnum<double>::v(), in_shape,
+     83 |                                 &in_backprop_tensor_temp));
+     84 |     in_backprop_tensor_temp.flat<double>().setZero();
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:110
+  引证行: 110
+  引证内容: const int64_t out_index = (b * out_rows + r) * out_cols + c;
+  初判倾向: VIOLATED
+  上下文源码:
+    107 | 
+    108 |           const int64_t num_elements_in_pooling_cell =
+    109 |               (in_row_end - in_row_start + 1) * (in_col_end - in_col_start + 1);
+    110 |           const int64_t out_index = (b * out_rows + r) * out_cols + c;
+    111 |           // Now we can evenly distribute out_backprop(b, h, w, *) to
+    112 |           // in_backprop(b, hs:he, ws:we, *).
+    113 |           for (int64_t in_r = in_row_start; in_r <= in_row_end; ++in_r) {
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:115
+  引证行: 115
+  引证内容: const int64_t in_index = (b * in_rows + in_r) * in_cols + in_c;
+  初判倾向: VIOLATED
+  上下文源码:
+    112 |           // in_backprop(b, hs:he, ws:we, *).
+    113 |           for (int64_t in_r = in_row_start; in_r <= in_row_end; ++in_r) {
+    114 |             for (int64_t in_c = in_col_start; in_c <= in_col_end; ++in_c) {
+    115 |               const int64_t in_index = (b * in_rows + in_r) * in_cols + in_c;
+    116 |               // Walk through each channel (depth).
+    117 |               for (int64_t d = 0; d < out_depth; ++d) {
+    118 |                 const double out_backprop_element = static_cast<double>(
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:23
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:29
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:30
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:31
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:81
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:110
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:115
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:81
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:110
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:115
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

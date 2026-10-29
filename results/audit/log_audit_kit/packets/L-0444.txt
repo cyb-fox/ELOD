@@ -1,0 +1,122 @@
+=== 待审推理日志 L-0444 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 3 个。
+
+【推理轨迹】共 12 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: squashfs_opendir:18
+  引证行: 18
+  引证内容: dir = malloc(sizeof(struct dir));
+  初判倾向: VIOLATED
+  上下文源码:
+     15 | 
+     16 | 	*i = read_inode(block_start, offset);
+     17 | 
+     18 | 	dir = malloc(sizeof(struct dir));
+     19 | 	if(dir == NULL)
+     20 | 		MEM_ERROR();
+     21 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: squashfs_opendir:22
+  引证行: 22
+  引证内容: dir->dir_count = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+     19 | 	if(dir == NULL)
+     20 | 		MEM_ERROR();
+     21 | 
+     22 | 	dir->dir_count = 0;
+     23 | 	dir->cur_entry = NULL;
+     24 | 	dir->mode = (*i)->mode;
+     25 | 	dir->uid = (*i)->uid;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: squashfs_opendir:82
+  引证行: 82
+  引证内容: dire->name[dire->size + 1] = '\0';
+  初判倾向: VIOLATED
+  上下文源码:
+     79 | 			if(res == FALSE)
+     80 | 				goto corrupted;
+     81 | 
+     82 | 			dire->name[dire->size + 1] = '\0';
+     83 | 
+     84 | 			/* check name for invalid characters (i.e /, ., ..) */
+     85 | 			if(check_name(dire->name, dire->size + 1) == FALSE) {
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: squashfs_opendir:94
+  引证行: 94
+  引证内容: ent = malloc(sizeof(struct dir_ent));
+  初判倾向: VIOLATED
+  上下文源码:
+     91 | 				"%d:%d, type %d\n", dire->name,
+     92 | 				dirh.start_block, dire->offset, dire->type);
+     93 | 
+     94 | 			ent = malloc(sizeof(struct dir_ent));
+     95 | 			if(ent == NULL)
+     96 | 				MEM_ERROR();
+     97 | 
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:18
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:22
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:82
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: squashfs_opendir:94
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:18
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:22
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:82
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: squashfs_opendir:94
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-190

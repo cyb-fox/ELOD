@@ -1,0 +1,102 @@
+{
+  "cwe_id": "CWE-79",
+  "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-74"
+    ],
+    "parent_of": [
+      "CWE-80",
+      "CWE-81",
+      "CWE-82",
+      "CWE-83",
+      "CWE-84",
+      "CWE-85",
+      "CWE-86",
+      "CWE-87"
+    ]
+  },
+  "principle": "User-controllable input is placed into a generated web page without context-appropriate neutralization. A browser may interpret the data as HTML, JavaScript, CSS, or URL code and execute attacker-controlled actions in the victim's session.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "JavaScript",
+    "PHP",
+    "C#",
+    "Python",
+    "Ruby"
+  ],
+  "detection_signals": [
+    "Java Servlet/JSP: request.getParameter(...), request.getHeader(...), or Cookie.getValue() concatenated into out.print(...), response.getWriter().write(...), or <%= ... %>",
+    "Stored XSS: ResultSet.getString(...), ORM entity field, file data, or message text written to an HTML response without Encode.forHtml(...) or template auto-escape",
+    "DOM XSS: location, document.URL, document.referrer, window.name, or postMessage data assigned to innerHTML, outerHTML, insertAdjacentHTML, or document.write(...)",
+    "HTML attribute sink: user data concatenated into href=, src=, value=, title=, style=, or on* attributes without Encode.forHtmlAttribute(...)",
+    "JavaScript sink: user data embedded in <script>, event handler, eval(...), setTimeout(string), setInterval(string), or Function(...) without JavaScript-string encoding",
+    "URL sink: user data concatenated into href, src, action, or redirect URL with javascript: allowed or without URL allowlist plus Encode.forUriComponent(...)",
+    "C/C++ CGI: getenv(\"QUERY_STRING\"), POST body, socket input, or parsed parameter passed to printf(\"<html>...%s\", value) without HTML encoding"
+  ],
+  "negative_signals": [
+    "Output uses context-specific encoder matching the sink: Encode.forHtml, Encode.forHtmlAttribute, Encode.forJavaScript, Encode.forCssString, Encode.forUriComponent, or ESAPI.encoder()",
+    "Template auto-escaping is enabled for the context, e.g. JSP c:out escapeXml=true, Thymeleaf th:text, React JSX text interpolation, or Angular interpolation",
+    "Value is a compile-time constant, enum-only value, or server-generated token with no request, cookie, header, file, database, or network influence",
+    "HTML attribute value is quoted and encoded with an attribute encoder before output",
+    "Untrusted rich HTML is sanitized by an allowlist sanitizer such as OWASP Java HTML Sanitizer or DOMPurify before insertion",
+    "Response specifies a consistent charset, e.g. Content-Type: text/html; charset=UTF-8, and output encoding is applied before writing"
+  ],
+  "false_defense_traps": [
+    "Blacklist removal of \"script\" misses mixed case, encoded input, SVG, IMG onerror, and event-handler payloads",
+    "HTML body escaping used inside JavaScript, CSS, URL, or attribute contexts is the wrong encoder",
+    "SQL escaping, prepared statements, or mysql_real_escape_string protect SQL only; stored HTML can still execute when rendered",
+    "Client-side validation or JavaScript filtering only is bypassable by modified requests",
+    "HttpOnly cookies, SameSite cookies, and CSP reduce impact but do not neutralize injected page content"
+  ],
+  "verification_focus": "Does any attacker-influenced value reach an HTML, attribute, URL, JavaScript, CSS, or DOM output sink without the encoder or sanitizer required for that exact context?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-116",
+        "CWE-79"
+      ],
+      "trigger": "Missing or wrong output encoding before web page generation",
+      "consequence": "Browser executes attacker-controlled script or markup"
+    },
+    {
+      "chain": [
+        "CWE-184",
+        "CWE-79"
+      ],
+      "trigger": "Incomplete blacklist filter is bypassed with alternate XSS syntax",
+      "consequence": "Injected script steals data or modifies page actions"
+    },
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-79"
+      ],
+      "trigger": "SQL injection stores malicious HTML that is later rendered to users",
+      "consequence": "Second-order stored XSS and account compromise"
+    },
+    {
+      "chain": [
+        "CWE-79",
+        "CWE-352"
+      ],
+      "trigger": "Injected script issues authenticated same-origin requests",
+      "consequence": "Victim actions are forged using the active session"
+    }
+  ],
+  "patch_principle": [
+    "Encode on output using the exact encoder for the context: HTML body, HTML attribute, URL component, JavaScript string, or CSS.",
+    "Prefer vetted frameworks and template engines with context-aware auto-escaping enabled.",
+    "Sanitize user-supplied rich HTML with an allowlist sanitizer; otherwise render it as plain text.",
+    "Validate input with accept-known-good rules, but still apply output encoding.",
+    "Add defense in depth with HttpOnly and SameSite cookies, CSP, and explicit UTF-8 charset."
+  ],
+  "minimal_examples": {
+    "vuln": "out.print(\"<div>\" + request.getParameter(\"name\") + \"</div>\");",
+    "safe": "out.print(\"<div>\" + Encode.forHtml(request.getParameter(\"name\")) + \"</div>\");"
+  }
+}

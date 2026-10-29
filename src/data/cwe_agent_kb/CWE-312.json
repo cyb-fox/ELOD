@@ -1,0 +1,94 @@
+{
+  "cwe_id": "CWE-312",
+  "name": "Cleartext Storage of Sensitive Information",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "data-exposure-and-trust",
+    "child_of": [
+      "CWE-311",
+      "CWE-922"
+    ],
+    "parent_of": [
+      "CWE-313",
+      "CWE-314",
+      "CWE-315",
+      "CWE-316",
+      "CWE-317",
+      "CWE-318",
+      "CWE-526"
+    ]
+  },
+  "principle": "The product stores sensitive data at rest in cleartext in a resource that another control sphere may access. Anyone who can read that resource can recover the data; encoding is reversible and is not protection.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "PHP",
+    "C#",
+    "JavaScript",
+    "Python",
+    "Go"
+  ],
+  "detection_signals": [
+    "Java response.addCookie(new Cookie(name, password|token|acctID|ssn)) without encryption before Cookie construction",
+    "PHP setcookie(name, username|password|token|acctID) without openssl_encrypt/sodium_crypto_secretbox before setcookie",
+    "C/C++ write/fwrite/ofstream << password|token|secret buffer without EVP_EncryptUpdate/CryptProtectData before the storage sink",
+    "Java Files.write/FileOutputStream/Properties.store writes password|secret|token values without Cipher.doFinal before write",
+    "Android SharedPreferences.Editor.putString(\"password\"|\"token\"|\"secret\", value) instead of EncryptedSharedPreferences",
+    "Windows RegSetValueEx stores password|token|secret data without CryptProtectData before RegSetValueEx",
+    "Cloud IaC/API creates S3/GCS/Azure blob storage for sensitive data with missing ServerSideEncryptionConfiguration/encryption at rest setting"
+  ],
+  "negative_signals": [
+    "Cipher.doFinal/EVP_EncryptUpdate/crypto_secretbox/CryptProtectData output is the exact value passed to the storage sink",
+    "Android EncryptedSharedPreferences, iOS Keychain, Java KeyStore, or OS credential vault stores the secret",
+    "S3 BucketEncryption/ServerSideEncryption AES256 or aws:kms, GCS defaultKmsKeyName, or Azure encryption scope is enabled for the storage resource",
+    "The data flow only goes to a network send API and is not persisted to file, cookie, registry, database, memory dump, environment, or cloud storage",
+    "Stored value is a salted one-way password hash from bcrypt/scrypt/Argon2/PBKDF2 and the plaintext password is not stored"
+  ],
+  "false_defense_traps": [
+    "Base64, hex, URL encoding, compression, or serialization before storage",
+    "TLS/HTTPS on transport while the at-rest value remains cleartext",
+    "Signed cookie or signed JWT without encryption; integrity is not confidentiality",
+    "File permissions, private bucket ACLs, or database grants as the only protection for plaintext secrets",
+    "Encryption key hard-coded, stored beside ciphertext, or committed in the same configuration repository"
+  ],
+  "verification_focus": "Does sensitive data reach any persistent or inspectable storage sink without real encryption before the write, and can another control sphere read that resource?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-312",
+        "CWE-200"
+      ],
+      "trigger": "Attacker obtains read access to the storage resource containing cleartext sensitive data",
+      "consequence": "Confidential application data is disclosed"
+    },
+    {
+      "chain": [
+        "CWE-312",
+        "CWE-79"
+      ],
+      "trigger": "Cleartext sensitive cookie exists and an XSS flaw can read document.cookie",
+      "consequence": "Remote attacker steals the stored cookie value"
+    },
+    {
+      "chain": [
+        "CWE-306",
+        "CWE-312",
+        "CWE-200"
+      ],
+      "trigger": "Unauthenticated storage bucket or endpoint contains unencrypted sensitive objects",
+      "consequence": "Bulk data exposure"
+    }
+  ],
+  "patch_principle": [
+    "Encrypt sensitive data before storage using vetted authenticated encryption and managed keys.",
+    "Use platform storage protections: cloud at-rest encryption/KMS, OS credential vaults, EncryptedSharedPreferences, KeyStore, or Keychain.",
+    "Do not persist passwords, tokens, session secrets, or PII unless required; store references or short-lived tokens instead.",
+    "Protect keys separately from ciphertext and rotate/revoke keys as needed.",
+    "Map to a more specific child CWE when the storage location is known, such as file, registry, cookie, memory, GUI, executable, or environment variable."
+  ],
+  "minimal_examples": {
+    "vuln": "response.addCookie(new Cookie(\"userAccountID\", acctID));",
+    "safe": "response.addCookie(new Cookie(\"userAccountID\", encrypt(acctID, kmsKeyId)));"
+  }
+}

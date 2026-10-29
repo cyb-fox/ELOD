@@ -1,0 +1,60 @@
+{
+  "cwe_id": "CWE-421",
+  "name": "Race Condition During Access to Alternate Channel",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-362",
+      "CWE-420"
+    ],
+    "parent_of": []
+  },
+  "principle": "The program creates an alternate communication channel for a legitimate user, but exposes the endpoint before the intended user is bound to it. An attacker can win the race and hijack the channel to impersonate the user or bypass protection.",
+  "applicable_languages": [
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "Creates IPC endpoint during auth flow with a predictable name/path, e.g. `\\\\.\\pipe\\name`, `/tmp/name`, fixed TCP port",
+    "Uses `CreateNamedPipe*`, `mkfifo()`, `socket()/bind()/listen()/accept()`, or temp-file IPC as an alternate login/control channel",
+    "No peer-identity check after connection, e.g. no `GetNamedPipeClientProcessId`, `SO_PEERCRED`, `getpeereid`, or cert/token validation",
+    "Endpoint permissions are absent or permissive, e.g. NULL `SECURITY_ATTRIBUTES`, `chmod 0666`, `umask(000)`, world-writable directory",
+    "Code trusts the first connector/reader/writer on the channel as the authorized user",
+    "Channel name or port is published through shared env var, config file, or predictable filename before authorization"
+  ],
+  "negative_signals": [
+    "Uses a per-session unguessable endpoint name or token and shares it only through an authenticated parent/child channel",
+    "Sets restrictive endpoint ACLs or mode bits, e.g. user-only DACL, `chmod 0600`, `chmod 0700`, private namespace",
+    "Verifies peer identity before trusting data, e.g. `SO_PEERCRED`, `getpeereid`, client certificate, process-id/uid match",
+    "Uses inherited anonymous pipes or `socketpair()` instead of a public named endpoint",
+    "Creates the channel only after the user is already authenticated and authorized",
+    "Rejects any connector whose identity does not match the intended process/user"
+  ],
+  "false_defense_traps": [
+    "Binding to `localhost` only without any peer authentication or token still allows same-host hijack",
+    "Using a random TCP port but exposing it in `/tmp`, env vars, logs, or a shared file is still raceable",
+    "Deleting the named pipe/socket path after creation does not help if an attacker connects before deletion",
+    "Checking client identity after reading attacker-controlled data is too late"
+  ],
+  "verification_focus": "Can any untrusted actor discover, connect to, or impersonate the intended recipient on the alternate channel before the authorized user?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-421",
+        "CWE-287"
+      ],
+      "trigger": "attacker connects first to the alternate channel and is treated as the legitimate user",
+      "consequence": "authentication or session ownership is bypassed; attacker gains privileges or assumes identity"
+    }
+  ],
+  "patch_principle": [
+    "Do not expose the alternate channel until the intended user is authenticated and ready to connect",
+    "Use unpredictable, per-session endpoints and keep them out of shared namespaces",
+    "Restrict channel access with OS ACLs or private permissions and verify peer identity on connect",
+    "Reject any connection that does not match the expected user, process, or token"
+  ],
+  "minimal_examples": {
+    "vuln": "h = CreateNamedPipeA(\"\\\\\\\\.\\\\pipe\\\\login\", PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE, 1, 0, 0, 0, NULL);",
+    "safe": "h = CreateNamedPipeA(userPipeName, PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE, 1, 0, 0, 0, &saUserOnly);"
+  }
+}

@@ -1,0 +1,494 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "snd_pcm_oss_sync:11"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 11,
+      "snippet": "substream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "snd_pcm_oss_sync:11",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "snd_pcm_oss_sync:14"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-457"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 14,
+      "snippet": "if (atomic_read(&substream->mmap_count))",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "snd_pcm_oss_sync:14",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "snd_pcm_oss_sync:19"
+    ],
+    "inputs": {
+      "change_kind": "type_fix",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 19,
+      "snippet": "atomic_inc(&runtime->oss.rw_ref);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "snd_pcm_oss_sync:19",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "snd_pcm_oss_sync:20"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-369"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 20,
+      "snippet": "if (mutex_lock_interruptible(&runtime->oss.params_lock)) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "snd_pcm_oss_sync:20",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "snd_pcm_oss_sync:24"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-191"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 24,
+      "snippet": "format = snd_pcm_oss_format_from(runtime->oss.format);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "snd_pcm_oss_sync:24",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "substream",
+        "pcm_oss_file",
+        "streams"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "`x = a - b` where `a` or `b` comes from input, packet length, or external state",
+        "`len = total_len - header_len` without a preceding `header_len <= total_len` check"
+      ]
+    },
+    "sink_id": "snd_pcm_oss_sync:11",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "runtime",
+        "substream"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "average/rate expression like total / count where count can be 0",
+        "binary % operator with RHS variable or expression not proven nonzero"
+      ]
+    },
+    "sink_id": "snd_pcm_oss_sync:13",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "atomic_read",
+        "substream",
+        "mmap_count"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Variable assigned only inside `if`, `else if`, loop, or `try` block and read after the block without an `else`/fallback assignment"
+      ]
+    },
+    "sink_id": "snd_pcm_oss_sync:14",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 9,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "atomic_inc",
+        "runtime",
+        "oss"
+      ],
+      "change_kind": "type_fix"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "`x = a - b` where `a` or `b` comes from input, packet length, or external state",
+        "`len = total_len - header_len` without a preceding `header_len <= total_len` check"
+      ]
+    },
+    "sink_id": "snd_pcm_oss_sync:19",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 10,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "mutex_lock_interruptible",
+        "runtime",
+        "oss"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "average/rate expression like total / count where count can be 0",
+        "binary % operator with RHS variable or expression not proven nonzero"
+      ]
+    },
+    "sink_id": "snd_pcm_oss_sync:20",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 11,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "atomic_dec",
+        "runtime",
+        "oss"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C++ class primitive member or pointer member missing from all constructors' initializer lists and later read",
+        "C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment"
+      ]
+    },
+    "sink_id": "snd_pcm_oss_sync:21",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 12,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "format",
+        "snd_pcm_oss_format_from",
+        "runtime"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "`x = a - b` where `a` or `b` comes from input, packet length, or external state",
+        "`len = total_len - header_len` without a preceding `header_len <= total_len` check"
+      ]
+    },
+    "sink_id": "snd_pcm_oss_sync:24",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 13,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "snd_pcm_oss_sync:11",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 14,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "snd_pcm_oss_sync:13",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 15,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "snd_pcm_oss_sync:14",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 16,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "type_fix",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "snd_pcm_oss_sync:19",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  },
+  {
+    "step": 17,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "snd_pcm_oss_sync:20",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 18,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "snd_pcm_oss_sync:21",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "non_negative_length": {
+        "to": "UNRESOLVED"
+      },
+      "readable_extent": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 19,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "snd_pcm_oss_sync:24",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "arithmetic_bound": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "intoverflow|arith"
+  }
+]

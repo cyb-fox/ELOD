@@ -1,0 +1,87 @@
+{
+  "cwe_id": "CWE-915",
+  "name": "Improperly Controlled Modification of Dynamically-Determined Object Attributes",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-913"
+    ],
+    "parent_of": [
+      "CWE-1321"
+    ]
+  },
+  "principle": "Code lets upstream input name multiple object fields or properties to initialize or update without restricting which fields are mutable. Attackers can set internal fields such as role, isAdmin, id, owner, configuration, or callback state.",
+  "applicable_languages": [
+    "Java",
+    "C++",
+    "C",
+    "Ruby",
+    "ASP.NET",
+    "PHP",
+    "Python",
+    "JavaScript"
+  ],
+  "detection_signals": [
+    "Spring MVC controller parameter binds request directly to domain entity: @ModelAttribute User user or @RequestBody User user",
+    "BeanUtils.copyProperties(requestObject, entity) without ignoreProperties or prior allowlist",
+    "Jackson ObjectMapper.readerForUpdating(existingEntity).readValue(requestBody)",
+    "Reflection writes field selected by request key: clazz.getDeclaredField(paramName); field.setAccessible(true); field.set(obj, value)",
+    "JavaBeans PropertyDescriptor built from request parameter name followed by getWriteMethod().invoke(obj, value)",
+    "Map/request parameter loop assigns arbitrary properties: for (String k : params.keySet()) setProperty(obj, k, params.get(k))",
+    "Dynamic nested path assignment from input such as path.split(\".\") then object[attr] or property setter traversal"
+  ],
+  "negative_signals": [
+    "Explicit field mapping only: entity.setName(dto.getName()); entity.setEmail(dto.getEmail())",
+    "Spring @InitBinder uses binder.setAllowedFields(\"name\", \"email\", ...)",
+    "Sensitive fields annotated with @JsonIgnore or @JsonProperty(access = JsonProperty.Access.READ_ONLY)",
+    "Dedicated request DTO class contains no id, role, isAdmin, owner, price, or internal configuration fields",
+    "Property name is checked against a constant allowlist before Field.set, PropertyDescriptor.invoke, or setProperty",
+    "Deserialized object data is accepted only after HMAC/signature verification over the serialized payload"
+  ],
+  "false_defense_traps": [
+    "Client-side hidden, readonly, or disabled form fields for role/id/isAdmin",
+    "Denylist that blocks only isAdmin but misses admin, role, permissions, owner, nested paths, or aliases",
+    "DTO exists but still exposes sensitive setters or is blindly copied into the persistent entity",
+    "Authentication check before binding while authorization-critical fields are modified during binding",
+    "Validation checks value format but not whether the field name is allowed to be modified"
+  ],
+  "verification_focus": "Can attacker-controlled input choose or populate any object attribute that is not explicitly allowed for that operation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-915",
+        "CWE-284"
+      ],
+      "trigger": "Mass assignment modifies role, isAdmin, owner, tenant, or permission fields",
+      "consequence": "Unauthorized access or privilege change"
+    },
+    {
+      "chain": [
+        "CWE-502",
+        "CWE-915"
+      ],
+      "trigger": "Untrusted serialized data restores internal object fields",
+      "consequence": "Application state corruption or code execution depending on gadget behavior"
+    },
+    {
+      "chain": [
+        "CWE-915",
+        "CWE-94"
+      ],
+      "trigger": "Attacker-controlled field selects class name, expression, script, callback, or command handler",
+      "consequence": "Unauthorized code execution"
+    }
+  ],
+  "patch_principle": [
+    "Use an allowlist of fields allowed to be bound or updated for each operation.",
+    "Map request DTOs to domain objects with explicit setters instead of generic mass assignment.",
+    "Do not expose setters or bindable fields for internal state such as id, role, owner, price, and configuration.",
+    "For deserialized input, verify integrity with signing/HMAC before using it.",
+    "Refactor dynamic attribute names into fixed getter/setter APIs where possible."
+  ],
+  "minimal_examples": {
+    "vuln": "BeanUtils.copyProperties(requestDto, userEntity);",
+    "safe": "userEntity.setEmail(requestDto.getEmail());"
+  }
+}

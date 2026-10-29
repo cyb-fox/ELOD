@@ -1,0 +1,109 @@
+=== 待审推理日志 L-0664 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 5 个；未决 0 个。
+
+【推理轨迹】共 12 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:2
+  引证行: 2
+  引证内容: const Tensor& a = ctx->input(0);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext* ctx) override {
+      2 |     const Tensor& a = ctx->input(0);
+      3 |     const Tensor& b = ctx->input(1);
+      4 |     OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(a.shape()),
+      5 |                 errors::InvalidArgument("a is not a matrix"));
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:3
+  引证行: 3
+  引证内容: const Tensor& b = ctx->input(1);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext* ctx) override {
+      2 |     const Tensor& a = ctx->input(0);
+      3 |     const Tensor& b = ctx->input(1);
+      4 |     OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(a.shape()),
+      5 |                 errors::InvalidArgument("a is not a matrix"));
+      6 |     OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(b.shape()),
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:2
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:3
+  命中信号: `while(true)`, `for(;;)`, or retry loops driven by input/network events with no termination or budget
+  筛选: keep
+  义务 input_sanitized: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:19
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:25
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:29
+  筛选: keep
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:2
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:3
+  违背的义务: input_sanitized
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 input_sanitized: ? -> VIOLATED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:19
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:25
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:29
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-197, CWE-400

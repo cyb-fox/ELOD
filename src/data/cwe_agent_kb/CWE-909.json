@@ -1,0 +1,85 @@
+{
+  "cwe_id": "CWE-909",
+  "name": "Missing Initialization of Resource",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-665"
+    ],
+    "parent_of": [
+      "CWE-456",
+      "CWE-1271"
+    ]
+  },
+  "principle": "The product fails to initialize a critical resource before it can affect behavior. The resource may contain stale, unpredictable, or unsafe default data, causing data exposure, privilege mistakes, crashes, or later use of an uninitialized resource.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Perl",
+    "PHP"
+  ],
+  "detection_signals": [
+    "C/C++ local variable declared without initializer and later read: `int uid; ... if (uid == 0)`",
+    "C/C++ local pointer declared without initializer and later dereferenced or passed to `%s`: `char *p; printf(\"%s\", p)`",
+    "C buffer used with string APIs before null initialization: `char buf[N]; strcat(buf, src)`",
+    "Variable assigned only inside `if`/`try`/`switch` branch and used after branch without `else`/`default` assignment",
+    "Security state variable assigned only after external call success: `state = getState(); if (state) uid = parse(state); if (uid == 0)`",
+    "Initialization guard starts in completed state: `private boolean initialized = true; if (!initialized) init()`",
+    "Reused buffer or struct sent with `send`/`write`/serialization without prior `memset`, constructor, or field initialization"
+  ],
+  "negative_signals": [
+    "Declaration includes safe initializer: `int uid = -1;`, `char buf[20] = \"\";`, `char *p = NULL;`",
+    "All control-flow branches assign the resource before use, including `else` or `default`",
+    "Failure path returns, throws, or aborts before the uninitialized value can be used",
+    "C++ object fields are initialized in constructor member-initializer list before any method use",
+    "Java field or object state is explicitly set to a safe value in constructor before security checks",
+    "Buffer is cleared or initialized before output: `memset(buf, 0, sizeof buf)` or `buf[0] = '\\0'`"
+  ],
+  "false_defense_traps": [
+    "Assuming stack or heap memory starts as zero in C/C++",
+    "Checking only the success branch of a conditional initialization",
+    "Using `strcat` on a fixed-size buffer without first making it an empty string",
+    "Relying on a default value that is privileged, such as `uid == 0`",
+    "Setting an `initialized` flag before all initialization steps complete"
+  ],
+  "verification_focus": "Can any execution path reach a read, security decision, output, or API use of the resource before it is explicitly initialized to a safe value?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-909",
+        "CWE-908"
+      ],
+      "trigger": "Resource is not initialized and is later consumed",
+      "consequence": "Unpredictable control flow, crash, or incorrect security decision"
+    },
+    {
+      "chain": [
+        "CWE-909",
+        "CWE-126"
+      ],
+      "trigger": "Uninitialized string buffer lacks a null terminator before string API use",
+      "consequence": "Out-of-bounds read, information disclosure, or crash"
+    },
+    {
+      "chain": [
+        "CWE-909",
+        "CWE-362"
+      ],
+      "trigger": "Concurrent initialization exposes a partially initialized resource",
+      "consequence": "Other thread observes unsafe state or skips required initialization"
+    }
+  ],
+  "patch_principle": [
+    "Explicitly initialize every critical resource before first use.",
+    "Give security-sensitive state a fail-closed default such as deny, invalid, or least privilege.",
+    "Ensure every conditional, error, `catch`, `else`, and `default` path initializes or exits before use.",
+    "Follow the complete required API initialization sequence before using the resource.",
+    "Enable compiler/static-analysis warnings for uninitialized variables, such as `-Wuninitialized` and `-Wmaybe-uninitialized`."
+  ],
+  "minimal_examples": {
+    "vuln": "char str[20]; strcat(str, \"hello world\");",
+    "safe": "char str[20] = \"\"; strcat(str, \"hello world\");"
+  }
+}

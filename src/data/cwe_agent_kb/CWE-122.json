@@ -1,0 +1,83 @@
+{
+  "cwe_id": "CWE-122",
+  "name": "Heap-based Buffer Overflow",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-787",
+      "CWE-788"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code writes past the end of a buffer allocated on the heap, such as memory from malloc(), calloc(), realloc(), or new. This can corrupt heap metadata, adjacent objects, function pointers, or control data, causing crashes or code execution.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "malloc/calloc/realloc buffer followed by strcpy(), strcat(), sprintf(), vsprintf(), gets(), or scanf(\"%s\")",
+    "new char[n] or new T[n] followed by memcpy(), memmove(), std::copy(), strcpy(), or manual writes without capacity check",
+    "for/while loop writes buf[i], *p++, dst[dst_index++] into heap buffer with bound based on source length",
+    "heap allocation size uses input-controlled arithmetic such as len * sizeof(T), count + 1, or expansion_factor * len",
+    "copy/encode/escape expands input into heap buffer after checking only pre-encoded strlen()",
+    "realloc() result used with old capacity variable during subsequent writes",
+    "memcpy(dst, src, len) where dst is heap allocated with size smaller than len"
+  ],
+  "negative_signals": [
+    "destination is stack array or global array, not malloc/calloc/realloc/new allocated memory",
+    "write length is checked as len < alloc_size or len <= alloc_size - 1 before NUL-terminated copy",
+    "allocation uses validated worst-case encoded size plus terminator before writing",
+    "std::vector, std::string, StringBuilder, or bounds-checked container APIs are used without raw data() overflow writes",
+    "memcpy/memmove length argument is sizeof(destination allocation) or tracked capacity, not source length",
+    "snprintf(dst, alloc_size, ...) return value is checked for truncation and dst is NUL-terminated"
+  ],
+  "false_defense_traps": [
+    "Checking strlen(input) before encoding but ignoring expansion such as '&' to '&amp;'",
+    "Replacing strcpy() with strncpy() without forcing a trailing NUL",
+    "Using ASLR, PIE, DEP/NX, /GS, or FORTIFY_SOURCE as the only fix",
+    "Assuming malloc(n) succeeded and then writing when malloc returned NULL",
+    "Validating element count but allocating bytes with overflowing count * sizeof(T)"
+  ],
+  "verification_focus": "Can every write into the heap-allocated buffer, including terminators and encoding expansion, be proven within the allocated capacity?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-131",
+        "CWE-122"
+      ],
+      "trigger": "integer overflow underestimates heap allocation size",
+      "consequence": "out-of-bounds heap write, crash, memory corruption, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-190",
+        "CWE-131",
+        "CWE-122"
+      ],
+      "trigger": "missing length check allows overflowing size calculation before allocation",
+      "consequence": "undersized heap buffer and heap-based buffer overflow"
+    },
+    {
+      "chain": [
+        "CWE-122",
+        "CWE-787"
+      ],
+      "trigger": "write passes the end of a heap buffer",
+      "consequence": "adjacent heap memory or control data is modified"
+    }
+  ],
+  "patch_principle": [
+    "Track heap buffer capacity and check every write against remaining capacity.",
+    "Allocate using validated worst-case size, including encoding expansion and NUL terminator.",
+    "Replace unbounded copy/format APIs with bounded APIs and handle truncation explicitly.",
+    "Check integer arithmetic for overflow before allocation size calculations.",
+    "Prefer bounds-checked containers or languages where practical."
+  ],
+  "minimal_examples": {
+    "vuln": "char *buf = malloc(256); strcpy(buf, argv[1]);",
+    "safe": "char *buf = malloc(256); snprintf(buf, 256, \"%s\", argv[1]);"
+  }
+}

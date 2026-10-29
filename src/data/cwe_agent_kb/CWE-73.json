@@ -1,0 +1,75 @@
+{
+  "cwe_id": "CWE-73",
+  "name": "External Control of File Name or Path",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-610",
+      "CWE-642"
+    ],
+    "parent_of": [
+      "CWE-114"
+    ]
+  },
+  "principle": "The program lets external input control a filename or path used in a filesystem operation. This can make the application read, write, delete, or execute unexpected files with the application's privileges.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "PHP",
+    "Python"
+  ],
+  "detection_signals": [
+    "Tainted input from `argv`, `getenv()`, `request.getParameter()`, headers, config, or `System.getProperty()` flows into a path variable.",
+    "Path built with `base + userInput`, `String.format(...)`, `sprintf(...)`, `Path.resolve(userInput)`, `new File(userInput)`, or `Paths.get(userInput)`.",
+    "Tainted path reaches `open`, `fopen`, `CreateFile`, `FileInputStream`, `FileOutputStream`, `Files.newInputStream`, `Files.delete`, `rename`, `unlink`, `include`, or `require`.",
+    "No fixed ID-to-filename map, enum switch, or constant lookup is used before the filesystem sink.",
+    "Validation uses denylist filtering such as `replace(\"../\", \"\")`, `replace(\"/\", \"\")`, `replace(\"\\\\\", \"\")`, or regex blocking only selected characters.",
+    "Code checks `startsWith(base)` or prefix equality on a raw/non-canonical path before opening.",
+    "Path value is read from writable config, environment variable, cookie, or request parameter and trusted as a filesystem target."
+  ],
+  "negative_signals": [
+    "External value is mapped through a fixed ID-to-filename table and unknown IDs are rejected.",
+    "Candidate path is canonicalized with `realpath()`, `File.getCanonicalPath()`, or `Path.toRealPath()` and checked under a canonical trusted base directory before use.",
+    "Filename allowlist rejects path separators, traversal segments, extra dots, unexpected charset, and unexpected extensions.",
+    "Only compile-time constants or server-owned constants reach the filesystem sink.",
+    "OS sandbox, chroot, AppArmor, container mount, or least-privilege file permissions prevent access outside the allowed directory."
+  ],
+  "false_defense_traps": [
+    "Removing only `../` or `/`; alternate separators, encodings, or repeated normalization can bypass it.",
+    "Checking `startsWith(base)` on an unnormalized string; `base/../secret` or `base_evil` can pass.",
+    "Client-side filename validation only; the server still accepts modified path values.",
+    "Regex denylist misses `\\`, `%2f`, `%5c`, double encoding, Unicode separators, or absolute paths.",
+    "Canonicalizing before a later path change or symlink swap without safe open semantics."
+  ],
+  "verification_focus": "Can attacker-controlled data reach a filesystem path/name sink without fixed mapping, strict allowlist validation, and canonicalization under a trusted root?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-73",
+        "CWE-22"
+      ],
+      "trigger": "User-controlled path contains traversal or absolute path syntax and is used in a filesystem operation.",
+      "consequence": "Files outside the intended directory are read, modified, or deleted."
+    },
+    {
+      "chain": [
+        "CWE-73",
+        "CWE-41"
+      ],
+      "trigger": "Aliases, symlinks, short names, or alternate path forms are not resolved consistently before the access check.",
+      "consequence": "The operation targets a different file than the checked file, bypassing restrictions."
+    }
+  ],
+  "patch_principle": [
+    "Replace free-form path input with fixed ID-to-filename mappings and reject unknown IDs.",
+    "Apply strict allowlist validation for filenames: limited charset, no separators, single dot, approved extension.",
+    "Canonicalize the candidate path and verify it remains under a canonical trusted base directory before opening.",
+    "Use least-privilege OS permissions and sandboxing to limit filesystem impact."
+  ],
+  "minimal_examples": {
+    "vuln": "new FileInputStream(\"/var/data/\" + request.getParameter(\"name\"));",
+    "safe": "new FileInputStream(ALLOWED_FILES.get(requireAllowedId(request.getParameter(\"id\"))));"
+  }
+}

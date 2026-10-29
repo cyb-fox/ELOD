@@ -1,0 +1,97 @@
+{
+  "cwe_id": "CWE-943",
+  "name": "Improper Neutralization of Special Elements in Data Query Logic",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-74"
+    ],
+    "parent_of": [
+      "CWE-89",
+      "CWE-90",
+      "CWE-643",
+      "CWE-652"
+    ]
+  },
+  "principle": "Code builds a data-store query by embedding unneutralized data into query syntax. Special query characters can change selection logic, append commands, or alter returned records.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "PHP",
+    "JavaScript",
+    "Python"
+  ],
+  "detection_signals": [
+    "SQL string concatenation passed to Statement.executeQuery/executeUpdate/execute",
+    "user-controlled value concatenated into LDAP filter passed to DirContext.search",
+    "user-controlled value concatenated into XPathExpression via XPath.compile",
+    "user-controlled value concatenated into XQuery/DQL/HTSQL query string before execution",
+    "MongoDB/NoSQL query built from raw JSON string concatenation or Document.parse(userInput)",
+    "query text contains operators like OR, AND, $, //, *, ; adjacent to variables or request parameters",
+    "PreparedStatement/parameter API unavailable while query contains '+' or StringBuilder.append(userInput)"
+  ],
+  "negative_signals": [
+    "JDBC PreparedStatement with ? placeholders and setString/setInt/setObject for all external values",
+    "JPA/SQL named parameters with setParameter for all external values",
+    "LDAP filter values escaped with LdapName/Rdn.escapeValue or equivalent RFC 4515 escaping before DirContext.search",
+    "XPath variables resolved through XPathVariableResolver instead of string concatenation",
+    "MongoDB query built with typed Filters.eq/and/or APIs, not JSON string concatenation",
+    "allowlisted field/order names mapped to constants before inclusion in query syntax"
+  ],
+  "false_defense_traps": [
+    "escaping only single quotes while other query metacharacters remain active",
+    "blacklisting strings like OR, AND, SELECT, or $ instead of using parameters",
+    "client-side validation before server-side query construction",
+    "wrapping input in quotes without escaping or binding",
+    "using stored procedures that concatenate untrusted input into dynamic query strings"
+  ],
+  "verification_focus": "Can any untrusted value reach query syntax as text instead of a parameter, escaped literal, or allowlisted identifier?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-89"
+      ],
+      "trigger": "untrusted data is concatenated into an SQL command",
+      "consequence": "read, modify, or delete database data; bypass access control"
+    },
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-90"
+      ],
+      "trigger": "untrusted data is concatenated into an LDAP filter",
+      "consequence": "alter directory search results or bypass authentication checks"
+    },
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-643"
+      ],
+      "trigger": "untrusted data is concatenated into an XPath expression",
+      "consequence": "select unintended XML nodes or bypass credential checks"
+    },
+    {
+      "chain": [
+        "CWE-943",
+        "CWE-652"
+      ],
+      "trigger": "untrusted data is concatenated into an XQuery expression",
+      "consequence": "read or manipulate unintended XML data"
+    }
+  ],
+  "patch_principle": [
+    "Use parameterized query APIs for every data value.",
+    "Escape query-language literals with the correct library when parameters are unavailable.",
+    "Allowlist and map identifiers such as column names, sort fields, and collection names.",
+    "Do not concatenate request, file, environment, or database-derived data into query text.",
+    "Keep authorization checks independent of attacker-controllable query result ordering or count."
+  ],
+  "minimal_examples": {
+    "vuln": "ResultSet rs = stmt.executeQuery(\"SELECT * FROM items WHERE owner='\" + user + \"' AND itemname='\" + item + \"'\");",
+    "safe": "PreparedStatement ps = conn.prepareStatement(\"SELECT * FROM items WHERE owner=? AND itemname=?\"); ps.setString(1, user); ps.setString(2, item);"
+  }
+}

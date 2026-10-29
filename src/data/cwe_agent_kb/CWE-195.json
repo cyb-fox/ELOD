@@ -1,0 +1,83 @@
+{
+  "cwe_id": "CWE-195",
+  "name": "Signed to Unsigned Conversion Error",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-681"
+    ],
+    "parent_of": []
+  },
+  "principle": "A signed value that may be negative is converted to an unsigned type such as size_t or unsigned int. Negative values become very large positive values, breaking size, bounds, allocation, and copy assumptions.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "function return type is unsigned or size_t and code returns -1 or another negative int error value",
+    "signed int/short length variable passed to memcpy/memmove/memset/strncpy/read/write as the size argument",
+    "signed int/short count variable passed to malloc/calloc/realloc/new[] size calculation",
+    "check only uses len <= MAX before passing len to an unsigned size parameter",
+    "result of signed subtraction assigned to size_t or unsigned without a prior lower-bound check",
+    "function returning -1 on error is used directly in memcpy/malloc size expression",
+    "explicit cast from signed int/short to unsigned int/unsigned long/size_t on tainted or error-code data"
+  ],
+  "negative_signals": [
+    "code checks value >= 0 before cast to size_t or unsigned",
+    "code checks both lower bound and upper bound before memory allocation or copy",
+    "error-return value is checked for < 0 before being used as a size",
+    "source value is declared unsigned and cannot receive negative values",
+    "conversion is guarded by a range check against UINT_MAX/SIZE_MAX and nonnegative minimum",
+    "API uses separate status return and out-parameter size instead of -1 as an in-band size error"
+  ],
+  "false_defense_traps": [
+    "len <= 512 before memcpy(buf, src, len) allows negative signed len",
+    "unsigned return type does not prevent return -1 from becoming UINT_MAX",
+    "casting to size_t after a signed upper-bound check preserves the bug",
+    "checking malloc result for NULL does not fix a negative-to-huge size conversion",
+    "using -Wno-sign-conversion or an explicit cast only hides the dangerous conversion"
+  ],
+  "verification_focus": "Can a signed value that may be negative reach an unsigned size, count, index, allocation, or copy argument before a nonnegative range check?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-195",
+        "CWE-119"
+      ],
+      "trigger": "only an upper-bound check is performed on a signed length before an unsigned memory operation",
+      "consequence": "negative length becomes huge and causes out-of-bounds buffer access"
+    },
+    {
+      "chain": [
+        "CWE-252",
+        "CWE-195",
+        "CWE-787"
+      ],
+      "trigger": "a function returns -1 on error and the unchecked result is used as a memcpy size",
+      "consequence": "huge copy length causes out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-195",
+        "CWE-190",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "trigger": "negative signed size converts to unsigned and participates in allocation-size arithmetic",
+      "consequence": "integer wraparound creates an undersized buffer followed by out-of-bounds write"
+    }
+  ],
+  "patch_principle": [
+    "Validate signed values with value >= 0 before any conversion to unsigned.",
+    "Perform lower-bound and upper-bound checks in the same type used by the sink.",
+    "Check error returns before using return values as sizes or counts.",
+    "Avoid in-band negative error codes for size-returning functions; return status separately.",
+    "Enable and fix compiler diagnostics such as -Wsign-conversion."
+  ],
+  "minimal_examples": {
+    "vuln": "short len = *(short*)p; if (len <= 512) memcpy(buf, p+2, len);",
+    "safe": "short len = *(short*)p; if (len >= 0 && len <= 512) memcpy(buf, p+2, (size_t)len);"
+  }
+}

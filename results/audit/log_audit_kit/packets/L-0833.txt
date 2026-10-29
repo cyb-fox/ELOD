@@ -1,0 +1,188 @@
+=== 待审推理日志 L-0833 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 7 个。
+
+【推理轨迹】共 20 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: njs_object_iterate_reverse:13
+  引证行: 13
+  引证内容: value = args->value;
+  初判倾向: VIOLATED
+  上下文源码:
+     10 |     njs_string_prop_t   string_prop;
+     11 |     njs_object_value_t  *object;
+     12 | 
+     13 |     value = args->value;
+     14 |     from = args->from;
+     15 |     to = args->to;
+     16 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: njs_object_iterate_reverse:14
+  引证行: 14
+  引证内容: from = args->from;
+  初判倾向: VIOLATED
+  上下文源码:
+     11 |     njs_object_value_t  *object;
+     12 | 
+     13 |     value = args->value;
+     14 |     from = args->from;
+     15 |     to = args->to;
+     16 | 
+     17 |     if (njs_is_array(value)) {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: njs_object_iterate_reverse:15
+  引证行: 15
+  引证内容: to = args->to;
+  初判倾向: VIOLATED
+  上下文源码:
+     12 | 
+     13 |     value = args->value;
+     14 |     from = args->from;
+     15 |     to = args->to;
+     16 | 
+     17 |     if (njs_is_array(value)) {
+     18 |         array = njs_array(value);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: njs_object_iterate_reverse:23
+  引证行: 23
+  引证内容: if (njs_slow_path(!array->object.fast_array)) {
+  初判倾向: VIOLATED
+  上下文源码:
+     20 |         from += 1;
+     21 | 
+     22 |         while (from-- > to) {
+     23 |             if (njs_slow_path(!array->object.fast_array)) {
+     24 |                 goto process_object;
+     25 |             }
+     26 | 
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: njs_object_iterate_reverse:27
+  引证行: 27
+  引证内容: if (njs_fast_path(from < array->length
+  初判倾向: VIOLATED
+  上下文源码:
+     24 |                 goto process_object;
+     25 |             }
+     26 | 
+     27 |             if (njs_fast_path(from < array->length
+     28 |                               && njs_is_valid(&array->start[from])))
+     29 |             {
+     30 |                 ret = handler(vm, args, &array->start[from], from);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: njs_object_iterate_reverse:30
+  引证行: 30
+  引证内容: ret = handler(vm, args, &array->start[from], from);
+  初判倾向: VIOLATED
+  上下文源码:
+     27 |             if (njs_fast_path(from < array->length
+     28 |                               && njs_is_valid(&array->start[from])))
+     29 |             {
+     30 |                 ret = handler(vm, args, &array->start[from], from);
+     31 | 
+     32 |             } else {
+     33 |                 entry = njs_value_arg(&njs_value_invalid);
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: njs_object_iterate_reverse:13
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: njs_object_iterate_reverse:14
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: njs_object_iterate_reverse:15
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: njs_object_iterate_reverse:23
+  命中信号: Java int arithmetic computes byte size or array length, e.g. int bytes = count * elemSize, before new byte[bytes] or ByteBuffer.allocate(bytes)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: njs_object_iterate_reverse:27
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: njs_object_iterate_reverse:28
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: njs_object_iterate_reverse:30
+  命中信号: array[index] or *(base + index) where index is tainted and lacks index >= 0 && index < len
+  筛选: keep
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: njs_object_iterate_reverse:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: njs_object_iterate_reverse:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: njs_object_iterate_reverse:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: njs_object_iterate_reverse:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: njs_object_iterate_reverse:27
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: njs_object_iterate_reverse:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: njs_object_iterate_reverse:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

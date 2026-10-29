@@ -1,0 +1,1257 @@
+=== 待审推理日志 L-0770 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 52 个；未决 52 个。
+
+【推理轨迹】共 145 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:23
+  引证行: 23
+  引证内容: f.read(&header->name,1,20);
+  初判倾向: VIOLATED
+  上下文源码:
+     20 | 	fileSize = f.sizeWithBaseOffset();
+     21 | 	
+     22 | 	f.read(&header->sig,1,17);
+     23 | 	f.read(&header->name,1,20);
+     24 | 	f.read(&header->whythis1a,1,1);
+     25 | 	header->whythis1a=0;
+     26 | 	f.read(&header->tracker,1,20);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:26
+  引证行: 26
+  引证内容: f.read(&header->tracker,1,20);
+  初判倾向: VIOLATED
+  上下文源码:
+     23 | 	f.read(&header->name,1,20);
+     24 | 	f.read(&header->whythis1a,1,1);
+     25 | 	header->whythis1a=0;
+     26 | 	f.read(&header->tracker,1,20);
+     27 | 	f.readWords(&header->ver,1);
+     28 | 	
+     29 | 	if (header->ver != 0x102 && 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:43
+  引证行: 43
+  引证内容: memset(hdrBuff, 0, hdrSize);
+  初判倾向: VIOLATED
+  上下文源码:
+     40 | 		hdrSize = header->hdrsize;
+     41 | 				
+     42 | 	mp_ubyte* hdrBuff = new mp_ubyte[hdrSize];
+     43 | 	memset(hdrBuff, 0, hdrSize);
+     44 | 	
+     45 | 	f.read(hdrBuff, 1, header->hdrsize);
+     46 | 	
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:45
+  引证行: 45
+  引证内容: f.read(hdrBuff, 1, header->hdrsize);
+  初判倾向: VIOLATED
+  上下文源码:
+     42 | 	mp_ubyte* hdrBuff = new mp_ubyte[hdrSize];
+     43 | 	memset(hdrBuff, 0, hdrSize);
+     44 | 	
+     45 | 	f.read(hdrBuff, 1, header->hdrsize);
+     46 | 	
+     47 | 	header->ordnum = LittleEndian::GET_WORD(hdrBuff);
+     48 | 	header->restart = LittleEndian::GET_WORD(hdrBuff+2);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:55
+  引证行: 55
+  引证内容: memcpy(header->ord, hdrBuff+16, 256);
+  初判倾向: VIOLATED
+  上下文源码:
+     52 | 	header->freqtab = LittleEndian::GET_WORD(hdrBuff+10);
+     53 | 	header->tempo = LittleEndian::GET_WORD(hdrBuff+12);
+     54 | 	header->speed = LittleEndian::GET_WORD(hdrBuff+14);
+     55 | 	memcpy(header->ord, hdrBuff+16, 256);
+     56 | 	if(header->ordnum > MP_MAXORDERS)
+     57 | 		header->ordnum = MP_MAXORDERS;
+     58 | 	if(header->insnum > MP_MAXINS)
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:72
+  引证行: 72
+  引证内容: for (i=0;i<32;i++) header->pan[i]=0x80;
+  初判倾向: VIOLATED
+  上下文源码:
+     69 | 	header->uppernotebound = 119;
+     70 | 	
+     71 | 	mp_sint32 i,y,sc;
+     72 | 	for (i=0;i<32;i++) header->pan[i]=0x80;
+     73 | 	
+     74 | 	// old version?
+     75 | 	if (header->ver == 0x102 || header->ver == 0x103)
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:82
+  引证行: 82
+  引证内容: f.read(&instr[y].name,1,22);
+  初判倾向: VIOLATED
+  上下文源码:
+     79 | 		for (y=0;y<header->insnum;y++) {
+     80 | 			
+     81 | 			f.readDwords(&instr[y].size,1);
+     82 | 			f.read(&instr[y].name,1,22);		
+     83 | 			f.read(&instr[y].type,1,1);
+     84 | 			mp_uword numSamples = 0;
+     85 | 			f.readWords(&numSamples,1);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:83
+  引证行: 83
+  引证内容: f.read(&instr[y].type,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+     80 | 			
+     81 | 			f.readDwords(&instr[y].size,1);
+     82 | 			f.read(&instr[y].name,1,22);		
+     83 | 			f.read(&instr[y].type,1,1);
+     84 | 			mp_uword numSamples = 0;
+     85 | 			f.readWords(&numSamples,1);
+     86 | 			if(numSamples > MP_MAXINSSAMPS)
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:102
+  引证行: 102
+  引证内容: memset(insData, 0, 230);
+  初判倾向: VIOLATED
+  上下文源码:
+     99 | 
+    100 | 			f.readDwords(&instr[y].shsize,1);
+    101 | 
+    102 | 			memset(insData, 0, 230);
+    103 | 			
+    104 | 			if (instr[y].size - 33 > 230)
+    105 | 				return MP_OUT_OF_MEMORY;
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:107
+  引证行: 107
+  引证内容: f.read(insData, 1, instr[y].size - 33);
+  初判倾向: VIOLATED
+  上下文源码:
+    104 | 			if (instr[y].size - 33 > 230)
+    105 | 				return MP_OUT_OF_MEMORY;
+    106 | 			
+    107 | 			f.read(insData, 1, instr[y].size - 33);
+    108 | 						
+    109 | 			if (instr[y].samp) {
+    110 | 				mp_ubyte* insDataPtr = insData;
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:112
+  引证行: 112
+  引证内容: memcpy(nbu, insDataPtr, MP_MAXINSSAMPS);
+  初判倾向: VIOLATED
+  上下文源码:
+    109 | 			if (instr[y].samp) {
+    110 | 				mp_ubyte* insDataPtr = insData;
+    111 | 				
+    112 | 				memcpy(nbu, insDataPtr, MP_MAXINSSAMPS);
+    113 | 				insDataPtr+=MP_MAXINSSAMPS;
+    114 | 				
+    115 | 				TEnvelope venv;
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:195
+  引证行: 195
+  引证内容: f.read(&smp[g+s].finetune,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    192 | 					f.readDwords(&smp[g+s].looplen,1);
+    193 | 					smp[g+s].vol=XModule::vol64to255(f.readByte());
+    194 | 					//f.read(&smp[g+s].vol,1,1);
+    195 | 					f.read(&smp[g+s].finetune,1,1);
+    196 | 					f.read(&smp[g+s].type,1,1);
+    197 | #ifdef VERBOSE
+    198 | 					printf("Before: %i, After: %i\n", smp[g+s].type, smp[g+s].type & (3+16));
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:196
+  引证行: 196
+  引证内容: f.read(&smp[g+s].type,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    193 | 					smp[g+s].vol=XModule::vol64to255(f.readByte());
+    194 | 					//f.read(&smp[g+s].vol,1,1);
+    195 | 					f.read(&smp[g+s].finetune,1,1);
+    196 | 					f.read(&smp[g+s].type,1,1);
+    197 | #ifdef VERBOSE
+    198 | 					printf("Before: %i, After: %i\n", smp[g+s].type, smp[g+s].type & (3+16));
+    199 | #endif
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:200
+  引证行: 200
+  引证内容: f.read(&smp[g+s].pan,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    197 | #ifdef VERBOSE
+    198 | 					printf("Before: %i, After: %i\n", smp[g+s].type, smp[g+s].type & (3+16));
+    199 | #endif
+    200 | 					f.read(&smp[g+s].pan,1,1);
+    201 | 					f.read(&smp[g+s].relnote,1,1);
+    202 | 					f.read(&smp[g+s].res,1,1);
+    203 | 					f.read(&smp[g+s].name,1,22);
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:202
+  引证行: 202
+  引证内容: f.read(&smp[g+s].res,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    199 | #endif
+    200 | 					f.read(&smp[g+s].pan,1,1);
+    201 | 					f.read(&smp[g+s].relnote,1,1);
+    202 | 					f.read(&smp[g+s].res,1,1);
+    203 | 					f.read(&smp[g+s].name,1,22);
+    204 | 					
+    205 | 					char line[30];
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:203
+  引证行: 203
+  引证内容: f.read(&smp[g+s].name,1,22);
+  初判倾向: VIOLATED
+  上下文源码:
+    200 | 					f.read(&smp[g+s].pan,1,1);
+    201 | 					f.read(&smp[g+s].relnote,1,1);
+    202 | 					f.read(&smp[g+s].res,1,1);
+    203 | 					f.read(&smp[g+s].name,1,22);
+    204 | 					
+    205 | 					char line[30];
+    206 | 					memset(line, 0, sizeof(line));
+
+--- 步骤 17 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:263
+  引证行: 263
+  引证内容: f.read(&phead[y].ptype,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    260 | 		if (header->ver == 0x104 || header->ver == 0x103)
+    261 | 		{
+    262 | 			f.readDwords(&phead[y].len,1);
+    263 | 			f.read(&phead[y].ptype,1,1);
+    264 | 			f.readWords(&phead[y].rows,1);
+    265 | 			f.readWords(&phead[y].patdata,1);
+    266 | 		}
+
+--- 步骤 18 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:270
+  引证行: 270
+  引证内容: f.read(&phead[y].ptype,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    267 | 		else
+    268 | 		{
+    269 | 			f.readDwords(&phead[y].len,1);
+    270 | 			f.read(&phead[y].ptype,1,1);
+    271 | 			phead[y].rows = (mp_uword)f.readByte()+1;
+    272 | 			f.readWords(&phead[y].patdata,1);			
+    273 | 		}
+
+--- 步骤 19 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:286
+  引证行: 286
+  引证内容: memset(phead[y].patternData,0,phead[y].rows*header->channum*6);
+  初判倾向: VIOLATED
+  上下文源码:
+    283 | 			return MP_OUT_OF_MEMORY;
+    284 | 		}
+    285 | 		
+    286 | 		memset(phead[y].patternData,0,phead[y].rows*header->channum*6);
+    287 | 		
+    288 | 		if (phead[y].patdata) {
+    289 | 			mp_ubyte *buffer = new mp_ubyte[phead[y].patdata];
+
+--- 步骤 20 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:297
+  引证行: 297
+  引证内容: f.read(buffer,1,phead[y].patdata);
+  初判倾向: VIOLATED
+  上下文源码:
+    294 | 				return MP_OUT_OF_MEMORY;			
+    295 | 			}
+    296 | 			
+    297 | 			f.read(buffer,1,phead[y].patdata);
+    298 | 			
+    299 | 			//printf("%i\n", phead[y].patdata);
+    300 | 			
+
+--- 步骤 21 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:306
+  引证行: 306
+  引证内容: memset(slot,0,5);
+  初判倾向: VIOLATED
+  上下文源码:
+    303 | 				for (mp_sint32 c=0;c<header->channum;c++) {
+    304 | 					
+    305 | 					mp_ubyte slot[5];
+    306 | 					memset(slot,0,5);
+    307 | 					
+    308 | 					if ((buffer[pc]&128)) {
+    309 | 						
+
+--- 步骤 22 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:342
+  引证行: 342
+  引证内容: memcpy(slot,buffer+pc,5);
+  初判倾向: VIOLATED
+  上下文源码:
+    339 | 					}
+    340 | 					else {
+    341 | 						//memcpy(phead[y].patternData+bc,buffer+pc,5);
+    342 | 						memcpy(slot,buffer+pc,5);
+    343 | 						pc+=5;
+    344 | 					}
+    345 | 					
+
+--- 步骤 23 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:422
+  引证行: 422
+  引证内容: memset(buffer, 0, sizeof(buffer));
+  初判倾向: VIOLATED
+  上下文源码:
+    419 | 			if (instr[y].size < 29)
+    420 | 			{
+    421 | 				mp_ubyte buffer[29];
+    422 | 				memset(buffer, 0, sizeof(buffer));
+    423 | 				f.read(buffer, 1, instr[y].size - 4);
+    424 | 				memcpy(instr[y].name, buffer, 22);
+    425 | 				instr[y].type = buffer[22];
+
+--- 步骤 24 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:423
+  引证行: 423
+  引证内容: f.read(buffer, 1, instr[y].size - 4);
+  初判倾向: VIOLATED
+  上下文源码:
+    420 | 			{
+    421 | 				mp_ubyte buffer[29];
+    422 | 				memset(buffer, 0, sizeof(buffer));
+    423 | 				f.read(buffer, 1, instr[y].size - 4);
+    424 | 				memcpy(instr[y].name, buffer, 22);
+    425 | 				instr[y].type = buffer[22];
+    426 | 				instr[y].samp = LittleEndian::GET_WORD(buffer + 23);
+
+--- 步骤 25 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:424
+  引证行: 424
+  引证内容: memcpy(instr[y].name, buffer, 22);
+  初判倾向: VIOLATED
+  上下文源码:
+    421 | 				mp_ubyte buffer[29];
+    422 | 				memset(buffer, 0, sizeof(buffer));
+    423 | 				f.read(buffer, 1, instr[y].size - 4);
+    424 | 				memcpy(instr[y].name, buffer, 22);
+    425 | 				instr[y].type = buffer[22];
+    426 | 				instr[y].samp = LittleEndian::GET_WORD(buffer + 23);
+    427 | 			}
+
+--- 步骤 26 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:431
+  引证行: 431
+  引证内容: f.read(&instr[y].type,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    428 | 			else
+    429 | 			{
+    430 | 				f.read(&instr[y].name,1,22);		
+    431 | 				f.read(&instr[y].type,1,1);
+    432 | 				f.readWords(&instr[y].samp,1);
+    433 | 			}
+    434 | 			if (instr[y].samp > MP_MAXINSSAMPS)
+
+--- 步骤 27 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:453
+  引证行: 453
+  引证内容: memset(insData, 0, 230);
+  初判倾向: VIOLATED
+  上下文源码:
+    450 | #ifdef VERBOSE
+    451 | 			printf("%i/%i: %i, %i, %i, %s\n",y,header->insnum-1,instr[y].size,instr[y].shsize,instr[y].samp,instr[y].name);			
+    452 | #endif
+    453 | 			memset(insData, 0, 230);
+    454 | 			
+    455 | 			if (instr[y].size - 33 > 230)
+    456 | 			{
+
+--- 步骤 28 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:461
+  引证行: 461
+  引证内容: f.read(insData, 1, instr[y].size - 33);
+  初判倾向: VIOLATED
+  上下文源码:
+    458 | 				break;
+    459 | 			}
+    460 | 			
+    461 | 			f.read(insData, 1, instr[y].size - 33);
+    462 | 			
+    463 | 			/*printf("%i\r\n",instr[y].size);
+    464 | 			printf("%s\r\n",instr[y].name);
+
+--- 步骤 29 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:477
+  引证行: 477
+  引证内容: memcpy(nbu, insDataPtr, MP_MAXINSSAMPS);
+  初判倾向: VIOLATED
+  上下文源码:
+    474 | 				
+    475 | 				//f.read(&nbu,1,96);
+    476 | 				
+    477 | 				memcpy(nbu, insDataPtr, MP_MAXINSSAMPS);
+    478 | 				insDataPtr+=MP_MAXINSSAMPS;
+    479 | 				
+    480 | 				TEnvelope venv;
+
+--- 步骤 30 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:482
+  引证行: 482
+  引证内容: memset(&venv,0,sizeof(venv));
+  初判倾向: VIOLATED
+  上下文源码:
+    479 | 				
+    480 | 				TEnvelope venv;
+    481 | 				TEnvelope penv;
+    482 | 				memset(&venv,0,sizeof(venv));
+    483 | 				memset(&penv,0,sizeof(penv));
+    484 | 				
+    485 | 				mp_sint32 k;
+
+--- 步骤 31 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:483
+  引证行: 483
+  引证内容: memset(&penv,0,sizeof(penv));
+  初判倾向: VIOLATED
+  上下文源码:
+    480 | 				TEnvelope venv;
+    481 | 				TEnvelope penv;
+    482 | 				memset(&venv,0,sizeof(venv));
+    483 | 				memset(&penv,0,sizeof(penv));
+    484 | 				
+    485 | 				mp_sint32 k;
+    486 | 				for (k = 0; k < XM_ENVELOPENUMPOINTS; k++)
+
+--- 步骤 32 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:563
+  引证行: 563
+  引证内容: f.read(&smp[g+s].finetune,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    560 | 					f.readDwords(&smp[g+s].looplen,1);
+    561 | 					smp[g+s].vol=XModule::vol64to255(f.readByte());
+    562 | 					//f.read(&smp[g+s].vol,1,1);
+    563 | 					f.read(&smp[g+s].finetune,1,1);
+    564 | 					f.read(&smp[g+s].type,1,1);
+    565 | #ifdef VERBOSE
+    566 | 					printf("Before: %i, After: %i\n", smp[g+s].type, smp[g+s].type & (3+16));
+
+--- 步骤 33 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:564
+  引证行: 564
+  引证内容: f.read(&smp[g+s].type,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    561 | 					smp[g+s].vol=XModule::vol64to255(f.readByte());
+    562 | 					//f.read(&smp[g+s].vol,1,1);
+    563 | 					f.read(&smp[g+s].finetune,1,1);
+    564 | 					f.read(&smp[g+s].type,1,1);
+    565 | #ifdef VERBOSE
+    566 | 					printf("Before: %i, After: %i\n", smp[g+s].type, smp[g+s].type & (3+16));
+    567 | #endif
+
+--- 步骤 34 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:568
+  引证行: 568
+  引证内容: f.read(&smp[g+s].pan,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    565 | #ifdef VERBOSE
+    566 | 					printf("Before: %i, After: %i\n", smp[g+s].type, smp[g+s].type & (3+16));
+    567 | #endif
+    568 | 					f.read(&smp[g+s].pan,1,1);
+    569 | 					f.read(&smp[g+s].relnote,1,1);
+    570 | 					f.read(&smp[g+s].res,1,1);
+    571 | 					f.read(&smp[g+s].name,1,22);
+
+--- 步骤 35 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:569
+  引证行: 569
+  引证内容: f.read(&smp[g+s].relnote,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    566 | 					printf("Before: %i, After: %i\n", smp[g+s].type, smp[g+s].type & (3+16));
+    567 | #endif
+    568 | 					f.read(&smp[g+s].pan,1,1);
+    569 | 					f.read(&smp[g+s].relnote,1,1);
+    570 | 					f.read(&smp[g+s].res,1,1);
+    571 | 					f.read(&smp[g+s].name,1,22);
+    572 | 
+
+--- 步骤 36 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:570
+  引证行: 570
+  引证内容: f.read(&smp[g+s].res,1,1);
+  初判倾向: VIOLATED
+  上下文源码:
+    567 | #endif
+    568 | 					f.read(&smp[g+s].pan,1,1);
+    569 | 					f.read(&smp[g+s].relnote,1,1);
+    570 | 					f.read(&smp[g+s].res,1,1);
+    571 | 					f.read(&smp[g+s].name,1,22);
+    572 | 
+    573 | 					char line[30];
+
+--- 步骤 37 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:571
+  引证行: 571
+  引证内容: f.read(&smp[g+s].name,1,22);
+  初判倾向: VIOLATED
+  上下文源码:
+    568 | 					f.read(&smp[g+s].pan,1,1);
+    569 | 					f.read(&smp[g+s].relnote,1,1);
+    570 | 					f.read(&smp[g+s].res,1,1);
+    571 | 					f.read(&smp[g+s].name,1,22);
+    572 | 
+    573 | 					char line[30];
+    574 | 					memset(line, 0, sizeof(line));
+
+--- 步骤 38 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:574
+  引证行: 574
+  引证内容: memset(line, 0, sizeof(line));
+  初判倾向: VIOLATED
+  上下文源码:
+    571 | 					f.read(&smp[g+s].name,1,22);
+    572 | 
+    573 | 					char line[30];
+    574 | 					memset(line, 0, sizeof(line));
+    575 | 					XModule::convertStr(line, smp[g+s].name, 23, false);					
+    576 | 					if (line[0])
+    577 | 						module->addSongMessageLine(line);
+
+--- 步骤 39 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:767
+  引证行: 767
+  引证内容: memset(phead[i].patternData,0,phead[i].rows*header->channum*6);
+  初判倾向: VIOLATED
+  上下文源码:
+    764 | 					return MP_OUT_OF_MEMORY;
+    765 | 				}
+    766 | 		
+    767 | 				memset(phead[i].patternData,0,phead[i].rows*header->channum*6);
+    768 | 			}
+    769 | 	}
+    770 | 	
+
+--- 步骤 40 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:775
+  引证行: 775
+  引证内容: f.read(buffer, 1, 4);
+  初判倾向: VIOLATED
+  上下文源码:
+    772 | 	if (f.posWithBaseOffset() + 8 <= fileSize)
+    773 | 	{
+    774 | 		char buffer[4];
+    775 | 		f.read(buffer, 1, 4);
+    776 | 		if (memcmp(buffer, "text", 4) == 0)
+    777 | 		{
+    778 | 			mp_uint32 len = f.readDword();
+
+--- 步骤 41 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: load:783
+  引证行: 783
+  引证内容: f.read(module->message, 1, len);
+  初判倾向: VIOLATED
+  上下文源码:
+    780 | 			
+    781 | 			memset(module->message, 0, len+1);
+    782 | 			
+    783 | 			f.read(module->message, 1, len);
+    784 | 		}
+    785 | 	}
+    786 | 	
+
+--- 步骤 42 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:22
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 43 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:23
+  命中信号: format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data
+  筛选: keep
+
+--- 步骤 44 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:24
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 45 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:26
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 46 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:43
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 47 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:45
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 48 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:55
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 49 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:72
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 50 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:82
+  命中信号: format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data
+  筛选: keep
+
+--- 步骤 51 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:83
+  命中信号: format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data
+  筛选: keep
+
+--- 步骤 52 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:96
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 53 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:102
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 54 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:107
+  命中信号: format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data
+  筛选: keep
+
+--- 步骤 55 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:112
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 56 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:117
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 57 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:118
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 58 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:195
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 59 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:196
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 60 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:200
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 61 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:201
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 62 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:202
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 63 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:203
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 64 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:206
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 65 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:215
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 66 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:263
+  命中信号: format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data
+  筛选: keep
+
+--- 步骤 67 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:270
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 68 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:286
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 69 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:297
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 70 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:306
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 71 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:342
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 72 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:422
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 73 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:423
+  命中信号: format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data
+  筛选: keep
+
+--- 步骤 74 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:424
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 75 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:430
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 76 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:431
+  命中信号: format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data
+  筛选: keep
+
+--- 步骤 77 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:453
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 78 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:461
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 79 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:470
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 80 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:477
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 81 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:482
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 82 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:483
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 83 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:563
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 84 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:564
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 85 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:568
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 86 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:569
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 87 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:570
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 88 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:571
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 89 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:574
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 90 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:767
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 91 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:775
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 92 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:781
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 93 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: load:783
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 94 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:22
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 95 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 96 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 97 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 98 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:43
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 99 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 100 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:55
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 101 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:72
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 102 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:82
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 103 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:83
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 104 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:96
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 105 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:102
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 106 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:107
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 107 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:112
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 108 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:117
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 109 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:118
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 110 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:195
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 111 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:196
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 112 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:200
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 113 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:201
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 114 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:202
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 115 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:203
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 116 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:206
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 117 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:215
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 118 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:263
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 119 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:270
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 120 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:286
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 121 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:297
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 122 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:306
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 123 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:342
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 124 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:422
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 125 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:423
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 126 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:424
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 127 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:430
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 128 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:431
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 129 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:453
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 130 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:461
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 131 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:470
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 132 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:477
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 133 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:482
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 134 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:483
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 135 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:563
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 136 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:564
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 137 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:568
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 138 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:569
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 139 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:570
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 140 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:571
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 141 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:574
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 142 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:767
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 143 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:775
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 144 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:781
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 145 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: load:783
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

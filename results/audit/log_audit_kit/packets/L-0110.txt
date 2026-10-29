@@ -1,0 +1,70 @@
+=== 待审推理日志 L-0110 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 0 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: thread_call:7
+  引证行: 7
+  引证内容: _thread(o)->Push(_thread(o)->_roottable);
+  初判倾向: VIOLATED
+  上下文源码:
+      4 |     if(sq_type(o) == OT_THREAD) {
+      5 |         SQInteger nparams = sq_gettop(v);
+      6 |         sq_reservestack(_thread(o), nparams + 3);
+      7 |         _thread(o)->Push(_thread(o)->_roottable);
+      8 |         for(SQInteger i = 2; i<(nparams+1); i++)
+      9 |             sq_move(_thread(o),v,i);
+     10 |         if(SQ_SUCCEEDED(sq_call(_thread(o),nparams,SQTrue,SQTrue))) {
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: thread_call:15
+  引证行: 15
+  引证内容: v->_lasterror = _thread(o)->_lasterror;
+  初判倾向: VIOLATED
+  上下文源码:
+     12 |             sq_pop(_thread(o),1);
+     13 |             return 1;
+     14 |         }
+     15 |         v->_lasterror = _thread(o)->_lasterror;
+     16 |         return SQ_ERROR;
+     17 |     }
+     18 |     return sq_throwerror(v,_SC("wrong parameter"));
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: thread_call:7
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: thread_call:15
+  命中信号: C strcpy()/strlen()/memcpy() called on a buffer populated by an unchecked I/O call
+  筛选: keep
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: thread_call:7
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: thread_call:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

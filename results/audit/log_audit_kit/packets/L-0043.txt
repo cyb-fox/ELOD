@@ -1,0 +1,289 @@
+=== 待审推理日志 L-0043 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 12 个；未决 8 个。
+
+【推理轨迹】共 32 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:55
+  引证行: 55
+  引证内容: if (image_info->debug != MagickFalse)
+  初判倾向: VIOLATED
+  上下文源码:
+     52 | 
+     53 |   assert(image_info != (const ImageInfo *) NULL);
+     54 |   assert(image_info->signature == MagickCoreSignature);
+     55 |   if (image_info->debug != MagickFalse)
+     56 |     (void) LogMagickEvent(TraceEvent,GetMagickModule(),"%s",
+     57 |       image_info->filename);
+     58 |   assert(exception != (ExceptionInfo *) NULL);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:57
+  引证行: 57
+  引证内容: image_info->filename);
+  初判倾向: VIOLATED
+  上下文源码:
+     54 |   assert(image_info->signature == MagickCoreSignature);
+     55 |   if (image_info->debug != MagickFalse)
+     56 |     (void) LogMagickEvent(TraceEvent,GetMagickModule(),"%s",
+     57 |       image_info->filename);
+     58 |   assert(exception != (ExceptionInfo *) NULL);
+     59 |   assert(exception->signature == MagickCoreSignature);
+     60 |   /*
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:59
+  引证行: 59
+  引证内容: assert(exception->signature == MagickCoreSignature);
+  初判倾向: VIOLATED
+  上下文源码:
+     56 |     (void) LogMagickEvent(TraceEvent,GetMagickModule(),"%s",
+     57 |       image_info->filename);
+     58 |   assert(exception != (ExceptionInfo *) NULL);
+     59 |   assert(exception->signature == MagickCoreSignature);
+     60 |   /*
+     61 |     Open image file.
+     62 |   */
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:70
+  引证行: 70
+  引证内容: status=AcquireUniqueSymbolicLink(image_info->filename,input_filename);
+  初判倾向: VIOLATED
+  上下文源码:
+     67 |       image=DestroyImageList(image);
+     68 |       return((Image *) NULL);
+     69 |     }
+     70 |   status=AcquireUniqueSymbolicLink(image_info->filename,input_filename);
+     71 |   if (status == MagickFalse)
+     72 |     {
+     73 |       ThrowFileException(exception,FileOpenError,"UnableToCreateTemporaryFile",
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:74
+  引证行: 74
+  引证内容: image_info->filename);
+  初判倾向: VIOLATED
+  上下文源码:
+     71 |   if (status == MagickFalse)
+     72 |     {
+     73 |       ThrowFileException(exception,FileOpenError,"UnableToCreateTemporaryFile",
+     74 |         image_info->filename);
+     75 |       image=DestroyImageList(image);
+     76 |       return((Image *) NULL);
+     77 |     }
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:83
+  引证行: 83
+  引证内容: if ((image->resolution.x == 0.0) || (image->resolution.y == 0.0))
+  初判倾向: VIOLATED
+  上下文源码:
+     80 |   */
+     81 |   delta.x=DefaultResolution;
+     82 |   delta.y=DefaultResolution;
+     83 |   if ((image->resolution.x == 0.0) || (image->resolution.y == 0.0))
+     84 |     {
+     85 |       GeometryInfo
+     86 |         geometry_info;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:103
+  引证行: 103
+  引证内容: (void) memset(&bounding_box,0,sizeof(bounding_box));
+  初判倾向: VIOLATED
+  上下文源码:
+    100 |   */
+    101 |   cmyk=image->colorspace == CMYKColorspace ? MagickTrue : MagickFalse;
+    102 |   count=0;
+    103 |   (void) memset(&bounding_box,0,sizeof(bounding_box));
+    104 |   (void) memset(&bounds,0,sizeof(bounds));
+    105 |   (void) memset(&page,0,sizeof(page));
+    106 |   (void) memset(command,0,sizeof(command));
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ReadPCLImage:104
+  引证行: 104
+  引证内容: (void) memset(&bounds,0,sizeof(bounds));
+  初判倾向: VIOLATED
+  上下文源码:
+    101 |   cmyk=image->colorspace == CMYKColorspace ? MagickTrue : MagickFalse;
+    102 |   count=0;
+    103 |   (void) memset(&bounding_box,0,sizeof(bounding_box));
+    104 |   (void) memset(&bounds,0,sizeof(bounds));
+    105 |   (void) memset(&page,0,sizeof(page));
+    106 |   (void) memset(command,0,sizeof(command));
+    107 |   p=command;
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:54
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:55
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:57
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:59
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:70
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:74
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:83
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:93
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:103
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:104
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:105
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ReadPCLImage:106
+  筛选: keep
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:54
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:55
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:57
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:70
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:74
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:83
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:93
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:103
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:104
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:105
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ReadPCLImage:106
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

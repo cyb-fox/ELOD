@@ -1,0 +1,76 @@
+{
+  "cwe_id": "CWE-764",
+  "name": "Multiple Locks of a Critical Resource",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "race-condition",
+    "child_of": [
+      "CWE-667",
+      "CWE-675",
+      "CWE-662"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code acquires the same critical lock more times than intended or without a matching release on every path. Extra lock acquisitions can exhaust semaphore capacity, block forever on binary locks, or leave shared state unavailable.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Go",
+    "Rust"
+  ],
+  "detection_signals": [
+    "same function calls pthread_mutex_lock(&m) twice before pthread_mutex_unlock(&m)",
+    "same function calls EnterCriticalSection(&cs) twice before LeaveCriticalSection(&cs)",
+    "same function calls sem_wait(&sem) or WaitForSingleObject(hSem, ...) multiple times before sem_post/ReleaseSemaphore",
+    "Java Lock.lock() or synchronized entry is nested on the same lock object without a matching unlock/exit",
+    "early return, break, continue, goto, or throw occurs after lock acquisition and before corresponding unlock",
+    "retry loop reacquires mutex/semaphore after failure path without releasing prior acquisition",
+    "manual lock counter or boolean guard allows lock() when alreadyHeld is true"
+  ],
+  "negative_signals": [
+    "pthread_mutex_lock is followed by pthread_mutex_unlock on all control-flow paths before any second lock",
+    "C++ std::lock_guard, std::unique_lock, or std::scoped_lock owns the lock in a single lexical scope",
+    "Java Lock.lock() is paired with unlock() in a finally block for every acquisition",
+    "Java synchronized block/method uses automatic monitor exit and has no nested synchronized on the same object",
+    "recursive locking uses pthread_mutexattr_settype(..., PTHREAD_MUTEX_RECURSIVE) or std::recursive_mutex and has equal unlock count",
+    "Semaphore acquire()/sem_wait() count is matched by release()/sem_post() count on all paths"
+  ],
+  "false_defense_traps": [
+    "checking a boolean isLocked without atomicity before lock()",
+    "using tryLock() but ignoring a false result or retrying while still holding the lock",
+    "catching exceptions after lock acquisition without unlock in finally/RAII cleanup",
+    "assuming a binary mutex is recursive without verifying mutex type",
+    "returning error after validation failure while still holding the lock"
+  ],
+  "verification_focus": "Can any execution path acquire the same critical resource more times than it releases before leaving, waiting, or retrying?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-764",
+        "CWE-412"
+      ],
+      "trigger": "attacker-controlled loop or request path repeatedly acquires a pooled lock/semaphore",
+      "consequence": "resource pool exhaustion and denial of service"
+    },
+    {
+      "chain": [
+        "CWE-764",
+        "CWE-833"
+      ],
+      "trigger": "non-recursive binary lock is acquired again by the owning thread",
+      "consequence": "self-deadlock and stalled execution"
+    }
+  ],
+  "patch_principle": [
+    "Ensure each lock acquisition has exactly one matching unlock on every control-flow path.",
+    "Use RAII, try/finally, or scoped synchronization instead of manual unlock placement.",
+    "Release held locks before waiting, retrying, returning, or throwing, then reacquire when needed.",
+    "Avoid nested acquisition of the same non-recursive lock; refactor call paths or use a verified recursive lock only when intended."
+  ],
+  "minimal_examples": {
+    "vuln": "pthread_mutex_lock(&m); pthread_mutex_lock(&m); /* work */ pthread_mutex_unlock(&m);",
+    "safe": "pthread_mutex_lock(&m); /* work */ pthread_mutex_unlock(&m);"
+  }
+}

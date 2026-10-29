@@ -1,0 +1,123 @@
+{
+ "audited_object": "the intermediate LLM's reasoning process and its trace (870 full trajectories), blind-audited independently by two human experts",
+ "primary_scope_note": "Primary numbers use the agreement-based subset: only records on which both reviewers independently assigned the same verdict. The remaining records are reported as 'no expert consensus' and are NOT arbitrated by any automatic rule, so no post-hoc rule decides what the experts could not agree on.",
+ "rq2_1_reliability": {
+  "n": 870,
+  "n_both_agree": 702,
+  "n_both_agree_rate": 0.8069,
+  "verdict": {
+   "raw_agreement": 0.8069,
+   "cohen_kappa": 0.607,
+   "bootstrap_95ci": [
+    0.5537,
+    0.6572
+   ]
+  },
+  "evidence_grounded": {
+   "raw_agreement": 0.7609,
+   "cohen_kappa": 0.5355
+  },
+  "reasoning_agree": {
+   "exact": 0.5621,
+   "within_1": 0.9517,
+   "quadratic_weighted_kappa": 0.5632
+  },
+  "n_disagreements": 168,
+  "disagreement_pairs": {
+   "correct|too_aggressive": 141,
+   "correct|too_conservative": 26,
+   "too_aggressive|too_conservative": 1
+  }
+ },
+ "main_table_by_side": {
+  "scope": "agreement-based subset (both reviewers independently agree)",
+  "n": 702,
+  "correct": 448,
+  "correct_rate": 0.6382,
+  "too_aggressive": 250,
+  "too_aggressive_rate": 0.3561,
+  "too_conservative": 4,
+  "too_conservative_rate": 0.0057,
+  "by_ground_truth_side": {
+   "vulnerable": {
+    "n": 346,
+    "correct": 210,
+    "correct_rate": 0.6069,
+    "too_aggressive": 133,
+    "too_aggressive_rate": 0.3844
+   },
+   "patched": {
+    "n": 356,
+    "correct": 238,
+    "correct_rate": 0.6685,
+    "too_aggressive": 117,
+    "too_aggressive_rate": 0.3287
+   }
+  }
+ },
+ "supplementary_by_rq1_state": {
+  "vuln": {
+   "n": 251,
+   "correct": 58,
+   "correct_rate": 0.2311,
+   "too_aggressive": 193,
+   "too_aggressive_rate": 0.7689,
+   "too_conservative": 0
+  },
+  "underdetermined": {
+   "n": 348,
+   "correct": 343,
+   "correct_rate": 0.9856,
+   "too_aggressive": 1,
+   "too_aggressive_rate": 0.0029,
+   "too_conservative": 4
+  },
+  "local_guard_observed": {
+   "n": 103,
+   "correct": 47,
+   "correct_rate": 0.4563,
+   "too_aggressive": 56,
+   "too_aggressive_rate": 0.5437,
+   "too_conservative": 0
+  }
+ },
+ "rq1_behaviour_by_ground_truth_side": {
+  "vulnerable": {
+   "n": 435,
+   "vuln": 224,
+   "underdetermined": 197,
+   "local_guard_observed": 14
+  },
+  "patched": {
+   "n": 435,
+   "vuln": 120,
+   "underdetermined": 207,
+   "local_guard_observed": 108
+  }
+ },
+ "rq2_2_abstention_validity": {
+  "n_underdetermined_agreed": 348,
+  "correct": 343,
+  "correct_rate": 0.9856,
+  "too_conservative": 4,
+  "too_conservative_rate": 0.0115,
+  "too_aggressive": 1
+ },
+ "rq2_3_overreach_anatomy": {
+  "n_too_aggressive": 250,
+  "with_step_or_line_reference": 242,
+  "by_rq1_state": {
+   "vuln": 193,
+   "underdetermined": 1,
+   "local_guard_observed": 56
+  },
+  "failure_forms": {
+   "signal_mismatch": 147,
+   "unsupported_assert": 222,
+   "safe_direction": 157,
+   "contradicts_citation": 63
+  },
+  "lgo_safe_direction": 56,
+  "lgo_n": 56
+ }
+}

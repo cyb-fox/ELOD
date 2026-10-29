@@ -1,0 +1,96 @@
+=== 待审推理日志 L-0745 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 1 个。
+
+【推理轨迹】共 10 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: TransposeShapeFn:2
+  引证行: 2
+  引证内容: ShapeHandle input = c->input(0);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | Status TransposeShapeFn(InferenceContext* c) {
+      2 |   ShapeHandle input = c->input(0);
+      3 |   ShapeHandle perm_shape = c->input(1);
+      4 |   const Tensor* perm = c->input_tensor(1);
+      5 |   DimensionHandle perm_elems = c->NumElements(perm_shape);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: TransposeShapeFn:55
+  引证行: 55
+  引证内容: dims[i] = c->Dim(input, in_idx);
+  初判倾向: VIOLATED
+  上下文源码:
+     52 |         return errors::InvalidArgument("perm dim ", in_idx,
+     53 |                                        " is out of range of input rank ", rank);
+     54 |       }
+     55 |       dims[i] = c->Dim(input, in_idx);
+     56 |     }
+     57 |   } else {
+     58 |     for (int i = 0; i < rank; ++i) {
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: TransposeShapeFn:2
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: TransposeShapeFn:3
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: TransposeShapeFn:55
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: TransposeShapeFn:59
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: TransposeShapeFn:2
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: TransposeShapeFn:3
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: TransposeShapeFn:55
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: TransposeShapeFn:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-190

@@ -1,0 +1,12 @@
+{
+  "command": "",
+  "git": {
+    "dirty": "true",
+    "head": "138efc819f75ea754a1f5d55742306ef7e529113"
+  },
+  "limit": null,
+  "manifest": "data/primevul_det/mainfest.json",
+  "manifest_sha256": "940eb7353c705dd7cfd83a92c4ec787eadd39cfb56950a33739fbf2a3e8220ad",
+  "model": "deepseek-v4-flash",
+  "workers": 4
+}

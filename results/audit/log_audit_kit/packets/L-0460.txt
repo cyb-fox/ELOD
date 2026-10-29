@@ -1,0 +1,548 @@
+=== 待审推理日志 L-0460 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 22 个；未决 21 个。
+
+【推理轨迹】共 62 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:7
+  引证行: 7
+  引证内容: si->slice_type = gf_bs_read_ue_log(bs, "slice_type");
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | 
+      5 | 	/*s->current_picture.reference= h->nal_ref_idc != 0;*/
+      6 | 	gf_bs_read_ue_log(bs, "first_mb_in_slice");
+      7 | 	si->slice_type = gf_bs_read_ue_log(bs, "slice_type");
+      8 | 	if (si->slice_type > 9) return -1;
+      9 | 
+     10 | 	pps_id = gf_bs_read_ue_log(bs, "pps_id");
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:8
+  引证行: 8
+  引证内容: if (si->slice_type > 9) return -1;
+  初判倾向: VIOLATED
+  上下文源码:
+      5 | 	/*s->current_picture.reference= h->nal_ref_idc != 0;*/
+      6 | 	gf_bs_read_ue_log(bs, "first_mb_in_slice");
+      7 | 	si->slice_type = gf_bs_read_ue_log(bs, "slice_type");
+      8 | 	if (si->slice_type > 9) return -1;
+      9 | 
+     10 | 	pps_id = gf_bs_read_ue_log(bs, "pps_id");
+     11 | 	if ((pps_id<0) || (pps_id > 255))
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:13
+  引证行: 13
+  引证内容: si->pps = &avc->pps[pps_id];
+  初判倾向: VIOLATED
+  上下文源码:
+     10 | 	pps_id = gf_bs_read_ue_log(bs, "pps_id");
+     11 | 	if ((pps_id<0) || (pps_id > 255))
+     12 | 		return -1;
+     13 | 	si->pps = &avc->pps[pps_id];
+     14 | 	si->pps->id = pps_id;
+     15 | 	if (!si->pps->slice_group_count)
+     16 | 		return -2;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:14
+  引证行: 14
+  引证内容: si->pps->id = pps_id;
+  初判倾向: VIOLATED
+  上下文源码:
+     11 | 	if ((pps_id<0) || (pps_id > 255))
+     12 | 		return -1;
+     13 | 	si->pps = &avc->pps[pps_id];
+     14 | 	si->pps->id = pps_id;
+     15 | 	if (!si->pps->slice_group_count)
+     16 | 		return -2;
+     17 | 	si->sps = &avc->sps[si->pps->sps_id + GF_SVC_SSPS_ID_SHIFT];
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:15
+  引证行: 15
+  引证内容: if (!si->pps->slice_group_count)
+  初判倾向: VIOLATED
+  上下文源码:
+     12 | 		return -1;
+     13 | 	si->pps = &avc->pps[pps_id];
+     14 | 	si->pps->id = pps_id;
+     15 | 	if (!si->pps->slice_group_count)
+     16 | 		return -2;
+     17 | 	si->sps = &avc->sps[si->pps->sps_id + GF_SVC_SSPS_ID_SHIFT];
+     18 | 	if (!si->sps->log2_max_frame_num)
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:17
+  引证行: 17
+  引证内容: si->sps = &avc->sps[si->pps->sps_id + GF_SVC_SSPS_ID_SHIFT];
+  初判倾向: VIOLATED
+  上下文源码:
+     14 | 	si->pps->id = pps_id;
+     15 | 	if (!si->pps->slice_group_count)
+     16 | 		return -2;
+     17 | 	si->sps = &avc->sps[si->pps->sps_id + GF_SVC_SSPS_ID_SHIFT];
+     18 | 	if (!si->sps->log2_max_frame_num)
+     19 | 		return -2;
+     20 | 
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:18
+  引证行: 18
+  引证内容: if (!si->sps->log2_max_frame_num)
+  初判倾向: VIOLATED
+  上下文源码:
+     15 | 	if (!si->pps->slice_group_count)
+     16 | 		return -2;
+     17 | 	si->sps = &avc->sps[si->pps->sps_id + GF_SVC_SSPS_ID_SHIFT];
+     18 | 	if (!si->sps->log2_max_frame_num)
+     19 | 		return -2;
+     20 | 
+     21 | 	si->frame_num = gf_bs_read_int_log(bs, si->sps->log2_max_frame_num, "frame_num");
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:21
+  引证行: 21
+  引证内容: si->frame_num = gf_bs_read_int_log(bs, si->sps->log2_max_frame_num, "frame_num");
+  初判倾向: VIOLATED
+  上下文源码:
+     18 | 	if (!si->sps->log2_max_frame_num)
+     19 | 		return -2;
+     20 | 
+     21 | 	si->frame_num = gf_bs_read_int_log(bs, si->sps->log2_max_frame_num, "frame_num");
+     22 | 
+     23 | 	si->field_pic_flag = 0;
+     24 | 	if (si->sps->frame_mbs_only_flag) {
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:23
+  引证行: 23
+  引证内容: si->field_pic_flag = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+     20 | 
+     21 | 	si->frame_num = gf_bs_read_int_log(bs, si->sps->log2_max_frame_num, "frame_num");
+     22 | 
+     23 | 	si->field_pic_flag = 0;
+     24 | 	if (si->sps->frame_mbs_only_flag) {
+     25 | 		/*s->picture_structure= PICT_FRAME;*/
+     26 | 	}
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:24
+  引证行: 24
+  引证内容: if (si->sps->frame_mbs_only_flag) {
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 	si->frame_num = gf_bs_read_int_log(bs, si->sps->log2_max_frame_num, "frame_num");
+     22 | 
+     23 | 	si->field_pic_flag = 0;
+     24 | 	if (si->sps->frame_mbs_only_flag) {
+     25 | 		/*s->picture_structure= PICT_FRAME;*/
+     26 | 	}
+     27 | 	else {
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:28
+  引证行: 28
+  引证内容: si->field_pic_flag = gf_bs_read_int_log(bs, 1, "field_pic_flag");
+  初判倾向: VIOLATED
+  上下文源码:
+     25 | 		/*s->picture_structure= PICT_FRAME;*/
+     26 | 	}
+     27 | 	else {
+     28 | 		si->field_pic_flag = gf_bs_read_int_log(bs, 1, "field_pic_flag");
+     29 | 		if (si->field_pic_flag) si->bottom_field_flag = gf_bs_read_int_log(bs, 1, "bottom_field_flag");
+     30 | 	}
+     31 | 	if (si->nal_unit_type == GF_AVC_NALU_IDR_SLICE || si->NalHeader.idr_pic_flag)
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:29
+  引证行: 29
+  引证内容: if (si->field_pic_flag) si->bottom_field_flag = gf_bs_read_int_log(bs, 1, "bottom_field_flag");
+  初判倾向: VIOLATED
+  上下文源码:
+     26 | 	}
+     27 | 	else {
+     28 | 		si->field_pic_flag = gf_bs_read_int_log(bs, 1, "field_pic_flag");
+     29 | 		if (si->field_pic_flag) si->bottom_field_flag = gf_bs_read_int_log(bs, 1, "bottom_field_flag");
+     30 | 	}
+     31 | 	if (si->nal_unit_type == GF_AVC_NALU_IDR_SLICE || si->NalHeader.idr_pic_flag)
+     32 | 		si->idr_pic_id = gf_bs_read_ue_log(bs, "idr_pic_id");
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:31
+  引证行: 31
+  引证内容: if (si->nal_unit_type == GF_AVC_NALU_IDR_SLICE || si->NalHeader.idr_pic_flag)
+  初判倾向: VIOLATED
+  上下文源码:
+     28 | 		si->field_pic_flag = gf_bs_read_int_log(bs, 1, "field_pic_flag");
+     29 | 		if (si->field_pic_flag) si->bottom_field_flag = gf_bs_read_int_log(bs, 1, "bottom_field_flag");
+     30 | 	}
+     31 | 	if (si->nal_unit_type == GF_AVC_NALU_IDR_SLICE || si->NalHeader.idr_pic_flag)
+     32 | 		si->idr_pic_id = gf_bs_read_ue_log(bs, "idr_pic_id");
+     33 | 
+     34 | 	if (si->sps->poc_type == 0) {
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:32
+  引证行: 32
+  引证内容: si->idr_pic_id = gf_bs_read_ue_log(bs, "idr_pic_id");
+  初判倾向: VIOLATED
+  上下文源码:
+     29 | 		if (si->field_pic_flag) si->bottom_field_flag = gf_bs_read_int_log(bs, 1, "bottom_field_flag");
+     30 | 	}
+     31 | 	if (si->nal_unit_type == GF_AVC_NALU_IDR_SLICE || si->NalHeader.idr_pic_flag)
+     32 | 		si->idr_pic_id = gf_bs_read_ue_log(bs, "idr_pic_id");
+     33 | 
+     34 | 	if (si->sps->poc_type == 0) {
+     35 | 		si->poc_lsb = gf_bs_read_int_log(bs, si->sps->log2_max_poc_lsb, "poc_lsb");
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:36
+  引证行: 36
+  引证内容: if (si->pps->pic_order_present && !si->field_pic_flag) {
+  初判倾向: VIOLATED
+  上下文源码:
+     33 | 
+     34 | 	if (si->sps->poc_type == 0) {
+     35 | 		si->poc_lsb = gf_bs_read_int_log(bs, si->sps->log2_max_poc_lsb, "poc_lsb");
+     36 | 		if (si->pps->pic_order_present && !si->field_pic_flag) {
+     37 | 			si->delta_poc_bottom = gf_bs_read_se_log(bs, "delta_poc_bottom");
+     38 | 		}
+     39 | 	}
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:37
+  引证行: 37
+  引证内容: si->delta_poc_bottom = gf_bs_read_se_log(bs, "delta_poc_bottom");
+  初判倾向: VIOLATED
+  上下文源码:
+     34 | 	if (si->sps->poc_type == 0) {
+     35 | 		si->poc_lsb = gf_bs_read_int_log(bs, si->sps->log2_max_poc_lsb, "poc_lsb");
+     36 | 		if (si->pps->pic_order_present && !si->field_pic_flag) {
+     37 | 			si->delta_poc_bottom = gf_bs_read_se_log(bs, "delta_poc_bottom");
+     38 | 		}
+     39 | 	}
+     40 | 	else if ((si->sps->poc_type == 1) && !si->sps->delta_pic_order_always_zero_flag) {
+
+--- 步骤 17 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:40
+  引证行: 40
+  引证内容: else if ((si->sps->poc_type == 1) && !si->sps->delta_pic_order_always_zero_flag) {
+  初判倾向: VIOLATED
+  上下文源码:
+     37 | 			si->delta_poc_bottom = gf_bs_read_se_log(bs, "delta_poc_bottom");
+     38 | 		}
+     39 | 	}
+     40 | 	else if ((si->sps->poc_type == 1) && !si->sps->delta_pic_order_always_zero_flag) {
+     41 | 		si->delta_poc[0] = gf_bs_read_se_log(bs, "delta_poc0");
+     42 | 		if ((si->pps->pic_order_present == 1) && !si->field_pic_flag)
+     43 | 			si->delta_poc[1] = gf_bs_read_se_log(bs, "delta_poc1");
+
+--- 步骤 18 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: svc_parse_slice:43
+  引证行: 43
+  引证内容: si->delta_poc[1] = gf_bs_read_se_log(bs, "delta_poc1");
+  初判倾向: VIOLATED
+  上下文源码:
+     40 | 	else if ((si->sps->poc_type == 1) && !si->sps->delta_pic_order_always_zero_flag) {
+     41 | 		si->delta_poc[0] = gf_bs_read_se_log(bs, "delta_poc0");
+     42 | 		if ((si->pps->pic_order_present == 1) && !si->field_pic_flag)
+     43 | 			si->delta_poc[1] = gf_bs_read_se_log(bs, "delta_poc1");
+     44 | 	}
+     45 | 	if (si->pps->redundant_pic_cnt_present) {
+     46 | 		si->redundant_pic_cnt = gf_bs_read_ue_log(bs, "redundant_pic_cnt");
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:7
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:8
+  筛选: exclude
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:13
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:14
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:15
+  筛选: exclude
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:17
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:18
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:21
+  筛选: exclude
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:23
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:24
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:28
+  筛选: exclude
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:29
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:31
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:32
+  筛选: exclude
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:34
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:35
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 35 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:36
+  筛选: exclude
+
+--- 步骤 36 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:37
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 37 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:40
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 38 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:41
+  筛选: exclude
+
+--- 步骤 39 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:42
+  筛选: keep
+
+--- 步骤 40 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: svc_parse_slice:43
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 44 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 45 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 46 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 47 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 48 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 49 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 50 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 51 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 52 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 53 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 54 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 55 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 56 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 57 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:36
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 58 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 59 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 60 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:41
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 61 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:42
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 62 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: svc_parse_slice:43
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

@@ -1,0 +1,176 @@
+=== 待审推理日志 L-0573 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 7 个。
+
+【推理轨迹】共 19 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: snd_pcm_oss_sync:11
+  引证行: 11
+  引证内容: substream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
+  初判倾向: VIOLATED
+  上下文源码:
+      8 | 	unsigned long width;
+      9 | 	size_t size;
+     10 | 
+     11 | 	substream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
+     12 | 	if (substream != NULL) {
+     13 | 		runtime = substream->runtime;
+     14 | 		if (atomic_read(&substream->mmap_count))
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: snd_pcm_oss_sync:14
+  引证行: 14
+  引证内容: if (atomic_read(&substream->mmap_count))
+  初判倾向: VIOLATED
+  上下文源码:
+     11 | 	substream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
+     12 | 	if (substream != NULL) {
+     13 | 		runtime = substream->runtime;
+     14 | 		if (atomic_read(&substream->mmap_count))
+     15 | 			goto __direct;
+     16 | 		err = snd_pcm_oss_make_ready(substream);
+     17 | 		if (err < 0)
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: snd_pcm_oss_sync:19
+  引证行: 19
+  引证内容: atomic_inc(&runtime->oss.rw_ref);
+  初判倾向: VIOLATED
+  上下文源码:
+     16 | 		err = snd_pcm_oss_make_ready(substream);
+     17 | 		if (err < 0)
+     18 | 			return err;
+     19 | 		atomic_inc(&runtime->oss.rw_ref);
+     20 | 		if (mutex_lock_interruptible(&runtime->oss.params_lock)) {
+     21 | 			atomic_dec(&runtime->oss.rw_ref);
+     22 | 			return -ERESTARTSYS;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: snd_pcm_oss_sync:20
+  引证行: 20
+  引证内容: if (mutex_lock_interruptible(&runtime->oss.params_lock)) {
+  初判倾向: VIOLATED
+  上下文源码:
+     17 | 		if (err < 0)
+     18 | 			return err;
+     19 | 		atomic_inc(&runtime->oss.rw_ref);
+     20 | 		if (mutex_lock_interruptible(&runtime->oss.params_lock)) {
+     21 | 			atomic_dec(&runtime->oss.rw_ref);
+     22 | 			return -ERESTARTSYS;
+     23 | 		}
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: snd_pcm_oss_sync:24
+  引证行: 24
+  引证内容: format = snd_pcm_oss_format_from(runtime->oss.format);
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 			atomic_dec(&runtime->oss.rw_ref);
+     22 | 			return -ERESTARTSYS;
+     23 | 		}
+     24 | 		format = snd_pcm_oss_format_from(runtime->oss.format);
+     25 | 		width = snd_pcm_format_physical_width(format);
+     26 | 		if (runtime->oss.buffer_used > 0) {
+     27 | #ifdef OSS_DEBUG
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: snd_pcm_oss_sync:11
+  命中信号: `x = a - b` where `a` or `b` comes from input, packet length, or external state
+  命中信号: `len = total_len - header_len` without a preceding `header_len <= total_len` check
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: snd_pcm_oss_sync:13
+  命中信号: average/rate expression like total / count where count can be 0
+  命中信号: binary % operator with RHS variable or expression not proven nonzero
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: snd_pcm_oss_sync:14
+  命中信号: Variable assigned only inside `if`, `else if`, loop, or `try` block and read after the block without an `else`/fallback assignment
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: snd_pcm_oss_sync:19
+  命中信号: `x = a - b` where `a` or `b` comes from input, packet length, or external state
+  命中信号: `len = total_len - header_len` without a preceding `header_len <= total_len` check
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: snd_pcm_oss_sync:20
+  命中信号: average/rate expression like total / count where count can be 0
+  命中信号: binary % operator with RHS variable or expression not proven nonzero
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: snd_pcm_oss_sync:21
+  命中信号: C++ class primitive member or pointer member missing from all constructors' initializer lists and later read
+  命中信号: C/C++ automatic variable declaration like `int x;` or `char *p;` followed by a read on a path with no prior assignment
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: snd_pcm_oss_sync:24
+  命中信号: `x = a - b` where `a` or `b` comes from input, packet length, or external state
+  命中信号: `len = total_len - header_len` without a preceding `header_len <= total_len` check
+  筛选: keep
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: snd_pcm_oss_sync:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: snd_pcm_oss_sync:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: snd_pcm_oss_sync:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: snd_pcm_oss_sync:19
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: snd_pcm_oss_sync:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: snd_pcm_oss_sync:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: snd_pcm_oss_sync:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

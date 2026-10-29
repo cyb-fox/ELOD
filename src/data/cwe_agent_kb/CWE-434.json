@@ -1,0 +1,76 @@
+{
+  "cwe_id": "CWE-434",
+  "name": "Unrestricted Upload of File with Dangerous Type",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-669"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product accepts uploaded files with dangerous types and stores or transfers them where the environment may automatically process them. If an uploaded script, markup, or executable handler type is reachable, attackers can execute code or trigger client-side attacks.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "PHP",
+    "ASP.NET",
+    "JavaScript"
+  ],
+  "detection_signals": [
+    "Java MultipartFile.transferTo(new File(webRoot, file.getOriginalFilename())) without allowlist extension check",
+    "Java Servlet Part.write(part.getSubmittedFileName()) using submitted filename",
+    "C/C++ multipart handler writes Content-Disposition filename directly with fopen/open/FileWriter equivalent",
+    "PHP move_uploaded_file($_FILES[..]['tmp_name'], $docroot . $_FILES[..]['name'])",
+    "validation checks only request Content-Type, Part.getContentType(), or $_FILES[..]['type']",
+    "extension filtering uses denylist such as !endsWith(\".php\") instead of allowlist",
+    "uploaded files saved under web document root such as /var/www, htdocs, public, static, or wwwroot"
+  ],
+  "negative_signals": [
+    "server generates filename with UUID/random ID and fixed safe extension",
+    "case-insensitive allowlist such as .jpg/.png/.pdf enforced on server side",
+    "code rejects filenames with multiple extensions or path separators before storage",
+    "uploaded bytes stored outside web document root and served only through a controlled download endpoint",
+    "file type validation combines extension allowlist with magic-byte/content parser verification",
+    "web server configuration disables script execution in upload directory"
+  ],
+  "false_defense_traps": [
+    "HTML input accept attribute or JavaScript-only file validation",
+    "trusting MIME type from Content-Type or multipart part header",
+    "denylisting dangerous extensions while allowing unknown extensions",
+    "case-sensitive extension checks on case-insensitive file systems",
+    "checking only the last extension and allowing filename.php.gif",
+    "magic-byte checks alone; formats can contain executable comments or active content"
+  ],
+  "verification_focus": "Can an attacker upload a file with a server-processed or client-active type and make the application or environment process it?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-434",
+        "CWE-79"
+      ],
+      "trigger": "uploaded .html/.svg file is served to other users as active content",
+      "consequence": "stored cross-site scripting"
+    },
+    {
+      "chain": [
+        "CWE-434",
+        "CWE-94"
+      ],
+      "trigger": "uploaded .php/.jsp/.asp file is stored in an executable web path",
+      "consequence": "remote code execution"
+    }
+  ],
+  "patch_principle": [
+    "Use a strict server-side allowlist of business-required file types and reject all others.",
+    "Generate a new unique filename and safe fixed extension; never use the user-supplied filename for storage.",
+    "Store uploads outside the web document root or disable handler/script execution in the upload directory.",
+    "Require a single normalized extension and perform case-insensitive checks.",
+    "Validate content with a parser or magic-byte check as a secondary control, not the only control."
+  ],
+  "minimal_examples": {
+    "vuln": "file.transferTo(new File(webRoot, file.getOriginalFilename()));",
+    "safe": "file.transferTo(new File(uploadDirOutsideWebRoot, UUID.randomUUID() + \".jpg\"));"
+  }
+}

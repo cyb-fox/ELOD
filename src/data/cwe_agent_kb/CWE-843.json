@@ -1,0 +1,74 @@
+{
+  "cwe_id": "CWE-843",
+  "name": "Access of Resource Using Incompatible Type ('Type Confusion')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-704"
+    ],
+    "parent_of": []
+  },
+  "principle": "A resource is initialized as one type but later interpreted or accessed as an incompatible type. The code may read invalid fields, corrupt object state, or in C/C++ access memory outside the real object layout.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "PHP",
+    "Perl"
+  ],
+  "detection_signals": [
+    "C/C++ union member write followed by read of a different union member without matching discriminator update",
+    "C/C++ reinterpret_cast<T*> or C-style cast from one struct/class pointer type to an unrelated type",
+    "C/C++ void* stored with one concrete type and later cast to a different concrete type",
+    "C++ base pointer cast to derived type using static_cast or C-style cast without dynamic_cast check",
+    "Java cast from Object, Serializable, Map value, or collection element to a specific class without instanceof or Class::isInstance check",
+    "Type discriminator field such as type, kind, tag, msgType, opcode is not kept consistent with the active union/object field",
+    "PHP/Perl scalar operation or comparison on request/input value that can also be an array/reference"
+  ],
+  "negative_signals": [
+    "C++ std::variant access uses std::holds_alternative<T>() or std::get_if<T>() before std::get<T>()",
+    "C++ dynamic_cast<T*>(p) result is checked for null before dereference",
+    "Java code uses instanceof pattern matching or clazz.isInstance(x) before casting",
+    "C union access is guarded by an enum tag set in the same construction path as the active member",
+    "Deserialization or parsing code validates an explicit type tag against an allowlist before constructing/casting the object",
+    "Input parser rejects array syntax or non-scalar values before numeric/string scalar operations"
+  ],
+  "false_defense_traps": [
+    "Checking sizeof(target_type) but not proving the object was created as target_type",
+    "Trusting a user-controlled type/tag field to select the cast target",
+    "Using reinterpret_cast or C-style cast because the layouts appear identical",
+    "Catching ClassCastException after unsafe Java cast instead of preventing the bad type",
+    "Assuming union members are independent fields rather than aliases of the same storage"
+  ],
+  "verification_focus": "Can the same storage, pointer, object, or input value be created as one type and later used as another incompatible type on an attacker-influenced path?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-843",
+        "CWE-119"
+      ],
+      "trigger": "C/C++ wrong-type access uses a layout larger or different than the allocated object",
+      "consequence": "out-of-bounds read/write, crash, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-843",
+        "CWE-636"
+      ],
+      "trigger": "type confusion makes authorization logic take the default privileged branch",
+      "consequence": "authentication or authorization bypass"
+    }
+  ],
+  "patch_principle": [
+    "Keep a trusted discriminator/tag synchronized with the active union or object variant.",
+    "Replace raw unions and casts with type-safe variants, subclasses, or tagged structures.",
+    "Use dynamic_cast/instanceof/Class::isInstance/std::get_if before downcasts or variant access.",
+    "Validate parsed or request-supplied type information against an allowlist before casting or dispatch.",
+    "Reject unexpected scalar/array/reference types at trust boundaries."
+  ],
+  "minimal_examples": {
+    "vuln": "buf.msgType = NAME_TYPE; buf.nameID = attacker_int; printf(\"%s\", buf.name);",
+    "safe": "buf.msgType = ID_TYPE; buf.nameID = id; printf(\"%d\", buf.nameID);"
+  }
+}

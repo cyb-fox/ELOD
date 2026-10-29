@@ -1,0 +1,226 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "extract_arg:10"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-690"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 10,
+      "snippet": "if (op->src[i] && op->src[i]->reg && op->src[i]->reg->name) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "extract_arg:10",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "extract_arg:11"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-416"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 11,
+      "snippet": "if (!strcmp (reg, op->src[i]->reg->name)) {",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "extract_arg:11",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "extract_arg:9"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "op",
+        "src"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "C/C++ div(a,b), ldiv(a,b), lldiv(a,b), fmod(a,b), or remainder(a,b) with b not checked for 0"
+      ]
+    },
+    "sink_id": "extract_arg:9",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "extract_arg:10"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "op",
+        "src",
+        "reg"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "candidate fact advanced to VIOLATED by deterministic checker"
+      ]
+    },
+    "sink_id": "extract_arg:10",
+    "state_delta": {
+      "readable_extent": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "strcmp",
+        "reg",
+        "op"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)"
+      ]
+    },
+    "sink_id": "extract_arg:11",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "extract_arg:9"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "extract_arg:9",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 7,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "extract_arg:10"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "readable_extent"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "extract_arg:10",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "non_negative_length": {
+        "to": "UNDERDETERMINED"
+      },
+      "readable_extent": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "other|mem"
+  },
+  {
+    "step": 8,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "extract_arg:11",
+    "state_delta": {
+      "object_live_at_use": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "lifetime|use"
+  }
+]

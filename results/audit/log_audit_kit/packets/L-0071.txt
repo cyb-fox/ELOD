@@ -1,0 +1,253 @@
+=== 待审推理日志 L-0071 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 10 个；未决 10 个。
+
+【推理轨迹】共 28 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:4
+  引证行: 4
+  引证内容: sprintf(filename+7,"%d",getpid());
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | void sdb_edit(procinfo *pi)
+      2 | {
+      3 |   char * filename = omStrDup("/tmp/sd000000");
+      4 |   sprintf(filename+7,"%d",getpid());
+      5 |   FILE *fp=fopen(filename,"w");
+      6 |   if (fp==NULL)
+      7 |   {
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:12
+  引证行: 12
+  引证内容: if (pi->language!= LANG_SINGULAR)
+  初判倾向: VIOLATED
+  上下文源码:
+      9 |     omFree(filename);
+     10 |     return;
+     11 |   }
+     12 |   if (pi->language!= LANG_SINGULAR)
+     13 |   {
+     14 |     Print("cannot edit type %d\n",pi->language);
+     15 |     fclose(fp);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:14
+  引证行: 14
+  引证内容: Print("cannot edit type %d\n",pi->language);
+  初判倾向: VIOLATED
+  上下文源码:
+     11 |   }
+     12 |   if (pi->language!= LANG_SINGULAR)
+     13 |   {
+     14 |     Print("cannot edit type %d\n",pi->language);
+     15 |     fclose(fp);
+     16 |     fp=NULL;
+     17 |   }
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:27
+  引证行: 27
+  引证内容: if (pi->data.s.body==NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+     24 |       editor="vi";
+     25 |     editor=omStrDup(editor);
+     26 | 
+     27 |     if (pi->data.s.body==NULL)
+     28 |     {
+     29 |       iiGetLibProcBuffer(pi);
+     30 |       if (pi->data.s.body==NULL)
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:30
+  引证行: 30
+  引证内容: if (pi->data.s.body==NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+     27 |     if (pi->data.s.body==NULL)
+     28 |     {
+     29 |       iiGetLibProcBuffer(pi);
+     30 |       if (pi->data.s.body==NULL)
+     31 |       {
+     32 |         PrintS("cannot get the procedure body\n");
+     33 |         fclose(fp);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:40
+  引证行: 40
+  引证内容: fwrite(pi->data.s.body,1,strlen(pi->data.s.body),fp);
+  初判倾向: VIOLATED
+  上下文源码:
+     37 |       }
+     38 |     }
+     39 | 
+     40 |     fwrite(pi->data.s.body,1,strlen(pi->data.s.body),fp);
+     41 |     fclose(fp);
+     42 | 
+     43 |     int pid=fork();
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:43
+  引证行: 43
+  引证内容: int pid=fork();
+  初判倾向: VIOLATED
+  上下文源码:
+     40 |     fwrite(pi->data.s.body,1,strlen(pi->data.s.body),fp);
+     41 |     fclose(fp);
+     42 | 
+     43 |     int pid=fork();
+     44 |     if (pid!=0)
+     45 |     {
+     46 |       si_wait(&pid);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: sdb_edit:59
+  引证行: 59
+  引证内容: system(p);
+  初判倾向: VIOLATED
+  上下文源码:
+     56 |       {
+     57 |         char *p=(char *)omAlloc(strlen(editor)+strlen(filename)+2);
+     58 |         sprintf(p,"%s %s",editor,filename);
+     59 |         system(p);
+     60 |       }
+     61 |       exit(0);
+     62 |     }
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:4
+  命中信号: sprintf(dst, ...) writing into fixed-size char buffer instead of snprintf(dst, sizeof dst, ...)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:12
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:14
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:27
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:30
+  命中信号: scanf("%s", dst) or fscanf(...,"%s", dst) without a field width
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:40
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:43
+  命中信号: C/C++ execl("/bin/sh", "sh", "-c", cmd, NULL) or execv shell with -c and external input
+  命中信号: C/C++ system(cmd) where cmd contains argv, getenv(), request, socket, file, or config input
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:58
+  命中信号: scanf("%s", dst) or fscanf(...,"%s", dst) without a field width
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:59
+  命中信号: C/C++ system(cmd) where cmd contains argv, getenv(), request, socket, file, or config input
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: sdb_edit:82
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:12
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:27
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:43
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 input_sanitized: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:58
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 input_sanitized: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: sdb_edit:82
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

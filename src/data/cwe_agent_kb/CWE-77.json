@@ -1,0 +1,98 @@
+{
+  "cwe_id": "CWE-77",
+  "name": "Improper Neutralization of Special Elements used in a Command ('Command Injection')",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-74"
+    ],
+    "parent_of": [
+      "CWE-78",
+      "CWE-88",
+      "CWE-624",
+      "CWE-917",
+      "CWE-1427"
+    ]
+  },
+  "principle": "The product builds all or part of a command with externally influenced input and fails to neutralize command special elements. The downstream command language can treat attacker data as syntax, delimiters, options, or a new command.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Python",
+    "PHP",
+    "Perl"
+  ],
+  "detection_signals": [
+    "C/C++ system(cmd) or popen(cmd, ...) where cmd contains argv, getenv, socket, file, request, or config data",
+    "C/C++ execl/execle/execv/execve with \"/bin/sh\", \"sh\", \"-c\" or \"cmd.exe\", \"/C\" and user-built command text",
+    "Java Runtime.getRuntime().exec(String) where the string is concatenated with request, args, env, file, socket, or config data",
+    "Java ProcessBuilder(\"sh\", \"-c\", userBuiltCmd) or ProcessBuilder(\"cmd.exe\", \"/C\", userBuiltCmd)",
+    "string concatenation into protocol command text such as \"USER \" + input, \"RCPT TO:\" + input, or \"SITE \" + input followed by socket.write/send",
+    "user input concatenated into expression command text passed to ExpressionFactory.createValueExpression, SpELParser.parseExpression, MVEL.eval, or eval",
+    "blacklist validation removes only one delimiter such as ';' while allowing '|', '&', '&&', '||', '`', '$()', newline, or leading '-'"
+  ],
+  "negative_signals": [
+    "command operation selected from fixed enum/map and no raw user string is appended to command syntax",
+    "C/C++ execve(fixedPath, argvArray, envp) with no shell wrapper and validated argv elements",
+    "Java ProcessBuilder(List<String>) with fixed executable, separate arguments, no shell wrapper, and allowlisted argument values",
+    "anchored allowlist regex with length limit and rejection of command delimiters and dangerous leading '-'",
+    "library API replaces command execution, such as java.nio.file.Files, libarchive, DNS client API, or LDAP/SQL parameter API",
+    "expression or protocol API uses variables, bindings, or parameter objects instead of concatenated command text"
+  ],
+  "false_defense_traps": [
+    "denylist removes ';' but leaves '&&', '||', '|', '`', '$()', newline, or encoded delimiters",
+    "regex like ^[\\w-]+$ allows leading '-' and enables option injection",
+    "Runtime.exec(String) treated as safe while the string invokes \"sh -c\" or \"cmd.exe /C\"",
+    "shell metacharacter escaping used while attacker-controlled options are still accepted without '--'",
+    "validation applied before URL decoding, environment expansion, glob expansion, or shell variable expansion"
+  ],
+  "verification_focus": "Can any externally influenced value become command syntax, delimiter, option, or command text for a downstream command language without strict allowlisting or structural separation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-78"
+      ],
+      "trigger": "input reaches OS shell via system, popen, sh -c, or cmd.exe /C",
+      "consequence": "attacker executes unauthorized OS commands"
+    },
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-88"
+      ],
+      "trigger": "input is passed as an argument but can contain delimiters or start with '-'",
+      "consequence": "attacker changes command options or command behavior"
+    },
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-917"
+      ],
+      "trigger": "input is concatenated into expression-language statement",
+      "consequence": "attacker evaluates unauthorized expressions or accesses objects"
+    },
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-624"
+      ],
+      "trigger": "input is used in an executable regular expression feature",
+      "consequence": "attacker executes unintended regex-level commands or code paths"
+    }
+  ],
+  "patch_principle": [
+    "Use library calls instead of external command interpreters where possible.",
+    "Construct commands statically; choose allowed operations from constants or an enum.",
+    "Pass dynamic values as structured argv arrays or parameter bindings, not concatenated command text.",
+    "Apply anchored allowlist validation for every dynamic field, including length and leading '-' rules.",
+    "Avoid shell wrappers such as sh -c and cmd.exe /C unless dynamic command text is removed."
+  ],
+  "minimal_examples": {
+    "vuln": "String cmd = \"SITE CHMOD \" + user; socket.write(cmd.getBytes());",
+    "safe": "if (!user.matches(\"^[A-Za-z0-9_]{1,32}$\")) throw new SecurityException(); socket.write((\"SITE CHMOD \" + user).getBytes());"
+  }
+}

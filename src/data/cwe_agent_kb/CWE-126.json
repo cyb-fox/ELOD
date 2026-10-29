@@ -1,0 +1,86 @@
+{
+  "cwe_id": "CWE-126",
+  "name": "Buffer Over-read",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-125",
+      "CWE-788"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product reads through an index, pointer, length, or string operation that can reference memory after the targeted buffer. This can disclose adjacent memory, leak addresses/secrets, or crash on invalid memory.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "for/while loop reads buf[i] or *(p+i) with bound from untrusted length field and no check against buffer size",
+    "memcpy(dst, src, len) or memmove(dst, src, len) where len can exceed the actual readable size of src",
+    "printf(\"%s\", buf), strlen(buf), strcpy(dst, buf), or strcmp(buf, x) on a char array not proven NUL-terminated",
+    "strncpy(dst, src, sizeof(dst)) followed by %s/strlen/strcpy use of dst without dst[sizeof(dst)-1]='\\0'",
+    "pointer increment/read pattern *p++ or p[offset] inside loop without p < buf + buf_len guard",
+    "structure/protocol length field such as msgLength used to copy/read msgBody without validating msgLength <= received_body_len"
+  ],
+  "negative_signals": [
+    "read index guarded by i < buffer_len where buffer_len is the actual allocated/readable size",
+    "length field validated with len <= sizeof(buf) or len <= received_len before every read/copy",
+    "string buffer explicitly terminated after bounded copy: dst[sizeof(dst)-1] = '\\0'",
+    "bounded string APIs use explicit maximum readable length, e.g. strnlen(buf, sizeof(buf)) or printf(\"%.*s\", (int)len, buf)",
+    "memcpy/memmove length uses min(len, src_available) and src_available tracks actual source bytes"
+  ],
+  "false_defense_traps": [
+    "Trusting packet/header msgLength without comparing it to actual received body length",
+    "Using strncpy(dst, src, sizeof(dst)) and assuming it always appends NUL",
+    "Checking destination capacity only while the source buffer may be shorter than the requested read length",
+    "Assuming an out-of-bounds read is harmless because it does not write memory",
+    "Validating len for one buffer but then reusing it to read a different smaller buffer"
+  ],
+  "verification_focus": "Can any read index, pointer, copy length, or string scan advance past the end of the source buffer?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-130",
+        "CWE-126"
+      ],
+      "trigger": "inconsistent or untrusted length field exceeds actual buffer contents",
+      "consequence": "out-of-bounds read leaks memory or crashes"
+    },
+    {
+      "chain": [
+        "CWE-170",
+        "CWE-126"
+      ],
+      "trigger": "missing NUL terminator reaches printf/strlen/%s string scan",
+      "consequence": "read continues past buffer end and may disclose adjacent memory"
+    },
+    {
+      "chain": [
+        "CWE-126",
+        "CWE-200"
+      ],
+      "trigger": "over-read bytes are returned, logged, or printed",
+      "consequence": "sensitive memory disclosure"
+    },
+    {
+      "chain": [
+        "CWE-126",
+        "CWE-119"
+      ],
+      "trigger": "leaked memory addresses defeat ASLR before exploiting another memory error",
+      "consequence": "bypass protection mechanism and improve code-execution reliability"
+    }
+  ],
+  "patch_principle": [
+    "Validate all external length fields against actual received/readable buffer size before reading.",
+    "Bound every read by the source buffer size, not only the destination size.",
+    "Ensure fixed-size C strings are NUL-terminated before %s/strlen/strcpy-style APIs.",
+    "Use explicit-length APIs such as strnlen, snprintf with precision, or checked spans/slices.",
+    "Add fuzzing and ASan/Valgrind coverage for oversized lengths and unterminated strings."
+  ],
+  "minimal_examples": {
+    "vuln": "for (i=0; i<msg->msgLength; i++) out[i] = msg->msgBody[i];",
+    "safe": "for (i=0; i<msg->msgLength && i<body_len && i<sizeof(out)-1; i++) out[i] = msg->msgBody[i];"
+  }
+}

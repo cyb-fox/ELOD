@@ -1,0 +1,225 @@
+=== 待审推理日志 L-0457 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 10 个；未决 10 个。
+
+【推理轨迹】共 26 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:2
+  引证行: 2
+  引证内容: const Tensor& rhs = context->input(1);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext* context) override {
+      2 |     const Tensor& rhs = context->input(1);
+      3 | 
+      4 |     // We always return the input ref.
+      5 |     context->forward_ref_input_to_ref_output(0, 0);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:24
+  引证行: 24
+  引证内容: mutex_lock l(*context->input_ref_mutex(0));
+  初判倾向: VIOLATED
+  上下文源码:
+     21 |     }
+     22 | 
+     23 |     {
+     24 |       mutex_lock l(*context->input_ref_mutex(0));
+     25 |       const Tensor& old_lhs = context->mutable_input(0, /* lock_held */ true);
+     26 |       const bool same_shape = old_lhs.shape().IsSameSize(rhs.shape());
+     27 |       if (validate_shape_) {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:25
+  引证行: 25
+  引证内容: const Tensor& old_lhs = context->mutable_input(0, /* lock_held */ true);
+  初判倾向: VIOLATED
+  上下文源码:
+     22 | 
+     23 |     {
+     24 |       mutex_lock l(*context->input_ref_mutex(0));
+     25 |       const Tensor& old_lhs = context->mutable_input(0, /* lock_held */ true);
+     26 |       const bool same_shape = old_lhs.shape().IsSameSize(rhs.shape());
+     27 |       if (validate_shape_) {
+     28 |         OP_REQUIRES(context, same_shape,
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:53
+  引证行: 53
+  引证内容: context->replace_ref_input(0, reshaped_old_lhs,
+  初判倾向: VIOLATED
+  上下文源码:
+     50 |           reshaped_old_lhs = old_lhs;
+     51 |         } else {
+     52 |           CHECK(reshaped_old_lhs.CopyFrom(old_lhs, rhs.shape()));
+     53 |           context->replace_ref_input(0, reshaped_old_lhs,
+     54 |                                      /* lock_held */ true);
+     55 |         }
+     56 |         if (use_exclusive_lock_) {
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:62
+  引证行: 62
+  引证内容: std::unique_ptr<Tensor> input_alias = context->forward_input(
+  初判倾向: VIOLATED
+  上下文源码:
+     59 |         }
+     60 |       } else {
+     61 |         // 2. Try to reuse the rhs.
+     62 |         std::unique_ptr<Tensor> input_alias = context->forward_input(
+     63 |             1, OpKernelContext::Params::kNoReservation /*output_index*/,
+     64 |             rhs.dtype(), rhs.shape(), DEVICE_MEMORY, attr);
+     65 |         if (input_alias != nullptr) {
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:75
+  引证行: 75
+  引证内容: context->allocate_temp(old_lhs.dtype(), rhs.shape(),
+  初判倾向: VIOLATED
+  上下文源码:
+     72 |         // right hand side, hand off to lhs and copy the rhs into it.
+     73 |         Tensor copy_tensor;
+     74 |         OP_REQUIRES_OK(context,
+     75 |                        context->allocate_temp(old_lhs.dtype(), rhs.shape(),
+     76 |                                               &copy_tensor, attr));
+     77 |         // We track memory of variables in variable ops instead of in this
+     78 |         // assign op.
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:2
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:5
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:24
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:25
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:53
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:62
+  命中信号: malloc/calloc/realloc/strdup/new(std::nothrow) return value used with ->, *, [], memcpy, strcpy, or memset before NULL check
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:67
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:75
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:79
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:80
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:2
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:53
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:62
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:67
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:75
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:79
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:80
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

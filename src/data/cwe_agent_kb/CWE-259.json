@@ -1,0 +1,72 @@
+{
+  "cwe_id": "CWE-259",
+  "name": "Use of Hard-coded Password",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-798"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product embeds a fixed password in code, binary, or shipped configuration for inbound authentication or outbound connections. Anyone who can read or reverse engineer the product can reuse the password to authenticate or impersonate the trusted component.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Any"
+  ],
+  "detection_signals": [
+    "DriverManager.getConnection(url, \"user\", \"password\") or getConnection(..., literal, literal)",
+    "strcmp(inputPassword, \"literal\") or strncmp(inputPassword, \"literal\", n) in authentication code",
+    "password.equals(\"literal\") or \"literal\".equals(password) in login/admin/diagnostic checks",
+    "static final String PASSWORD = \"literal\" or const char *PASSWORD = \"literal\"",
+    "configuration keys password=, passwd=, pwd=, db.password=, ldap.password= with literal shipped value",
+    "hard-coded default admin credentials such as admin/admin, root/password, scott/tiger",
+    "binary/bytecode string constants containing passwords used by authentication or connection APIs"
+  ],
+  "negative_signals": [
+    "password read from environment variable via getenv/System.getenv and not defaulted to a literal secret",
+    "password retrieved from a secret manager or protected keystore API",
+    "stored value is a salted one-way password hash compared with hash(input), not the plaintext password",
+    "first-login setup forces creation of a unique password before enabling the account",
+    "literal is a non-secret placeholder used only in tests, examples, or validation errors and not used to authenticate"
+  ],
+  "false_defense_traps": [
+    "compiled binary or Java bytecode hides the password",
+    "base64 encoding, string splitting, or obfuscation hides the password",
+    "same default password is acceptable if documented",
+    "moving the password to a world-readable properties/XML/YAML file fixes the issue",
+    "client-side hard-coded password is safe because the server is trusted"
+  ],
+  "verification_focus": "Does any fixed plaintext password shipped with the product authenticate inbound users or connect outbound to another component?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-656",
+        "CWE-259"
+      ],
+      "trigger": "password secrecy relies on hiding code, binary, or configuration",
+      "consequence": "attacker extracts the password and bypasses authentication"
+    },
+    {
+      "chain": [
+        "CWE-259",
+        "CWE-287"
+      ],
+      "trigger": "the embedded password is accepted by an authentication path",
+      "consequence": "attacker gains privileges or assumes the configured identity"
+    }
+  ],
+  "patch_principle": [
+    "For inbound authentication, remove default hard-coded passwords and require first-login creation of a unique strong password.",
+    "Store password verifiers as salted one-way hashes in a protected configuration store or database.",
+    "For outbound authentication, load secrets from a protected secret store, encrypted configuration, or restricted database outside the code.",
+    "Restrict file permissions and protect encryption keys used to protect stored secrets.",
+    "Limit the account using the password to least privilege and rotate generated passwords automatically when possible."
+  ],
+  "minimal_examples": {
+    "vuln": "DriverManager.getConnection(url, \"scott\", \"tiger\");",
+    "safe": "DriverManager.getConnection(url, user, secretStore.get(\"db.password\"));"
+  }
+}

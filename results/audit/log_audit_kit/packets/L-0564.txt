@@ -1,0 +1,123 @@
+=== 待审推理日志 L-0564 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 4 个。
+
+【推理轨迹】共 12 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vidioc_querycap:5
+  引证行: 5
+  引证内容: int labellen = (sizeof(cap->card) < sizeof(dev->card_label)) ?
+  初判倾向: VIOLATED
+  上下文源码:
+      2 | 			   struct v4l2_capability *cap)
+      3 | {
+      4 | 	struct v4l2_loopback_device *dev = v4l2loopback_getdevice(file);
+      5 | 	int labellen = (sizeof(cap->card) < sizeof(dev->card_label)) ?
+      6 | 			       sizeof(cap->card) :
+      7 | 				     sizeof(dev->card_label);
+      8 | 	int device_nr =
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vidioc_querycap:14
+  引证行: 14
+  引证内容: snprintf(cap->card, labellen, dev->card_label);
+  初判倾向: VIOLATED
+  上下文源码:
+     11 | 	__u32 capabilities = V4L2_CAP_STREAMING | V4L2_CAP_READWRITE;
+     12 | 
+     13 | 	strlcpy(cap->driver, "v4l2 loopback", sizeof(cap->driver));
+     14 | 	snprintf(cap->card, labellen, dev->card_label);
+     15 | 	snprintf(cap->bus_info, sizeof(cap->bus_info),
+     16 | 		 "platform:v4l2loopback-%03d", device_nr);
+     17 | 
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vidioc_querycap:15
+  引证行: 15
+  引证内容: snprintf(cap->bus_info, sizeof(cap->bus_info),
+  初判倾向: VIOLATED
+  上下文源码:
+     12 | 
+     13 | 	strlcpy(cap->driver, "v4l2 loopback", sizeof(cap->driver));
+     14 | 	snprintf(cap->card, labellen, dev->card_label);
+     15 | 	snprintf(cap->bus_info, sizeof(cap->bus_info),
+     16 | 		 "platform:v4l2loopback-%03d", device_nr);
+     17 | 
+     18 | #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0)
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vidioc_querycap:47
+  引证行: 47
+  引证内容: memset(cap->reserved, 0, sizeof(cap->reserved));
+  初判倾向: VIOLATED
+  上下文源码:
+     44 | 	cap->capabilities |= V4L2_CAP_DEVICE_CAPS;
+     45 | #endif
+     46 | 
+     47 | 	memset(cap->reserved, 0, sizeof(cap->reserved));
+     48 | 	return 0;
+     49 | }
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vidioc_querycap:5
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vidioc_querycap:14
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vidioc_querycap:15
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vidioc_querycap:47
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vidioc_querycap:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vidioc_querycap:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vidioc_querycap:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vidioc_querycap:47
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

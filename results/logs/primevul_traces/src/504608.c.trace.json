@@ -1,0 +1,89 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "TIFFReadDirEntryArrayWithLimit:9"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-369"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 9,
+      "snippet": "typesize=TIFFDataWidth(direntry->tdir_type);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "TIFFReadDirEntryArrayWithLimit:9",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "TIFFReadDirEntryArrayWithLimit:9"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "typesize",
+        "direntry",
+        "tdir_type"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "average/rate expression like total / count where count can be 0",
+        "binary % operator with RHS variable or expression not proven nonzero"
+      ]
+    },
+    "sink_id": "TIFFReadDirEntryArrayWithLimit:9",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "TIFFReadDirEntryArrayWithLimit:9"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "TIFFReadDirEntryArrayWithLimit:9",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "numeric|arith"
+  }
+]

@@ -1,0 +1,210 @@
+=== 待审推理日志 L-0207 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 11 个；未决 6 个。
+
+【推理轨迹】共 26 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_pushable_equalities:26
+  引证行: 26
+  引证内容: Item *left_item_clone= left_item->build_clone(thd);
+  初判倾向: VIOLATED
+  上下文源码:
+     23 |   if (right_item)
+     24 |   {
+     25 |     Item_func_eq *eq= 0;
+     26 |     Item *left_item_clone= left_item->build_clone(thd);
+     27 |     Item *right_item_clone= !clone_const ?
+     28 |                             right_item : right_item->build_clone(thd);
+     29 |     if (!left_item_clone || !right_item_clone)
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_pushable_equalities:28
+  引证行: 28
+  引证内容: right_item : right_item->build_clone(thd);
+  初判倾向: VIOLATED
+  上下文源码:
+     25 |     Item_func_eq *eq= 0;
+     26 |     Item *left_item_clone= left_item->build_clone(thd);
+     27 |     Item *right_item_clone= !clone_const ?
+     28 |                             right_item : right_item->build_clone(thd);
+     29 |     if (!left_item_clone || !right_item_clone)
+     30 |       return true;
+     31 |     eq= new (thd->mem_root) Item_func_eq(thd,
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_pushable_equalities:31
+  引证行: 31
+  引证内容: eq= new (thd->mem_root) Item_func_eq(thd,
+  初判倾向: VIOLATED
+  上下文源码:
+     28 |                             right_item : right_item->build_clone(thd);
+     29 |     if (!left_item_clone || !right_item_clone)
+     30 |       return true;
+     31 |     eq= new (thd->mem_root) Item_func_eq(thd,
+     32 |                                          left_item_clone,
+     33 |                                          right_item_clone);
+     34 |     if (!eq ||  equalities->push_back(eq, thd->mem_root))
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_pushable_equalities:34
+  引证行: 34
+  引证内容: if (!eq ||  equalities->push_back(eq, thd->mem_root))
+  初判倾向: VIOLATED
+  上下文源码:
+     31 |     eq= new (thd->mem_root) Item_func_eq(thd,
+     32 |                                          left_item_clone,
+     33 |                                          right_item_clone);
+     34 |     if (!eq ||  equalities->push_back(eq, thd->mem_root))
+     35 |       return true;
+     36 |     if (!clone_const)
+     37 |     {
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:10
+  命中信号: callee may return NULL on error path and caller immediately dereferences result or passes it to another function that dereferences it
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:26
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:28
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:31
+  命中信号: malloc/calloc/realloc/strdup/new(std::nothrow) return value used with ->, *, [], memcpy, strcpy, or memset before NULL check
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:34
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:45
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:55
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:56
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:59
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:60
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_pushable_equalities:61
+  筛选: keep
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:10
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:55
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:56
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:59
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:60
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_pushable_equalities:61
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

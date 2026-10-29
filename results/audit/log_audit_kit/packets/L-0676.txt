@@ -1,0 +1,110 @@
+=== 待审推理日志 L-0676 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 3 个。
+
+【推理轨迹】共 11 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_decode_infl:36
+  引证行: 36
+  引证内容: memmove(d, s, (size_t) l);
+  初判倾向: VIOLATED
+  上下文源码:
+     33 |                     debug_print("Out of buffer in %s at pos: %i\n", decoded, pos);
+     34 |                     return MOBI_DATA_CORRUPT;
+     35 |                 }
+     36 |                 memmove(d, s, (size_t) l);
+     37 |                 decoded[pos] = c;
+     38 |                 (*decoded_size)++;
+     39 |                 if (dir == '>') { pos++; }
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_decode_infl:37
+  引证行: 37
+  引证内容: decoded[pos] = c;
+  初判倾向: VIOLATED
+  上下文源码:
+     34 |                     return MOBI_DATA_CORRUPT;
+     35 |                 }
+     36 |                 memmove(d, s, (size_t) l);
+     37 |                 decoded[pos] = c;
+     38 |                 (*decoded_size)++;
+     39 |                 if (dir == '>') { pos++; }
+     40 |             } else {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_decode_infl:53
+  引证行: 53
+  引证内容: memmove(d, s, (size_t) l);
+  初判倾向: VIOLATED
+  上下文源码:
+     50 |                     debug_print("Character mismatch in %s at pos: %i (%c != %c)\n", decoded, pos, decoded[pos], c);
+     51 |                     return MOBI_DATA_CORRUPT;
+     52 |                 }
+     53 |                 memmove(d, s, (size_t) l);
+     54 |                 (*decoded_size)--;
+     55 |             }
+     56 |         }
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_decode_infl:7
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_decode_infl:36
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_decode_infl:37
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_decode_infl:53
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_decode_infl:7
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_decode_infl:36
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_decode_infl:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_decode_infl:53
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

@@ -1,0 +1,366 @@
+=== 待审推理日志 L-0671 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 14 个；未决 14 个。
+
+【推理轨迹】共 40 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:2
+  引证行: 2
+  引证内容: const Tensor& a = ctx->input(0);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext* ctx) override {
+      2 |     const Tensor& a = ctx->input(0);
+      3 |     const Tensor& b = ctx->input(1);
+      4 |     OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(a.shape()),
+      5 |                 errors::InvalidArgument("a is not a matrix"));
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:3
+  引证行: 3
+  引证内容: const Tensor& b = ctx->input(1);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext* ctx) override {
+      2 |     const Tensor& a = ctx->input(0);
+      3 |     const Tensor& b = ctx->input(1);
+      4 |     OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(a.shape()),
+      5 |                 errors::InvalidArgument("a is not a matrix"));
+      6 |     OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(b.shape()),
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:23
+  引证行: 23
+  引证内容: OP_REQUIRES_OK(ctx, ctx->allocate_output(0, TensorShape({m, n}), &output));
+  初判倾向: VIOLATED
+  上下文源码:
+     20 |                     "Matrix dimensions cannot be negative: a: ",
+     21 |                     a.shape().DebugString(), ", b: ", b.shape().DebugString()));
+     22 |     Tensor* output = nullptr;
+     23 |     OP_REQUIRES_OK(ctx, ctx->allocate_output(0, TensorShape({m, n}), &output));
+     24 | 
+     25 |     // Return early if at least one of the output dimension size is 0.
+     26 |     if (m == 0 || n == 0) {
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:34
+  引证行: 34
+  引证内容: f(ctx->eigen_device<CPUDevice>(), output->flat<float>());
+  初判倾向: VIOLATED
+  上下文源码:
+     31 |       // If the inner dimension k in the matrix multiplication is zero, we fill
+     32 |       // the output with zeros.
+     33 |       functor::SetZeroFunctor<CPUDevice, float> f;
+     34 |       f(ctx->eigen_device<CPUDevice>(), output->flat<float>());
+     35 |       return;
+     36 |     }
+     37 | 
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:38
+  引证行: 38
+  引证内容: auto out = output->matrix<float>();
+  初判倾向: VIOLATED
+  上下文源码:
+     35 |       return;
+     36 |     }
+     37 | 
+     38 |     auto out = output->matrix<float>();
+     39 | 
+     40 |     std::unique_ptr<Tensor> a_float;
+     41 |     std::unique_ptr<Tensor> b_float;
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:49
+  引证行: 49
+  引证内容: a_float->flat<float>().data(), a.NumElements());
+  初判倾向: VIOLATED
+  上下文源码:
+     46 |       if (std::is_same<TL, bfloat16>::value) {
+     47 |         a_float.reset(new Tensor(DT_FLOAT, a.shape()));
+     48 |         BFloat16ToFloat(a.flat<bfloat16>().data(),
+     49 |                         a_float->flat<float>().data(), a.NumElements());
+     50 |         left = a_float.get();
+     51 |       }
+     52 |       if (std::is_same<TR, bfloat16>::value) {
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:62
+  引证行: 62
+  引证内容: out.device(ctx->template eigen_device<CPUDevice>()) =
+  初判倾向: VIOLATED
+  上下文源码:
+     59 |       dim_pair[0].first = transpose_a_ ? 0 : 1;
+     60 |       dim_pair[0].second = transpose_b_ ? 1 : 0;
+     61 | 
+     62 |       out.device(ctx->template eigen_device<CPUDevice>()) =
+     63 |           left->matrix<float>().contract(right->matrix<float>(), dim_pair);
+     64 |       return;
+     65 |     }
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:63
+  引证行: 63
+  引证内容: left->matrix<float>().contract(right->matrix<float>(), dim_pair);
+  初判倾向: VIOLATED
+  上下文源码:
+     60 |       dim_pair[0].second = transpose_b_ ? 1 : 0;
+     61 | 
+     62 |       out.device(ctx->template eigen_device<CPUDevice>()) =
+     63 |           left->matrix<float>().contract(right->matrix<float>(), dim_pair);
+     64 |       return;
+     65 |     }
+     66 | 
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:88
+  引证行: 88
+  引证内容: OP_REQUIRES(ctx, right->dim_size(1) != 0,
+  初判倾向: VIOLATED
+  上下文源码:
+     85 |       // transpose in CreateDenseSlices.
+     86 |       OP_REQUIRES(ctx, right->dim_size(0) != 0,
+     87 |                   errors::InvalidArgument("b has an entry 0 in it's shape."));
+     88 |       OP_REQUIRES(ctx, right->dim_size(1) != 0,
+     89 |                   errors::InvalidArgument("b has an entry 0 in it's shape."));
+     90 |       right_tr.reset(
+     91 |           new Tensor(right->dtype(),
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:91
+  引证行: 91
+  引证内容: new Tensor(right->dtype(),
+  初判倾向: VIOLATED
+  上下文源码:
+     88 |       OP_REQUIRES(ctx, right->dim_size(1) != 0,
+     89 |                   errors::InvalidArgument("b has an entry 0 in it's shape."));
+     90 |       right_tr.reset(
+     91 |           new Tensor(right->dtype(),
+     92 |                      TensorShape({right->dim_size(1), right->dim_size(0)})));
+     93 | 
+     94 |       const auto perm = dsizes_10();
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:92
+  引证行: 92
+  引证内容: TensorShape({right->dim_size(1), right->dim_size(0)})));
+  初判倾向: VIOLATED
+  上下文源码:
+     89 |                   errors::InvalidArgument("b has an entry 0 in it's shape."));
+     90 |       right_tr.reset(
+     91 |           new Tensor(right->dtype(),
+     92 |                      TensorShape({right->dim_size(1), right->dim_size(0)})));
+     93 | 
+     94 |       const auto perm = dsizes_10();
+     95 |       if (transpose_output) {
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:96
+  引证行: 96
+  引证内容: right_tr->matrix<TL>().device(ctx->template eigen_device<CPUDevice>()) =
+  初判倾向: VIOLATED
+  上下文源码:
+     93 | 
+     94 |       const auto perm = dsizes_10();
+     95 |       if (transpose_output) {
+     96 |         right_tr->matrix<TL>().device(ctx->template eigen_device<CPUDevice>()) =
+     97 |             right->matrix<TL>().shuffle(perm);
+     98 |       } else {
+     99 |         right_tr->matrix<TR>().device(ctx->template eigen_device<CPUDevice>()) =
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:2
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:3
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:23
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:34
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:38
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:49
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:55
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:62
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:63
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:86
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:88
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:91
+  命中信号: malloc/calloc/realloc/strdup/new(std::nothrow) return value used with ->, *, [], memcpy, strcpy, or memset before NULL check
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:92
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  命中信号: Java cast syntax (short) intVar, (byte) intVar, or (int) longVar
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:96
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:2
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:3
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:38
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:49
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:55
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:62
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:63
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:86
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:88
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:91
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:92
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:96
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

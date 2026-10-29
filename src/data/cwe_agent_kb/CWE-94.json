@@ -1,0 +1,96 @@
+{
+  "cwe_id": "CWE-94",
+  "name": "Improper Control of Generation of Code ('Code Injection')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-74",
+      "CWE-913"
+    ],
+    "parent_of": [
+      "CWE-95",
+      "CWE-96",
+      "CWE-1336"
+    ]
+  },
+  "principle": "The product builds code from externally influenced input and executes or loads it without strict neutralization. Attacker-controlled syntax can change control flow and execute unauthorized code.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "JavaScript",
+    "Python",
+    "PHP",
+    "Perl",
+    "Ruby"
+  ],
+  "detection_signals": [
+    "Java ScriptEngine.eval(...) argument contains request.getParameter/readLine/socket/config input",
+    "Java GroovyShell.evaluate(...), Janino ExpressionEvaluator.cook(...), or JavaCompiler.getTask(...) compiles externally built strings",
+    "C/C++ luaL_dostring(...), luaL_loadstring(...), PyRun_SimpleString(...), Tcl_Eval(...) receives tainted char* or std::string",
+    "JavaScript eval(...), new Function(...), setTimeout(string), or setInterval(string) receives user-controlled data",
+    "Python eval(...), exec(...), compile(...), or __import__(...) receives user-controlled data",
+    "PHP eval(...), assert(string), include/require path or file content is user-controlled",
+    "Dynamic function/method/class name is concatenated from input then invoked via reflection, call_user_func, getattr, or Class.forName"
+  ],
+  "negative_signals": [
+    "User input selects a key in a fixed Map/switch/enum dispatch table; no code string is generated",
+    "Interpreter/compiler sink argument is a constant literal or trusted bundled resource only",
+    "External plugin/JAR/script is loaded only after signature or SHA-256 digest verification against a pinned value",
+    "Allowlist validates the entire token and maps it to a fixed permitted function name before invocation",
+    "Parser handles data with typed conversion such as Integer.parseInt/int()/JSON parser instead of eval/exec"
+  ],
+  "false_defense_traps": [
+    "Alphanumeric-only validation before dynamic invocation still allows dangerous names such as system, exec, exit, or Class.forName",
+    "Denylisting dangerous substrings is bypassable with aliases, encoding, reflection, imports, or concatenation",
+    "Sandbox/jail alone limits OS impact but does not prevent application-level compromise or jail escape issues",
+    "ast.literal_eval avoids code execution but can still cause memory or stack exhaustion on untrusted deeply nested input",
+    "Client-side validation does not protect server-side code generation sinks"
+  ],
+  "verification_focus": "Can any externally influenced value reach a code-evaluating, code-compiling, code-loading, or dynamic invocation sink as syntax rather than data?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-94"
+      ],
+      "trigger": "Untrusted input reaches eval/exec/include/compiler/interpreter sink",
+      "consequence": "Unauthorized code execution with confidentiality, integrity, and availability loss"
+    },
+    {
+      "chain": [
+        "CWE-94",
+        "CWE-95"
+      ],
+      "trigger": "Attacker input is inserted into dynamically evaluated code",
+      "consequence": "Eval injection and arbitrary control-flow modification"
+    },
+    {
+      "chain": [
+        "CWE-94",
+        "CWE-96"
+      ],
+      "trigger": "Attacker-controlled code is written to a file/resource and later included or loaded",
+      "consequence": "Persistent code execution on later use"
+    },
+    {
+      "chain": [
+        "CWE-94",
+        "CWE-1336"
+      ],
+      "trigger": "Untrusted template expression is rendered by a template engine",
+      "consequence": "Server-side template code execution"
+    }
+  ],
+  "patch_principle": [
+    "Refactor to avoid dynamic code generation; use fixed dispatch tables or typed parsers",
+    "Use strict allowlists of complete permitted tokens and map them to constant functions or templates",
+    "Never concatenate untrusted data into code, script, template, include path, or compiler input",
+    "Verify integrity and origin before loading external code artifacts or plugins",
+    "If dynamic execution is unavoidable, run it in a constrained sandbox as defense in depth"
+  ],
+  "minimal_examples": {
+    "vuln": "new ScriptEngineManager().getEngineByName(\"JavaScript\").eval(request.getParameter(\"expr\"));",
+    "safe": "ALLOWED_OPS.get(request.getParameter(\"op\")).run();"
+  }
+}

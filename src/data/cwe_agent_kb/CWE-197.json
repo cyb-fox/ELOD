@@ -1,0 +1,81 @@
+{
+  "cwe_id": "CWE-197",
+  "name": "Numeric Truncation Error",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-681"
+    ],
+    "parent_of": []
+  },
+  "principle": "A value is cast or assigned from a wider primitive numeric type to a narrower primitive type, losing high-order bits. The truncated value can corrupt state or become an unsafe size, index, or loop bound.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#"
+  ],
+  "detection_signals": [
+    "explicit cast from long/long long/size_t/uint64_t to int/short/char",
+    "implicit assignment from wider integer type to narrower integer variable",
+    "Java cast syntax (short) intVar, (byte) intVar, or (int) longVar",
+    "C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)",
+    "truncated variable later used in malloc/calloc/realloc/new array size",
+    "truncated variable later used as array index, pointer offset, or loop bound",
+    "64-bit size_t/uintptr_t/pointer-derived value stored in 32-bit int/uint32_t"
+  ],
+  "negative_signals": [
+    "pre-cast check value >= TARGET_MIN && value <= TARGET_MAX",
+    "Java Math.toIntExact(longVal) used instead of (int) longVal",
+    "C++ gsl::narrow<T>(value) or equivalent checked narrowing used",
+    "target type is same width or wider than source type: sizeof(dst_type) >= sizeof(src_type)",
+    "truncated value is only used for intentional bit masking after an explicit mask such as value & 0xFF"
+  ],
+  "false_defense_traps": [
+    "Checking only value < MAX without checking value >= MIN for signed target types",
+    "Relying on explicit casts to make narrowing safe",
+    "Testing only on 32-bit builds while size_t/long becomes wider on 64-bit builds",
+    "Validating the original wide value, then using the later truncated value as the index or size",
+    "Assuming Java/C# casts throw on overflow; narrowing casts silently truncate unless checked APIs/context are used"
+  ],
+  "verification_focus": "Does any wider numeric value narrow to a smaller primitive type without a complete range check before the narrowed value is used?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-197",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "trigger": "length or count is truncated before buffer allocation",
+      "consequence": "buffer allocated too small, then out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-197",
+        "CWE-787"
+      ],
+      "trigger": "truncated value is used as an array index or pointer offset",
+      "consequence": "out-of-bounds write or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-197",
+        "CWE-125"
+      ],
+      "trigger": "truncated value is used as a read index or length",
+      "consequence": "out-of-bounds read or data exposure"
+    }
+  ],
+  "patch_principle": [
+    "Avoid narrowing conversions from wider primitive numeric types to smaller primitive types.",
+    "If narrowing is required, check the value against the exact target type min and max before casting.",
+    "Use checked conversion APIs such as Math.toIntExact or gsl::narrow where available.",
+    "Keep sizes, indexes, and loop bounds in sufficiently wide types such as size_t.",
+    "On range failure, reject the input or throw an error instead of silently truncating."
+  ],
+  "minimal_examples": {
+    "vuln": "int amountSold = getAmount(); short sold = (short)amountSold;",
+    "safe": "int amountSold = getAmount(); if (amountSold >= Short.MIN_VALUE && amountSold <= Short.MAX_VALUE) { short sold = (short)amountSold; } else { throw new IllegalArgumentException(); }"
+  }
+}

@@ -1,0 +1,338 @@
+=== 待审推理日志 L-0788 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 13 个；未决 12 个。
+
+【推理轨迹】共 37 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:15
+  引证行: 15
+  引证内容: sprintf(buf64, "b=AS:%d", bandwidth);
+  初判倾向: VIOLATED
+  上下文源码:
+     12 | 	gf_isom_sdp_clean(file);
+     13 | 
+     14 | 	if (bandwidth) {
+     15 | 		sprintf(buf64, "b=AS:%d", bandwidth);
+     16 | 		gf_isom_sdp_add_line(file, buf64);
+     17 | 	}
+     18 |     //xtended attribute for copyright
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:20
+  引证行: 20
+  引证内容: sprintf(buf64, "a=x-copyright: %s", "MP4/3GP File hinted with GPAC - (c) Telecom ParisTech (http://gpac.io)");
+  初判倾向: VIOLATED
+  上下文源码:
+     17 | 	}
+     18 |     //xtended attribute for copyright
+     19 |     if (gf_sys_is_test_mode()) {
+     20 |         sprintf(buf64, "a=x-copyright: %s", "MP4/3GP File hinted with GPAC - (c) Telecom ParisTech (http://gpac.io)");
+     21 |     } else {
+     22 |         sprintf(buf64, "a=x-copyright: MP4/3GP File hinted with GPAC %s - %s", gf_gpac_version(), gf_gpac_copyright() );
+     23 |     }
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:57
+  引证行: 57
+  引证内容: while (gf_list_count(iod->ESDescriptors)) {
+  初判倾向: VIOLATED
+  上下文源码:
+     54 | 	if (IOD_Profile == GF_SDP_IOD_ISMA) {
+     55 | 		GF_ESD *esd;
+     56 | 		Bool is_ok = 1;
+     57 | 		while (gf_list_count(iod->ESDescriptors)) {
+     58 | 			esd = (GF_ESD*)gf_list_get(iod->ESDescriptors, 0);
+     59 | 			gf_odf_desc_del((GF_Descriptor *) esd);
+     60 | 			gf_list_rem(iod->ESDescriptors, 0);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:81
+  引证行: 81
+  引证内容: buf64[size64] = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+     78 | 					gf_isom_set_extraction_slc(file, odT, 1, &slc);
+     79 | 
+     80 | 					size64 = gf_base64_encode(samp->data, samp->dataLength, buf64, 2000);
+     81 | 					buf64[size64] = 0;
+     82 | 					sprintf(sdpLine, "data:application/mpeg4-od-au;base64,%s", buf64);
+     83 | 
+     84 | 					if (esd->decoderConfig) {
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:82
+  引证行: 82
+  引证内容: sprintf(sdpLine, "data:application/mpeg4-od-au;base64,%s", buf64);
+  初判倾向: VIOLATED
+  上下文源码:
+     79 | 
+     80 | 					size64 = gf_base64_encode(samp->data, samp->dataLength, buf64, 2000);
+     81 | 					buf64[size64] = 0;
+     82 | 					sprintf(sdpLine, "data:application/mpeg4-od-au;base64,%s", buf64);
+     83 | 
+     84 | 					if (esd->decoderConfig) {
+     85 | 						esd->decoderConfig->avgBitrate = 0;
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:91
+  引证行: 91
+  引证内容: strcpy(esd->URLString, sdpLine);
+  初判倾向: VIOLATED
+  上下文源码:
+     88 | 					}
+     89 | 					size64 = (u32) strlen(sdpLine)+1;
+     90 | 					esd->URLString = (char*)gf_malloc(sizeof(char) * size64);
+     91 | 					strcpy(esd->URLString, sdpLine);
+     92 | 				} else {
+     93 | 					GF_LOG(GF_LOG_WARNING, GF_LOG_RTP, ("[rtp hinter] OD sample too large to be embedded in IOD - ISMA disabled\n"));
+     94 | 					is_ok = 0;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:118
+  引证行: 118
+  引证内容: buf64[size64] = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+    115 | 				gf_isom_set_extraction_slc(file, sceneT, 1, &slc);
+    116 | 				//encode in Base64 the sample
+    117 | 				size64 = gf_base64_encode(samp->data, samp->dataLength, buf64, 2000);
+    118 | 				buf64[size64] = 0;
+    119 | 				sprintf(sdpLine, "data:application/mpeg4-bifs-au;base64,%s", buf64);
+    120 | 
+    121 | 				if (esd->decoderConfig) {
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:119
+  引证行: 119
+  引证内容: sprintf(sdpLine, "data:application/mpeg4-bifs-au;base64,%s", buf64);
+  初判倾向: VIOLATED
+  上下文源码:
+    116 | 				//encode in Base64 the sample
+    117 | 				size64 = gf_base64_encode(samp->data, samp->dataLength, buf64, 2000);
+    118 | 				buf64[size64] = 0;
+    119 | 				sprintf(sdpLine, "data:application/mpeg4-bifs-au;base64,%s", buf64);
+    120 | 
+    121 | 				if (esd->decoderConfig) {
+    122 | 					esd->decoderConfig->avgBitrate = 0;
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:127
+  引证行: 127
+  引证内容: strcpy(esd->URLString, sdpLine);
+  初判倾向: VIOLATED
+  上下文源码:
+    124 | 					esd->decoderConfig->maxBitrate = 0;
+    125 | 				}
+    126 | 				esd->URLString = (char*)gf_malloc(sizeof(char) * (strlen(sdpLine)+1));
+    127 | 				strcpy(esd->URLString, sdpLine);
+    128 | 			} else {
+    129 | 				GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, ("[rtp hinter] Scene description sample too large to be embedded in IOD - ISMA disabled\n"));
+    130 | 				is_ok = 0;
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:158
+  引证行: 158
+  引证内容: sprintf(sdpLine, "a=isma-compliance:1,1.0,1");
+  初判倾向: VIOLATED
+  上下文源码:
+    155 | 			}
+    156 | 			/*only 1 MPEG-4 visual max and 1 MPEG-4 audio max for ISMA compliancy*/
+    157 | 			if (!has_v && !has_a && (has_i_v<=1) && (has_i_a<=1)) {
+    158 | 				sprintf(sdpLine, "a=isma-compliance:1,1.0,1");
+    159 | 				gf_isom_sdp_add_line(file, sdpLine);
+    160 | 			}
+    161 | 		}
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_hinter_finalize:172
+  引证行: 172
+  引证内容: buf64[size64] = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+    169 | 
+    170 | 	//encode in Base64 the iod
+    171 | 	size64 = gf_base64_encode(buffer, size, buf64, 2000);
+    172 | 	buf64[size64] = 0;
+    173 | 	gf_free(buffer);
+    174 | 
+    175 | 	sprintf(sdpLine, "a=mpeg4-iod:\"data:application/mpeg4-iod;base64,%s\"", buf64);
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:15
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:20
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:22
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:57
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:81
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:82
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:91
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:118
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:119
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:127
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:158
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:172
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_hinter_finalize:175
+  筛选: keep
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:22
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:57
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:81
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:82
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:91
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:118
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:119
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:127
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:158
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:172
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_hinter_finalize:175
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

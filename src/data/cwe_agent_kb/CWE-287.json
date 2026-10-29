@@ -1,0 +1,100 @@
+{
+  "cwe_id": "CWE-287",
+  "name": "Improper Authentication",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-284"
+    ],
+    "parent_of": [
+      "CWE-290",
+      "CWE-294",
+      "CWE-295",
+      "CWE-306",
+      "CWE-307",
+      "CWE-521",
+      "CWE-522",
+      "CWE-640",
+      "CWE-645",
+      "CWE-798",
+      "CWE-1390"
+    ]
+  },
+  "principle": "The product accepts a claimed identity without proving, or without sufficiently proving, that the actor is that identity. This lets attackers assume identities, reach protected resources, or execute privileged functionality.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "grantAccess(), login(), or admin handler gated by request.getParameter(\"authenticated\"), request.getParameter(\"user\"), Cookie(\"loggedIn\"), or client-supplied role",
+    "protected servlet/controller/route lacks @PreAuthorize, @RolesAllowed, @Secured, auth middleware, or explicit authenticate(request) before sensitive action",
+    "hard-coded credential comparison such as strcmp(password,\"admin\") == 0 or password.equals(\"secret\")",
+    "partial or flawed credential check such as strncmp(input, stored, 4) == 0, startsWith(), substring(), or inverted boolean result",
+    "custom X509TrustManager.checkServerTrusted() empty, HostnameVerifier returns true, CURLOPT_SSL_VERIFYPEER=0, or SSL_VERIFY_NONE",
+    "password reset or login token generated with rand(), java.util.Random, currentTimeMillis(), sequential IDs, or reusable tokens",
+    "login failure path returns without counter, rate limiter, lockout, backoff, or MFA challenge update"
+  ],
+  "negative_signals": [
+    "Spring Security or equivalent config maps sensitive routes with .authenticated(), @PreAuthorize(\"isAuthenticated()\"), @RolesAllowed, or authenticated middleware",
+    "server-side session/security context is created only after PasswordEncoder.matches(), BCrypt.checkpw(), Argon2 verify, or framework authentication succeeds",
+    "authorization decision uses server-side principal/session/JWT signature verification, not request parameter or unsigned cookie state",
+    "failed login handler updates rate limiter, failed-attempt counter, lockout, backoff, or MFA verification state",
+    "TLS client uses default TrustManagerFactory/PKIX validation and hostname verification such as SSL_set1_host or default HTTPS HostnameVerifier",
+    "password reset uses high-entropy SecureRandom token, single-use storage, expiration time, and server-side account binding"
+  ],
+  "false_defense_traps": [
+    "Client-side hidden fields, cookies, or JavaScript checks for authenticated=true are forgeable.",
+    "A signed-looking JWT is not authentication if the signature, issuer, audience, and expiration are not verified.",
+    "TLS is insufficient when certificate chain or hostname verification is disabled.",
+    "CAPTCHA without rate limiting or lockout does not prevent credential stuffing or online guessing.",
+    "Strong login can be bypassed by weak password reset, backup API, debug endpoint, or alternate channel."
+  ],
+  "verification_focus": "Does every identity-sensitive entry point prove the actor's identity on the server with an unbypassable and sufficiently strong mechanism?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-306"
+      ],
+      "trigger": "critical function endpoint has no server-side authentication check",
+      "consequence": "unauthenticated actor invokes privileged functionality"
+    },
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-295"
+      ],
+      "trigger": "client accepts unvalidated or wrong-host TLS certificate",
+      "consequence": "attacker impersonates a trusted service and captures credentials or data"
+    },
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-307"
+      ],
+      "trigger": "login accepts unlimited guesses without throttling or lockout",
+      "consequence": "attacker brute-forces or stuffs credentials to assume identity"
+    },
+    {
+      "chain": [
+        "CWE-287",
+        "CWE-640"
+      ],
+      "trigger": "password recovery token or challenge is guessable or reusable",
+      "consequence": "attacker resets victim credentials and takes over account"
+    }
+  ],
+  "patch_principle": [
+    "Use a vetted authentication framework or platform identity provider instead of custom authentication logic.",
+    "Enforce server-side authentication on every protected route, API, admin function, and alternate channel.",
+    "Store and verify credentials with strong password hashing and constant framework APIs; remove hard-coded/default credentials.",
+    "Add MFA where appropriate and enforce failed-attempt throttling, lockout, backoff, or risk-based challenges.",
+    "Use high-entropy single-use recovery tokens and validate TLS certificate chains and hostnames."
+  ],
+  "minimal_examples": {
+    "vuln": "if (\"true\".equals(request.getParameter(\"authenticated\"))) grantAccess();",
+    "safe": "if (securityContext.getAuthentication()!=null && securityContext.getAuthentication().isAuthenticated()) grantAccess();"
+  }
+}

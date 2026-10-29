@@ -1,0 +1,871 @@
+﻿alias,verdict,reasoning_agree,evidence_grounded,note
+L-0001,too_aggressive,2,no,步2把行10字符串扫描循环配长度转size_t分配信号翻readable_extent为VIOLATED，行内无长度无分配，模式脱节；步6/7零引证即safe_proved；vuln(CWE-131)所指分配未展示
+L-0002,correct,3,yes,步骤1引证与行号相符；步骤2把scanf/strcpy信号套在26行字符区间比较上不符；无翻转无确定结论；underdetermined站得住
+L-0003,correct,3,yes,步骤1-3引证32/34/59行与内容一致；步骤4信号名与memset不符但:32行可见kaddr+i_lenAlloc偏移与PAGE_SIZE差值写入且包内无防护，vuln@:32/CWE-119在该证据水平可辩护；34/59未决自洽
+L-0004,correct,4,yes,引证32行while与内容相符；信号模板化但无义务翻转，均UNRESOLVED，xclass遍历边界需上游上下文，未决成立
+L-0005,correct,3,yes,步骤1-18对各赋值行无据标VIOLATED属模板跳跃，步骤19-40信号与代码不符但未据此翻转；义务全UNRESOLVED流转一致，单文件下underdetermined站得住
+L-0006,too_aggressive,2,no,"步骤2引证15行memset(mset,0,sizeof(mset))却判path_validated VIOLATED，步骤6以0.9报CWE-22，引用内容与判断毫无关联，全程无路径证据"
+L-0007,correct,2,no,31行c<4界与49行merror可见，local_guard_observed可立；步骤4 scanf信号翻转31行、步骤8 calloc替换信号与48行calloc不符，翻转无据
+L-0008,correct,2,no,步骤2以泄漏类信号对8行ssl_get_message翻readable_extent VIOLATED，引证内容不涉及该风险；23行safe_proved无引证；最终未决可接受
+L-0009,too_aggressive,2,no,65行STRNCPY按单字符len拷贝，p的剩余空间未展示，步骤2信号(loop i<=len)与引证行不符即判VIOLATED；150行safe_proved无引证，CWE-787证据不足
+L-0010,correct,3,no,行9的offset+8>sz与行18的offset>=sz守卫属实，但arbiter对行1/5/7/10/29无引证即判safe_proved并泛化三义务；未决合理
+L-0011,correct,2,no,步骤4对6行qemu_get_queue赋值凭解码信号翻VIOLATED无引证依据，步骤6 vuln 0.45无支撑；final未决可接受
+L-0012,too_aggressive,2,no,行3是fgetline函数指针参数声明与缓冲风险无涉，scanf/strcpy信号误命中仍于步骤4判vuln(CWE-119)；步骤5行477零引证safe_proved
+L-0013,correct,3,yes,全判未决结论可站住；但11个点复用同一null模板信号（如步骤11对32行while(*cc)循环头），未分析XCL_END越界读这一真实风险，推理过浅
+L-0014,correct,3,yes,引证:4/:9为opaque赋值与read_only置位，本身无风险；上下文中:11 bdrv_pread头解析未展开分析属该查未查，但未下确定结论；未决成立
+L-0015,correct,2,yes,30/31引证与内容一致；步骤3对30行VM状态恢复赋值套信号处理器安全信号判readable_extent VIOLATED属信号误用；31行object_live_at_use义务贴切仅UNRESOLVED，文件级未决可接受
+L-0016,too_aggressive,2,no,行10 AllocMem与行11 memset同为sizeof(struct Line*)*m_ucCount*8，越界写不成立仍于步骤4判vuln(0.7)；步骤5行16零引证safe_proved
+L-0017,correct,3,yes,6-7行neighbors_start[facet_num]读无负值检查在引证上下文可见，报CWE-125方向有据；但4行引证实为error守卫，信号错配
+L-0018,correct,2,no,步骤5引证行5确为usb_get_intfdata后未判空即解引用，vuln在该证据水平成立；但步骤14/18-23对未展示行宣称safe_proved无引证，链条粗糙
+L-0019,correct,3,yes,未决结论合理；但步骤3/4对58/59行普通赋值套scanf/calloc信号为模板噪声，未据此翻转义务
+L-0020,too_aggressive,2,no,gitn_box_del:7零引证即safe_proved并称local_guard_observed，防护证明无据
+L-0021,too_aggressive,2,no,步骤3信号称calloc被换成malloc(count*unit)，但27行实为calloc，24-26行已校验len、28行判空，vuln前提被自身引证否定
+L-0022,correct,4,yes,引证行75/76相符；同shape快路径仅set_output别名传递；信号calloc与符号混用错配但仅keep；未决保守合理
+L-0023,correct,4,yes,全2点未决合理；9行可见name!=NULL防护而信号仍称check-after-use属模板噪声，未驱动结论
+L-0024,too_aggressive,1,no,6行BUILD_BUG_ON是编译期断言，步骤3以malloc模板翻readable_extent VIOLATED并vuln0.6，张冠李戴；12行user_ns/capable权限检查仅未决；CWE-1284无据
+L-0025,correct,3,yes,步骤3信号数组下标与7行index取自输入标量相称，Peek边界语义未展示故义务UNRESOLVED判未决自洽；9行OP_REQUIRES_OK错误传播可见
+L-0026,too_aggressive,2,no,行76是uval受限后三元赋值写固定下标，行73已限uval<=3，gets/strcat信号与之完全无关；step4凭空vuln且与最终判定矛盾
+L-0027,correct,3,no,步骤1-7引证行号相符；步骤25对22行无任何展示即翻SATISFIED判safe属凭空跳跃；其余义务全UNRESOLVED，终判underdetermined站得住
+L-0028,correct,3,yes,步5/7对行8/185声明与分配行配strcpy信号、步6把行136固定下标[0]当输入偏移，信号不称但引证真实；义务全UNRESOLVED，未决在该证据水平成立
+L-0029,too_aggressive,2,no,"步骤5对83行memset(cipher_suite,0,2)固定2字节写套数组下标信号翻readable_extent违规系张冠李戴，步骤9以0.9置信报vuln无据"
+L-0030,correct,4,yes,全19点未决且各步引证与行号相符；16-34步信号为模板噪声(107行memset被套scanf/strcpy信号)但均未驱动确定结论，最终underdetermined成立
+L-0031,correct,3,yes,步骤1-41引证与上下文一致；步骤42-93信号与C代码多不符如行43 memset配format_string，但零翻转，义务均UNRESOLVED无凭空结论，未决成立
+L-0032,correct,4,yes,引证21行与内容相符，20行有terminatingWildcardChild空检查；信号与代码不符但无义务翻转，messageId边界未展示，未决成立
+L-0033,too_aggressive,2,no,步骤3对行6字符串替换判越界读属张冠李戴；路径校验逻辑在未展示行即断言path_validated VIOLATED；CWE-125/22/400判定均无引证支撑
+L-0034,too_aggressive,2,no,步骤1-9全为无信号无引证的空keep，步骤10-18据此翻SATISFIED判safe_proved，local_guard_observed宣称防护却全程无展示，结论凭空
+L-0035,correct,2,no,arbiter步骤8/10依据cleanup与gets错配信号判vuln，与最终underdetermined自相矛盾；x_cur边界未展示故未决结论本身站得住。
+L-0036,correct,3,no,"步骤1引证可见OP_REQUIRES_OK状态检查,local_guard_observed有薄防护可依;但步骤2/3把输入获取配VLA与归一化信号判vuln属错配,步骤7行9义务SATISFIED过度宣称"
+L-0037,too_aggressive,1,no,"全包零引证零上下文,步1-4连命中信号都没有,步5-8直接把四点三项义务判SATISFIED并safe_proved,无任何推理内容,属模板噪声"
+L-0038,correct,4,yes,op[-1]负索引写栈确属可疑模式，判未决恰当；信号错配未影响结论
+L-0039,correct,2,no,步骤1仅keep无引证，步骤2对IsIdentityConsumingSwitch:14凭空判三义务?->SATISFIED得safe_proved且置信0.0；结论凭空但未报vuln，保correct。
+L-0040,too_aggressive,3,no,"步2引证属实:175行for_each_backend内写default_exportname[b->i],步5的循环无容量守卫信号与代码相称;缺陷在步13 arbiter以attacker_control未决仍判vuln 0.9并误挂readable_extent"
+L-0041,correct,3,yes,未决结论合理；但步骤4对1行函数签名套malloc返回值信号，信号与引证普遍错配，仅未据此下确定结论
+L-0042,correct,4,yes,引证9行与源码一致，9/10行留UNRESOLVED合理；forensics步2对9行赋值判数组读、步3对10行判calloc属信号误配，但义务全UNRESOLVED未驱动结论
+L-0043,too_aggressive,2,no,步骤9无引证即令arithmetic_bound跳VIOLATED且行54是assert与calloc信号无关；行103为memset清零仍判vuln；步骤31/32行105/106零引证safe_proved
+L-0044,correct,3,yes,步骤11-25把完整性与NULL信号套在缩进计算各行上属模板噪声且未翻转义务；义务全UNRESOLVED，underdetermined在单文件下站得住
+L-0045,correct,3,yes,引证:4 conceal标志计算与:18 coladvance调用均无内存/边界风险；步3-4除零信号与内容完全无关；arbiter步5-6保持UNRESOLVED，未决成立
+L-0046,too_conservative,4,yes,步骤1-15引证逐条属实且与判断相称，义务流转仅?->UNRESOLVED无凭空跳跃；仅arbiter未据33行INT_MAX/4界定38行分配，保守未决但推理连贯
+L-0047,too_aggressive,2,no,步骤2把bgp=peer->bgp指针字段读取当数组下标读判readable_extent VIOLATED报CWE-125，引证行不涉及该风险，跨步过大。
+L-0048,correct,3,no,步骤1引证相符；步骤2把读取外部输入的assert信号套在6行qeh_flags断言上翻VIOLATED属张冠李戴；该子结论未驱动终判，underdetermined站得住
+L-0049,correct,4,yes,"41行memcpy(tlsext_tick,p,ticklen)前38-40行可见分配失败检查，ticklen与p可读范围未展示；步骤2套scanf模板错配；未决成立"
+L-0050,too_aggressive,1,no,步骤2对59行njs_fast_path判断套calloc与符号混合信号升VIOLATED属引证脱节，步骤5据此0.6报vuln:59无据；步骤6-7对62/121行safe_proved零引证；CWE-190结论凭空
+L-0051,correct,4,yes,两点引证与源码一致，测试代码data->解引用单文件无法定论，未决成立；信号错配但arbiter未升级。
+L-0052,too_aggressive,2,no,步3对:15字面量格式串%-10s %s判readable_extent违背，引证内容自证安全，误读自己引证；步4对:14无引证即safe_proved；CWE-20无据
+L-0053,correct,3,yes,10行可见codec->scenegraph->global_qp解引用链且窗口7-13行无scenegraph判空，null_guard VIOLATED在该证据水平内成立，attacker_control如实标未决；步骤5对11行safe_proved零引证
+L-0054,correct,2,no,步骤13/14/19/20对行1/7/32/34零引证即宣布三义务SATISFIED落safe_proved；步骤7把行10 kzalloc标成完整性信号误命中；最终未决尚可
+L-0055,correct,3,no,25/38行有sw.len与fw.len上界检查，最终未决可接受；但步骤22对47行无引证凭空safe_proved，义务SATISFIED无证据支撑
+L-0056,correct,3,yes,唯一引证:1为函数签名行，无风险证据；步2-3 null信号无内容支撑；自报2可疑点仅1处引证（:11无展示）；arbiter全UNRESOLVED，未决成立
+L-0057,correct,3,yes,步骤1-2引证与行号相符，4/5行确涉pipe指针解引用；步骤3-4的回绕与符号混用信号同字段读取不符但未翻转；义务全UNRESOLVED站得住
+L-0058,correct,4,yes,3行四级链式解引用trak->Media->information->InfoHeader且4行即用hmhd，调用方约束未展示；null_guard留UNRESOLVED合理保守；underdetermined成立
+L-0059,too_aggressive,2,no,无源码无引证，仅凭无限循环信号判CWE-400，input_sanitized VIOLATED凭空
+L-0060,correct,4,yes,引证16行锁操作与内容相符；信号与代码不符但无义务翻转，均UNRESOLVED，未决结论成立
+L-0061,too_aggressive,2,no,步骤3把line5普通赋值判arithmetic_bound VIOLATED，calloc信号与代码无关；步骤5 vuln 0.6据此无据
+L-0062,correct,3,yes,"行3/5多层解引用无空检查,模式相称CWE-476;但vuln落点行3仅赋值,更深解引用行5反判underdetermined自相矛盾;置信0.9偏高"
+L-0063,correct,4,yes,步骤1-3引证与源码一致；步骤4-6命中信号为null模板噪声但未翻义务；9行name判空可见但rmp来源未展示；underdetermined成立
+L-0064,too_aggressive,2,no,全程无源码引证，仅凭信号把null_guard翻VIOLATED并以0.9判vuln报CWE-476，属无引证下确定判断，跨太大
+L-0065,correct,3,yes,行137的snprintf带sizeof上界，步3配malloc解引用与返回值忽略信号与内容不称；可疑点13无上下文；arbiter全UNRESOLVED，未决在该证据水平成立
+L-0066,too_aggressive,2,no,行32/35为allocate_output调用，与readable_extent及算术边界无关，两次翻VIOLATED无据；步骤8对行63宣称防护无引证；CWE-190/770无支撑，定vuln跨太大
+L-0067,correct,2,no,"行11无引证内容,信号UAF与double free和义务readable_extent脱节仍判VIOLATED子步骤vuln;最终underdetermined未采信"
+L-0068,too_aggressive,2,no,步骤4对19行定长malloc(sizeof(struct dir))判arithmetic_bound VIOLATED属误读；86行memcpy上游83行goto corrupted守卫未排查即翻VIOLATED，报vuln证据不足
+L-0069,correct,4,yes,全2点未决合理；信号模板噪声(锁外NULL解引用)与内核片段不符，未驱动结论
+L-0070,too_aggressive,2,no,步骤1引证属实但行2仅输入获取无任何分配;步骤2配malloc溢出信号判arithmetic_bound VIOLATED与内容完全脱节;vuln/CWE-190凭空
+L-0071,correct,3,yes,步骤1-8引证与上下文一致，行4 sprintf(filename+7)越界疑点真实；步骤9-18信号多张冠李戴如行40 fwrite配路径校验但零翻转，义务均UNRESOLVED未决成立
+L-0072,too_aggressive,1,no,唯一引证为1行函数签名，无任何解引用与守卫信息即翻null_guard VIOLATED并判vuln 0.9 CWE-476，结论凭空超出引证
+L-0073,too_aggressive,2,no,步骤2对52行定长124读取比较套符号混合信号翻arithmetic_bound:VIOLATED与内容不符；步骤4据此vuln 0.6；步骤5对55行safe_proved零引证；CWE-190不成立
+L-0074,too_aggressive,2,no,可疑点27无引证无上下文，义务凭空翻成SATISFIED即safe_proved再报local_guard_observed；零证据下的确定性结论不成立
+L-0075,too_aggressive,1,no,行6是循环递进表达式无内存风险，以Java异常类信号判readable_extent VIOLATED落vuln(0.45)，链条与引证脱节
+L-0076,correct,4,yes,全2点未决合理；281行memcpy长度ai_addrlen来源未展示，保持未决恰当；信号与行内容关联弱
+L-0077,too_aggressive,2,no,行14是hci_recv_frame分发调用，无分配无边界逻辑，却以0.9判readable_extent违背并报CWE-125/401；行5未展示；vuln完全无据，跨太大
+L-0078,correct,2,no,行46 snprintf以malloc(length)封顶本安全，行76仅判空条件却被翻arithmetic_bound并判vuln，信号与内容不符；最终未决可接受
+L-0079,too_aggressive,2,no,全程无引证行与上下文源码，步3仅凭size_t减法信号以0.9置信判readable_extent违背报CWE-789，无据定论；步4对:29无引证即safe_proved
+L-0080,correct,4,yes,空轨迹无可疑点亦无凭空引证，按空轨迹口径eg为yes；final标local_guard_observed与零步轨迹略不贴切但语义近于未发现问题
+L-0081,too_aggressive,2,no,"全程零引证零上下文,3个可疑点均零证据判safe_proved义务凭空SATISFIED;local_guard_observed无可见防护支撑,安全结论凭空"
+L-0082,correct,4,yes,引证行1为函数签名；信号shared pointer错配但仅keep；未决合理，buf处理需函数体
+L-0083,too_aggressive,2,no,步4把行19定长malloc(sizeof(struct dir))判输入派生分配翻arithmetic_bound并定vuln，模式脱节；行87 memcpy(dire->size+1)确现风险模式；步15/17-19/22-23零引证即safe_proved
+L-0084,too_aggressive,1,no,7行可疑点无引证无上下文无信号，步骤2直接safe_proved三义务SATISFIED并得local_guard_observed，防护主张无任何依据
+L-0085,correct,3,no,10行GetNode取点、11行*input_node直接解引用无空检查，CWE-476方向可立；步骤2/4对1行safe_proved无引证，信号家族与GetNode不对应
+L-0086,correct,3,yes,步骤2对22行普通赋值套null信号为噪声未翻义务；23-24行inseq-1/next_tsn-1减法未列可疑点但序列号回绕或属协议设计；underdetermined成立
+L-0087,too_aggressive,2,no,34行无任何引证内容与上下文，仅凭scanf/strcpy模板即翻readable_extent VIOLATED给vuln0.6/CWE-119，无据判断
+L-0088,correct,3,yes,步1-2引证为switch分派与字面量格式串错误报告行，无内存风险；步3-4 null信号与内容错配但未上升为确定结论；arbiter步5-6保持UNRESOLVED，未决成立
+L-0089,correct,3,yes,引证:19布尔赋值与:20状态栏高度判断均无内存风险；步2-3数组下标信号与赋值行不符；arbiter步4-5保持UNRESOLVED，未决成立
+L-0090,correct,3,yes,未决结论合理；player与mixer在4/6行已判空，步骤2/3的null信号与内容错配但未据此下确定结论
+L-0091,correct,3,yes,空轨迹：自报可疑点0、无推理步骤、判定local_guard_observed；无引证即无捏造，按口径evidence_grounded填yes
+L-0092,correct,3,yes,步骤4信号scanf/strcpy与snprintf不完全相称，但21-23行可见预留63与写入上限64的差一疑点及26行setSize无截断，vuln@:23可辩护，112/122未决自洽
+L-0093,correct,3,yes,步1-3引证为取输入与session_state判空后调用行，无内存风险；步4-6 null信号为模板噪声（行7已有判空）；arbiter步7-9全UNRESOLVED，未决成立
+L-0094,correct,3,no,行108/111连续拼接无尺寸检查，步骤7报vuln在该证据内站得住；步骤8-11对行111等零引证即safe_proved与行108同型自相矛盾
+L-0095,correct,2,no,行8/9仅为指针与标量初始化，步骤4/5却凭循环不变量与循环写buf等无关信号判readable_extent VIOLATED两次；引证行本身相符；未决合理
+L-0096,too_aggressive,2,no,全程无上下文源码与引证内容，步骤1凭下标读信号即翻readable_extent:VIOLATED、步骤2以0.6置信判vuln均无据；CWE-125零证据
+L-0097,correct,3,yes,81行自示colormap_index[intensity]数组写且可见窗口78-84行无intensity边界检查，无边界写模式可见，attacker_control如实标未决，该证据水平内vuln成立；scanf/strcpy信号名与数组写不符属模板错配
+L-0098,too_aggressive,2,no,步骤9把56行定长16的memcpy说成输入长度未检翻readable_extent:VIOLATED与引证矛盾；步骤10对57行无算术却翻arithmetic_bound:VIOLATED；步骤19对293行safe_proved零引证；CWE-119不成立
+L-0099,correct,4,yes,步骤2对line12无引证给double-free信号；line17-20判空错误路径清晰；未决可接受
+L-0100,too_aggressive,2,no,可疑点75无引证无上下文，义务凭空翻成SATISFIED即safe_proved；最终local_guard_observed未见任何可见防护；零证据确定性结论不成立
+L-0101,correct,3,yes,步骤1-26实例化引证真实但初判VIOLATED无据；27-58命中信号多为与代码无关的模板噪声；93-94对83/84行三义务SATISFIED无引证；最终underdetermined成立
+L-0102,correct,5,yes,各步引证与源码一致且相称，loop写入信号匹配szLineConv[j]无可见容量的写点，义务全程UNRESOLVED有据，未决结论可推出
+L-0103,correct,3,yes,3-4行elem_size与7行elem_size*max_entries的u64乘法可见且无防护，步骤2信号与乘法构造相称，CWE-190在单文件证据下可辩护
+L-0104,correct,3,no,步骤3引证行22相符，%s读ptr+22无界且行4的bytes未用于限制，报CWE-125在该证据水平可站住；步骤12-14对行10/11/12无引证即判safe_proved
+L-0105,correct,3,yes,13行new StrokeHandler(elementCount+4)引证相符，12行守卫真实但步骤4据此宣称三义务全SATISFIED略过头；未决成立
+L-0106,correct,4,yes,line65已查arg范围后memcpy，防护可见仍判未决略保守但可接受；line77定长拷贝信号部分错配
+L-0107,too_aggressive,2,no,引证行13是普通赋值value=args->value，与缓冲区边界无关；readable_extent VIOLATED与CWE-119均无据
+L-0108,too_aggressive,1,no,"仅2步:步1无信号无引证,步2直接把attacker_control等三项义务判SATISFIED并safe_proved,最终local_guard_observed,无可核验推理,属模板噪声"
+L-0109,too_aggressive,2,no,步骤5对5行普通赋值套scanf信号升VIOLATED、步骤13据此0.7报vuln:5属引证脱节；步骤12对270行同理；步骤16-19对106/121/195/197行safe_proved零引证，CWE-119撑不起
+L-0110,correct,2,no,步3把行7的Push调用配calloc与符号混合信号翻arithmetic_bound为VIOLATED并中途判vuln，行内无分配；步5与最终未决脱节；未决在该片段成立
+L-0111,too_aggressive,1,yes,9行分配4*maxVertices与10行循环i<maxVertices完全匹配，12行写i*4+1不越界仍判VIOLATED；13行同型却safe_proved自相矛盾；CWE-190不成立
+L-0112,correct,3,yes,else分支153-155按sizeof整拷且无NUL终止，支撑CWE-170，vuln成立；唯步骤11把VIOLATED记在150而非153且未展示检查依据；步骤17对147判safe_proved依据不足
+L-0113,too_aggressive,2,no,步骤1引证行53-54属实(Create(2)后写data[0]界内)，步骤2至5围绕Prepare:54连贯推进readable_extent，属判断与自引内容不符(锚点2)而非步骤间无关联；步骤6-7零引证safe_proved
+L-0114,correct,4,yes,四点引证与源码一致，均为普通取值与断言，无风险证据，未决成立；步骤7对C代码命中Java getProperty信号但未升级。
+L-0115,correct,3,yes,步骤1信号保留但未翻转义务，arbiter判UNRESOLVED未下确定结论，未决自洽，最终未决可接受
+L-0116,correct,2,no,步骤3对10行EMIT宏套gets/strcat信号判VIOLATED，与引用内容不符；步骤18-28共11个safe_proved全程无引证；最终未决虽可接受但与各点结论脱节
+L-0117,too_aggressive,2,no,步骤2对3行conn->fdev普通字段读取套JS校验信号翻readable_extent:VIOLATED属张冠李戴；步骤4据此vuln 0.45；步骤5对5行safe_proved零引证；local_guard_observed无防护证据
+L-0118,too_aggressive,3,no,"步1引证行2属实;决定性步4据步2对行2 L->ci无判空解引用翻null_guard相称;缺陷在缺L可为空证据即0.9报CWE-476,步5对行10零引证safe_proved"
+L-0119,too_aggressive,2,no,唯一引证:5为int bh=lprn->nBh赋值行，片段内无任何除法或取模；步2套除零信号判arithmetic_bound违背，引证与判断无关；CWE-369无据
+L-0120,too_aggressive,1,no,全程无引证内容，13行safe_proved与108行vuln(CWE-190)均无源码支撑，义务翻转与结论缺乏任何证据链
+L-0121,too_aggressive,2,no,行21注释明示String(63)含加1字节，行24/37的snprintf尺寸与之匹配，未理会即判vuln；行116/126零引证safe_proved
+L-0122,correct,4,yes,"行6解引用table_list,null_guard方向与信号相符,underdetermined自洽;步骤少而克制,无凭空跳跃"
+L-0123,correct,2,no,行37是声明却被翻arithmetic_bound并判vuln，信号与内容不符；行596的STRCPY配newp长度疑点可深挖；最终未决与自身三个vuln步矛盾但片段不足以定论，可接受
+L-0124,correct,4,yes,6个malloc/strncpy点均未决：37行label_length与56行tags_count界限未展示无法定论；步骤12对137行memcpy套循环写信号错配但未传导成结论；未决成立
+L-0125,too_aggressive,2,no,步骤1引证属实但行10仅strcmp比较;步骤2信号为自我指涉的deterministic checker无实质内容即判arithmetic_bound VIOLATED;vuln/CWE-704与引证内容脱节
+L-0126,too_aggressive,2,no,步骤8/18对172行零引证即翻readable_extent VIOLATED给vuln0.9；步骤6判38行malloc算术越界但35行可见optlen超长预检；207等5行safe_proved无引证；vuln不成立
+L-0127,correct,4,yes,全2点未决合理；9行路径首段校验与path_validated义务相关，未见凭空流转
+L-0128,correct,4,yes,步骤2对4行取地址表达式套减法信号为噪声未翻义务；步骤1引证与源码一致；io_read主体未展示；underdetermined成立
+L-0129,too_aggressive,2,no,步骤2信号称行4存在无检查减法，但行4是input_list调用无算术，引证与所报模式脱节；报CWE-191下溢零代码证据
+L-0130,correct,2,no,步骤3把v->tensor()方法调用当成void*强制转换判readable_extent VIOLATED，arbiter vuln与最终underdetermined矛盾；line29 OP_REQUIRES检查真实。
+L-0131,correct,3,no,14行from+=step后先读*from后判界，CWE-125方向引证可立；步骤3对未展示的1行即判vuln0.6无引证，CWE-369亦无据
+L-0132,correct,2,no,"步骤2称calloc被换为malloc与行11的calloc(1,sizeof)相反，据此翻VIOLATED；行8有s>INT32_MAX守卫未评估；最终未决可接受"
+L-0133,correct,4,yes,引证相符；line12已g_return_if_fail查keyid；integrity类信号与简单构造函数不符；未决可接受
+L-0134,correct,4,yes,17个可疑点引证行均与源码一致，arbiter全UNRESOLVED且单文件无法定界，未决成立；信号错配如步骤28对query_id比较命中malloc信号，未升级。
+L-0135,too_aggressive,2,no,步骤8对ParseMCU:1签名判loop write、步骤9把line5加法误读为减法下溢，readable_extent与arithmetic_bound VIOLATED无据，CWE-191/787凭空。
+L-0136,correct,3,no,步骤1-2引证相符；步骤3把vector下标信号套在24行VLOG日志上翻VIOLATED属张冠李戴，但该子结论未驱动终判，underdetermined站得住
+L-0137,correct,2,no,最终local_guard_observed弱判定未越界；唯一引证为1行函数签名，JS校验信号与C函数无关，vuln:1属引证脱节；步骤5对4行safe_proved零引证
+L-0138,correct,3,no,步骤1-8引证行号均相符，链条主体成立；信号噪声未致升级；步骤35-40对行56/62/66/67/68/72无引证即判safe_proved；最终未决合理
+L-0139,correct,4,yes,步骤1信号与null_guard主题相关并keep，步骤2义务?->UNRESOLVED无凭空判断，链条连贯，update_process_times单文件难定，underdetermined成立。
+L-0140,correct,3,yes,步骤2对11行stack->top称先用于空检查尚算相称，初判VIOLATED无据；步骤3义务?->UNRESOLVED无跳跃，stack是否可空单文件难证，underdetermined可接受。
+L-0141,too_aggressive,2,no,行127按len+EXPAND_SPARE分配、行130只拷len字节，可见证据指向界内；步2把memcpy当循环写翻VIOLATED与引证矛盾；vuln(CWE-119)不成立
+L-0142,too_aggressive,2,no,"步1有信号但全包零引证零源码,决定性步3凭scanf/strcpy信号对行1翻readable_extent判vuln无法核对;步4行7 safe_proved同样无据"
+L-0143,correct,3,yes,行153逐字节循环拷贝读is->bv_val[src]与所报读越界模式相称，vuln在该证据水平成立；src循环界与bv_val分配在包外；步骤3对:155套null信号离题
+L-0144,correct,3,yes,信号虽为NULL模板但3/28行确涉指针解引用，义务全UNRESOLVED无凭空翻转；仅初判VIOLATED未给理由略显粗糙；underdetermined站得住
+L-0145,too_aggressive,2,no,步骤4对67行depth<=8比较套减法信号系张冠李戴；22行memcpy长度为常量FlxHeaderSize且19行adapter_map已保证可读量，报vuln链条不成立
+L-0146,correct,3,yes,行7为i_nlink与bad_inode检查、行10为fileset比较，步3配循环写/strcpy信号与内容不称；义务全UNRESOLVED无越权结论，未决在该证据水平成立
+L-0147,too_aggressive,2,no,"vuln(CWE-190)建于步骤9虚构信号：13行calloc(1,sizeof(GmfMshSct))被称tainted乘法分配，行内无此模式；步骤31对:46零引证即safe_proved"
+L-0148,correct,4,yes,引证4-16行与内容相符，11行边界检查、13行nospec、16行空检查可见；信号为模板噪声但无义务翻转，全部UNRESOLVED，未决成立
+L-0149,correct,4,yes,line12 mru_block置空与链表摘除引证真实，无风险证据，未决成立；信号错配未升级。
+L-0150,too_aggressive,2,no,vuln(CWE-617)凭4行OP_REQUIRES_OK上的致命断言信号，该行是错误返回路径不呈现断言模式，引证与所报CWE-617模式脱节
+L-0151,too_aggressive,2,no,步骤3把2行VLOG日志当fatal assert、步骤4把4行nullptr判空当无界下标读，均误读引证；步骤7-8据此vuln；步骤9-10对8/9行safe_proved零引证；CWE-125无据
+L-0152,correct,4,yes,步骤1引证9行n->IsConstant()真实且为解引用点，文件内无判空可见，报CWE-476在该证据水平站得住，null_guard翻VIOLATED流转有据
+L-0153,too_aggressive,2,no,"全程无引证内容无上下文;步骤8行30零证据判readable_extent VIOLATED报CWE-125,步骤9-14六点零引证判safe_proved义务凭空SATISFIED;vuln结论凭空"
+L-0154,too_aggressive,2,no,步骤4把上界检查信号套在17行StrCat调用上，步骤5把malloc/read信号套在30行set_op上，均与引证不符；readable_extent凭空翻VIOLATED支撑vuln
+L-0155,correct,3,no,步骤2引证15行(*count+auth_count)*sizeof未查上界加法，引证行确实涉及该风险，报vuln可接受；但vuln@16对memset判readable_extent牵强，20行safe_proved无引证
+L-0156,too_aggressive,2,no,步骤5把路径前缀与文件名映射信号套在17行assert签名校验上，readable_extent凭空翻VIOLATED，步骤10据此判vuln CWE-73，张冠李戴
+L-0157,too_aggressive,2,no,步1 keep后步2聚合为safe_proved，承接关系存在非错乱；但全包无引证无上下文，nft_verdict_init:4步2零证据翻三义务SATISFIED，关键步缺证给2
+L-0158,correct,2,no,步骤3把85行key_name[0]=NUL常量下标写判成无下界数组读并vuln0.45，张冠李戴；步骤9/10对100/101行无引证safe_proved；最终未决可接受
+L-0159,correct,3,no,"步骤1引证属实;步骤2把行4 qemu_get_queue配边界检查信号判readable_extent VIOLATED与内容脱节,vuln未被最终采信;真疑点行7 receive的size来源未深究;最终underdetermined克制"
+L-0160,correct,3,no,"步骤1/2引证属实;步骤3把行5 cipher获取配assert信号判readable_extent VIOLATED属脱节,步骤8行11零引证判safe_proved;子步骤vuln与最终underdetermined矛盾未解释;最终克制可接受"
+L-0161,too_aggressive,2,no,全程零引证零上下文，10/45行无任何内容即对10行翻readable_extent VIOLATED给vuln0.7/CWE-119，仅scanf模板信号，无据
+L-0162,correct,2,no,18行全程无引证即判VIOLATED，24行是lambda定义而步骤3套污染下标信号；arbiter两处vuln与最终未决相互矛盾，未决本身可接受
+L-0163,correct,3,no,"行66 size*count乘法分配无预检,vuln/CWE-190相称;但步骤8把常量长度2的行14判input length凭空VIOLATED;步骤28/29行153/161无内容即判safe_proved"
+L-0164,correct,4,yes,引证行210/435相符，memcpy均为常量DIGEST_LEN；信号称长度来自输入属误配但未致错误结论；全程未决无跳跃
+L-0165,too_aggressive,2,no,引文15分配(*count+auth_count)*sizeof，line16 memset仅*count部分未超分配；scanf/strcpy信号不符；步骤5无引证
+L-0166,correct,4,yes,8处sprintf引证与源码一致，步骤9-18信号相符；步骤19-28义务全UNRESOLVED自洽；未核id缓冲大小留未决，链条连贯
+L-0167,correct,4,yes,步骤1-15对usage:35、log_level++等普通行一律初判VIOLATED无据，但义务均?到UNRESOLVED无凭空翻转，片段无防护也无风险模式，underdetermined成立
+L-0168,too_aggressive,1,no,18/82两点全程无引证无上下文，步骤3-4即safe_proved三义务SATISFIED，最终local_guard_observed无任何可见防护支撑，属无据确定判断
+L-0169,correct,4,yes,line14/16三重PJ_MIN与line18 memcpy引证真实，size<9时size-9下溢窗口包内未排除，未决合理；信号错配未升级。
+L-0170,too_aggressive,1,no,9点无引证行与源码，直接safe_proved称三义务已证明；local_guard_observed在零证据下不可核验，属无据确定结论
+L-0171,correct,3,yes,步10/12把行14/17钳位赋值配strcpy与循环写信号，与内容不称；步14/16对行43/58同误配；引证行本身真实，义务全UNRESOLVED，未决成立
+L-0172,correct,2,no,最终underdetermined成立；步骤3对41行指针赋值套scanf/strcpy信号升VIOLATED属引证脱节，vuln:41无据；步骤4对161行套catch/throws信号语言不符；步骤6对161行留未决合理
+L-0173,too_aggressive,2,no,7行memcpy前第4行可见以write_pos-read_pos收口count的截断痕迹，步骤3却套gets信号判VIOLATED；4行safe_proved亦无引证，CWE-120证据不足
+L-0174,too_aggressive,1,no,行2是判空返回守卫，包内无任何数组索引操作，却判readable_extent VIOLATED落vuln(CWE-125)，信号与引证张冠李戴
+L-0175,correct,3,yes,最终未决可站住；46行除法链与arithmetic_bound主题相关，但信号错配且未论证requested_min_max为零路径，46行vuln子结论无据
+L-0176,too_aggressive,2,no,步骤1无任何信号，步骤2零引证即判三义务SATISFIED并local_guard_observed，防护证明完全无据
+L-0177,too_aggressive,2,no,步3对签名行:1判readable_extent违背，无关；:7实为用户控制格式串（行5注释自证），步4却框成path_validated报CWE-22/367，证据不支持该类型；步8无引证safe_proved
+L-0178,correct,3,no,最终未决可站住；步骤3对8行纯条件判断套减法信号翻VIOLATED属张冠李戴，实际减法在14-16行且有15行assert守卫，错配未影响最终判定
+L-0179,correct,4,yes,全4点未决合理；343行STRCPY向orig_cmd+len写入且片段未展示容量上界，保持未决恰当；3-6步信号为模板噪声与行内容不符
+L-0180,too_aggressive,2,no,步骤1以除零与取模信号翻Eval:2 arithmetic_bound，步骤3同点同义务vuln0.6报CWE-369，义务状态前后一致；缺陷仅在全程无引证(锚点2)，非模板噪声式无关联
+L-0181,correct,2,no,attr_values容量与abbrev->count类型未见，count-1无符号可下溢，未决成立；步骤2/4对6行循环头safe_proved且无引证与边界疑点相抵
+L-0182,correct,2,no,步骤5对83行翻readable_extent VIOLATED，但引证上下文明示llen is adjusted above，与注释矛盾；104/246/250行safe_proved均无引证；最终未决可接受
+L-0183,too_aggressive,2,no,"步骤4把ReadBlob(image,4,magick)调用当array下标读判readable_extent VIOLATED，line68随即查count，报CWE-125无据；步骤12/13 safe_proved亦无引证。"
+L-0184,too_aggressive,2,no,步骤2对8行lnum比较套C#转换信号、步骤3对11行clearopbeep调用套calloc信号，模板全面错配，据此双vuln无据
+L-0185,correct,4,yes,行3指针算术L->base-1确属边界敏感模式，信号相称；义务全UNRESOLVED无凭空翻转，underdetermined成立
+L-0186,too_aggressive,2,no,"步骤1/2引证属实但行2/3仅输入获取;步骤3配数组写信号,步骤4配死循环信号,均与内容脱节;步骤8行4零引证判safe_proved;local_guard_observed无可见防护支撑,结论凭空"
+L-0187,correct,3,yes,9行isLua(ci)条件保护10行ci_func(ci)但isLua语义未展示；步骤5-8命中信号为null模板噪声；调用方约束单文件不可定；underdetermined成立
+L-0188,correct,3,yes,步骤3/4信号（循环写、sizeof(pointer)）与行1签名/行42赋值不符属误命中；引证真实；步骤5/6义务全UNRESOLVED未越权
+L-0189,correct,4,yes,引证15/17行与内容相符，15行本身是keytab_file空检查；信号与代码不符但无义务翻转，全部UNRESOLVED，单文件窗口下未决成立
+L-0190,correct,4,yes,空轨迹零步骤与自报0可疑点一致，local_guard_observed可由空轨迹推出，无凭空判断与无据引证，判定correct。
+L-0191,too_conservative,3,yes,50/51/53行memset以自身sizeof定界，写范围可证安全仍全体未决过保守；步骤3-5 scanf/strcpy信号与memset行错配
+L-0192,too_aggressive,2,no,全程无上下文源码与引证内容，步骤1凭写循环/strcpy信号即翻readable_extent:VIOLATED判vuln；CWE-787零证据支撑
+L-0193,correct,4,yes,line9/12长度赋值引证真实，line11的if(dir!=NULL)防护可见，但length后续使用未展示、所列义务仍开放，未决合理；信号错配未升级。
+L-0194,too_aggressive,2,no,全程无引证内容与上下文源码，仅凭sprintf信号即翻VIOLATED报CWE-120，无法核对任何证据，属无据确定判断
+L-0195,too_aggressive,2,no,行7本身是判空守卫却被标readable_extent VIOLATED、行18比较语句被标calloc信号；步骤6/7据此判vuln与引证脱节；步骤8零引证safe_proved
+L-0196,too_aggressive,2,no,步1引证:33的curi[0]=1常量下标初始化，步2-8凭gets/strcat模板信号判vuln并报CWE-121/125，引证与结论无关联；步9-11对:34/:60/:88无引证即safe_proved
+L-0197,too_aggressive,2,no,memcpy长度为常量16非信号所称窄整型算术，step6凭空vuln；return_data容量在包外未展示；最终local_guard_observed亦无防护引证
+L-0198,correct,3,yes,行12对齐算术与行13 realloc在片段内确无预检查可见，所报模式与引证相称，vuln在该证据水平成立；步骤4对:20 memcpy的写界判断主题一致
+L-0199,too_aggressive,1,no,仅2步零引证，ptrace_traceme与length/readable义务无关却判SATISFIED，local_guard_observed无据
+L-0200,too_aggressive,2,no,全程无上下文源码与引证内容，步骤1凭除零信号即翻arithmetic_bound:VIOLATED、步骤3以0.9置信判vuln均无据；步骤4safe_proved亦零引证；CWE-369零证据
+L-0201,too_aggressive,2,no,无源码无引证即翻arithmetic_bound判vuln，最终又改判local_guard_observed，两者皆无证据支撑
+L-0202,correct,3,yes,84行len>1防护已展示可解85行memset的non_negative_length却留UNRESOLVED属漏识别；m基址与span范围未展示readable_extent不可定；underdetermined整体可辩
+L-0203,too_aggressive,1,no,行20 snprintf写栈数组无任何free即判object_live_at_use VIOLATED(0.9)凭空；行28循环头被标null_guard VIOLATED无据
+L-0204,too_aggressive,2,no,步骤2引证133行if条件判断却套循环读buf[i]信号翻readable_extent VIOLATED报CWE-125，引用内容与判断毫无关联
+L-0205,correct,4,yes,断言与argv释放行被判scanf/strcpy信号，错配明显；引证真实，未决结论可接受
+L-0206,correct,2,no,全程无源码展示，步骤1凭scanf信号对135行翻VIOLATED判vuln0.45属无引证确定子结论；终判退回underdetermined站得住
+L-0207,correct,3,no,步骤1-4引证相符；步骤22-26对55-61行在无信号无展示下翻SATISFIED判safe_proved属凭空；终判underdetermined站得住
+L-0208,too_aggressive,2,no,引文731-734显示分配与memset同用extent*sizeof且判空，arithmetic_bound VIOLATED无据；步骤7信号与memset完全不符
+L-0209,correct,3,yes,步骤5对25行tca数组声明凭空判三义务?->SATISFIED属凭空跳跃；步骤2空指针信号对4行sock_net(skb->sk)仅勉强相称。最终对:4判underdetermined可接受。
+L-0210,correct,4,no,步骤2对行7判arithmetic_bound VIOLATED：行7的realloc尺寸sizeof*result*(i+1)确为无预检的分配算术，引证相符，报CWE-190在该证据水平可站住；步骤5对行23无引证判safe_proved
+L-0211,too_aggressive,2,no,步骤1以calloc转malloc及符号混合信号翻LZWDecodeCompat:25 arithmetic_bound，步骤3同点同义务vuln0.6报CWE-190，链条连贯；缺陷仅在全程无引证(锚点2)，非无关联
+L-0212,too_aggressive,2,no,步骤2对6行Push调用链套calloc信号翻arithmetic_bound:VIOLATED与内容无关；步骤4据此vuln 0.6；步骤5对14行safe_proved零引证；CWE-190不成立
+L-0213,too_aggressive,2,no,步骤6把18行sizeof自限的memset套strcpy信号翻readable_extent:VIOLATED属误读；步骤13据此vuln 0.6；真正可疑的124行memcpy反而留UNRESOLVED；CWE-119无据
+L-0214,correct,3,yes,613行malloc(dirlen+2)加法分配与NULL检查引证相符，dirlen界限包内未展示属材料属性，报vuln0.6在该证据水平站得住；步骤2信号措辞套calloc属小疵
+L-0215,too_aggressive,2,yes,8行int tailen=esp->tailen只是赋值，无运算无比较，仅凭signed/unsigned模板翻arithmetic_bound VIOLATED给vuln0.6，CWE-190不成立
+L-0216,correct,3,yes,步骤3/4信号（分配字节、指针负偏移写）与行10/12字符串扫描循环不符属误命中；引证真实；义务全UNRESOLVED自洽
+L-0217,correct,4,yes,192行循环上界colormap_index取自TGA头而190行按image->colors分配，错配在引证上下文直接可见且无守卫，判CWE-190成立
+L-0218,correct,2,no,步骤4对行3仅sock->sk赋值却挂free后解引用信号翻object_live_at_use，引证与判断脱节；行17/31/38/40/60未展示却safe_proved；最终underdetermined自洽
+L-0219,too_conservative,2,no,步3把行9循环头配除零信号、步4把行10判空守卫链翻VIOLATED均脱节；但行10守卫链对行11-14解引用的防护清楚可见，本可下确定结论仍判未决，属过严
+L-0220,too_aggressive,2,no,步骤4把17行纯赋值判arithmetic_bound属张冠李戴；步骤5对18行宏读取翻null_guard VIOLATED0.9无可见证据；步骤11对21行无引证safe_proved；CWE-476不成立
+L-0221,too_aggressive,2,no,步骤7对427行ReadBlob(packet_size*image->colors)套calloc→malloc信号凭空翻arithmetic_bound推vuln(CWE-190)，该行无分配；步骤14/15对471/543零引证即safe_proved
+L-0222,too_conservative,3,yes,6行BUILD_BUG_ON是编译期尺寸保证且sizeof不求值，边界可证却判未决过保守；步骤2数组下标信号与该宏行内容不符
+L-0223,correct,2,no,步9-12对:263/:272/:282无引证即判vuln或safe_proved，无据定论；步6对:276的pcol+i*numchans只套模板信号未验lutdata边界；最终未决成立
+L-0224,correct,2,no,行9-10确从不可信buf读取且包内无长度校验，风险模式与引证相称，vuln在该证据水平成立；但:10/:25宣称safe_proved无引证；信号称循环读与直接解引用不符
+L-0225,correct,4,yes,引证行1/3相符，container_of+kfree为标准release模式；信号free(new)与C++cast错配但仅keep；未决合理
+L-0226,correct,4,yes,引证行17/18相符，fast_pool异或混合无越界模式；信号shared pointer错配但仅keep；未决合理
+L-0227,correct,2,no,步骤1仅keep无引证，步骤2对GetVariableInput:5凭空判三义务?->SATISFIED得safe_proved，local_guard_observed结论凭空但未报vuln，保correct。
+L-0228,correct,2,no,步骤3/4把line10/16边界检查误判VIOLATED，引文自证是防护；自报未决0与最终矛盾；未决结论可接受
+L-0229,too_aggressive,2,no,步骤3对行224零引证即判readable_extent VIOLATED，步骤7对行301无据判safe_proved；行189乘法算式可见但CWE-129部分零证据；报vuln部分凭空
+L-0230,too_aggressive,2,yes,步骤4对19行memmove翻readable_extent VIOLATED无视5行正路径守卫，负路径7-15行未查；2行abs到size_t强转仅泛引；报CWE-119证据不足
+L-0231,correct,2,no,行6是变量初始化却被翻readable_extent判vuln，步骤5对行7宣称防护无引证；行9的len==0检查可见，最终local_guard_observed勉强有依
+L-0232,correct,2,no,步骤29-30对40/41行无任何引证即safe_proved，还对纯形状检查代码套readable_extent义务；其余点未决自洽，最终underdetermined可接受
+L-0233,correct,2,yes,步骤1引证13行memset属实且为该步判断对象，故eg为yes；步骤2凭确定性检查器名义翻转readable_extent却未给任何推导，属关键步骤缺支撑；final未决可接受
+L-0234,too_aggressive,3,no,"步骤1引证:591-594属实,alloc(STRLEN+totlen+1)后STRCPY写入的尺寸算术信号与上下文相称;缺陷在步骤6未展开totlen是否覆盖y_array串长,且:98/:595零引证safe_proved"
+L-0235,correct,4,yes,57行memset按sizeof清零引证相符，scanf/strcpy信号与内容错位但未翻转义务；未决成立
+L-0236,correct,4,no,步骤1引证行5与上下文相符，行5首次解引用tensor_handle且可见片段内无判空，报CWE-476在该证据水平可站住；步骤5对行6无引证即判safe_proved
+L-0237,correct,2,no,步骤2/3对5/6行Type与device调用凭数组下标与void*信号翻VIOLATED，与引证不符；7-8行已判空，final未决可接受
+L-0238,correct,3,yes,6行取disc_data后9行即判空，步骤2的泄漏模板信号与内容无关；单点未决无义务跳跃，成立
+L-0239,correct,2,no,步骤6对70行翻arithmetic_bound VIOLATED，但71行紧邻start>=size检查，引证上下文自证有界；91/125行safe_proved无引证；最终未决可接受
+L-0240,too_conservative,4,yes,44行snprintf格式串为字面量且限长sizeof-1，format_string_fixed防护在引证中清楚可见，本可判SATISFIED却留UNRESOLVED，属过保守
+L-0241,correct,3,yes,tailen来源与后续算术用法未见，未决成立；步骤3符号混合信号安在8行纯读取、步骤4 calloc信号安在11行if，均未翻转
+L-0242,correct,4,yes,空轨迹，自报0可疑点；按口径空轨迹本身即结论且无无据引证；local_guard_observed标签与零步骤略不匹配但不影响判定
+L-0243,correct,3,yes,空轨迹未做无据引证，按口径evidence_grounded填yes；local_guard_observed标签无步骤支撑但未报确定漏洞，可接受
+L-0244,too_aggressive,2,no,步骤2对18行压缩循环套strcpy信号翻readable_extent:VIOLATED，len与缓冲区关系未展示无越界证据；步骤5对19行safe_proved零引证；local_guard_observed无防护证据
+L-0245,too_aggressive,2,no,步骤3把line13尺寸校验当违规（atoi信号错配），步骤7据此vuln 0.6站不住；步骤6同样错配；步骤9 safe_proved无引证
+L-0246,correct,4,yes,空轨迹无可评步骤，未做无据引证；local_guard_observed可读作未定位可疑点，维持correct
+L-0247,too_aggressive,2,no,步骤7对370行三元深度赋值套calloc信号翻arithmetic_bound违规系张冠李戴；10个点零引证即safe_proved，local_guard_observed无支撑
+L-0248,correct,3,yes,19行nSubrects*(4+BPP/8)>RFB_BUFFER_SIZE显式检查可证读长有界但未被识别；乘法位宽未展示溢出不可排除；步骤3-4信号为模板噪声；underdetermined可辩
+L-0249,correct,3,yes,行19只是w_redr_status标志赋值，步骤2减法信号误命中；步骤3义务UNRESOLVED留未决，未越权自洽
+L-0250,too_aggressive,1,no,行6仅PJ_ARRAY_SIZE常量计算，无拷贝无越界，scanf/strcpy信号误命中即判vuln(CWE-119)，0.6置信无据
+L-0251,correct,4,yes,单点未决合理；15行为gf_bs_read_int赋值，锁外NULL信号为模板噪声与该行无关，未驱动结论
+L-0252,correct,4,yes,4行tree->car与37行tree->cdr空防护取决于调用方，单文件不可定；步骤3-4信号与代码不符但未翻义务；underdetermined成立
+L-0253,too_aggressive,2,no,可疑点13/14无引证无上下文，义务凭空翻成SATISFIED即safe_proved；最终local_guard_observed未见任何可见防护；零证据下的确定性结论不成立
+L-0254,correct,3,yes,步骤2对18行C压缩循环套startsWith/URLDecoder信号错域，义务误立path_validated漏查name[i/2]写边界，步骤3UNRESOLVED，未决结论稳健。
+L-0255,correct,2,no,最终underdetermined成立；步骤10对54行assert套gets信号升VIOLATED属引证脱节，步骤22据此vuln:54无据；步骤33对106行safe_proved零引证凭空
+L-0256,correct,4,yes,步骤1/2引证74与208行memcpy长度均来自NumElements*sizeof，信号与内容相称；义务全UNRESOLVED，未决成立
+L-0257,too_aggressive,1,no,Compute:2零信号零引证即safe_proved三义务SATISFIED，final local_guard_observed无任何支撑，从空检查到已证防护属无逻辑跳跃
+L-0258,too_aggressive,2,no,"b[0]/b[1]常量索引写,b声明片段外,报CWE-787置信0.6跨步大;信号把单元素赋值判loop/strcpy;行91无内容判safe_proved"
+L-0259,too_aggressive,2,no,步5把行9长度守卫配loop writes信号翻readable_extent为VIOLATED，锚点行是守卫非写点，模式脱节；步10 vuln(0.6)锚在守卫行不成立；行14 pj_memcpy目标大小未展示
+L-0260,correct,3,yes,步骤2对7行switch(*sp)套calloc/符号混合信号不相称但仅keep；*sp边界语义单文件不可判，UNRESOLVED判未决自洽
+L-0261,correct,4,yes,引证行5为栈数组声明；信号除零与代码错配但仅keep；未决合理
+L-0262,correct,2,no,包内无源码无引证，vuln:2与safe_proved:3皆无任何引证下的确定判断；final local_guard_observed弱判定未越界但轨迹无可核验内容
+L-0263,too_aggressive,3,no,步11-15引证memcpy(dire->size+1)/realloc/strcpy与行86/100/107相称，各点推到未决成立；步8-10分配信号与memcpy行仅松散关联；最终vuln(CWE-119/190)系arbiter末步由全未决凭空跨越
+L-0264,correct,3,yes,最终未决可站住；步骤12对15行套null信号、步骤16在69-70行realloc扩容可见下仍翻arithmetic_bound、步骤18在129行remain<5守卫下仍翻readable_extent，翻转有跳跃
+L-0265,correct,2,no,最终underdetermined成立；步骤5对57行malloc(sizeof)固定尺寸套外部输入尺寸信号升VIOLATED属引证脱节，步骤12据此vuln:57无据；步骤17-18对66/71行safe_proved零引证
+L-0266,correct,4,yes,引证行27/32相符且行28有NULL检查；信号把GetAuthenticPixels当scanf属误配但仅keep；未决合理，pixels大小需跨文件
+L-0267,correct,2,no,6行解引用处于4行if(xla_device_metadata())判空内，步骤2以空catch/Java throws模板翻readable_extent VIOLATED给vuln0.45，信号与内容无关；final未决可接受
+L-0268,correct,3,yes,行25状态赋值与行27加cookie被配NULL同步信号，信号与内容不称但引证真实；错误处理片段无可定案证据，全UNRESOLVED成立
+L-0269,too_aggressive,2,no,步骤2信号calloc与符号混用与行303的STRCPY错配，判arithmetic_bound VIOLATED义务错位；preword缓冲大小未展示；报CWE-190属引证与模式脱节
+L-0270,too_aggressive,2,no,步骤1-3无信号无引证空keep，步骤4-6凭空翻SATISFIED判safe_proved，local_guard_observed宣称观察到防护却全程无展示，结论凭空
+L-0271,correct,4,yes,全片段皆形状校验防御代码，可疑点定位正确；义务全UNRESOLVED自洽，a_indices等判空依赖调用方契约，underdetermined成立
+L-0272,correct,3,yes,引证:420 STRNCPY带行内注释声称IOSIZE>compl_length，但i与IOSIZE/aux长度的约束未在片段内证明，分析器未核查即判未决；信号与内容错配；未决成立
+L-0273,correct,3,no,步骤3对7行alloc(startspaces+endspaces+textlen+1)加法无预检模式在引证内可见，报vuln0.6在该证据水平站得住；步骤6/8/9对6/10/11行safe_proved无引证属瑕疵
+L-0274,too_aggressive,2,no,"行59引证真实但仅是定长memcpy,读界依赖片段外报文长度检查;信号malloc-size与memcpy内容错配;步骤4可疑点19零引证判safe_proved;最终local_guard_observed无可见防护支撑,结论凭空"
+L-0275,correct,3,yes,83行memset与105行memcpy均定长2，源cipher_suites[i]上界未展示留UNRESOLVED可辩；步骤3-4信号与内容不符；步骤8对131行safe_proved无引证属跳跃
+L-0276,too_aggressive,1,no,4行为WithRank检查、5行为input_tensor获取且6行紧跟判空，步骤2-3却套VLA/calloc信号判两项VIOLATED并报CWE-190，引证行无算术溢出，不成立
+L-0277,too_aggressive,2,no,"引证行号内容属实但vuln落点脱节:步骤11依据行37常量赋值cp->ccps=0配calloc溢出信号判CWE-190,引证不体现所报模式;真疑点行287/288与行330 ilyrrates[i]仅判underdetermined"
+L-0278,too_aggressive,2,no,build_dirs:9无引证无上下文，forensics无信号，arbiter直接safe_proved三义务SATISFIED，local_guard_observed零证据支撑。
+L-0279,too_aggressive,2,no,步骤4-6对2-4行ctx->input引用即翻readable_extent违规，步骤6信号竟是C#/Java转换语法与C++完全错配，报vuln无据
+L-0280,too_aggressive,2,no,包内无任何引证与上下文源码，步3凭scanf/strcpy模板信号对do_mouse:34判vuln报CWE-119，无据定论；步4对:177无引证即safe_proved
+L-0281,correct,3,yes,步骤2把3行DBUG_ASSERT当realpath未校验信号翻path_validated:VIOLATED与内容无关；步骤3点级vuln 0.45但整体回退underdetermined；可接受
+L-0282,correct,4,yes,步骤3信号与176行i*4+3写入仅间接相关，未翻转义务；两处引证相符，义务全UNRESOLVED，未决成立
+L-0283,correct,2,no,行18是OOM错误分支，行12未展示且配死循环信号却翻readable_extent判vuln无据；行18判未决合理；最终未决可接受
+L-0284,correct,4,yes,步骤1-11对15/20/82/91/127/175行sprintf/strcpy引证属实，步骤14/16/19的scanf信号与内容错位但未翻转义务；义务全UNRESOLVED，未决成立
+L-0285,correct,4,yes,"line38 len>=15与line39 mrb_stack_extend(mrb,3)引证真实，mrb_ary_new_from_values的len与a关系未展示，未决合理；信号错配未升级。"
+L-0286,correct,4,yes,"信号把context->input引用获取误配锁外NULL解引用;行4-7已有OP_REQUIRES检查未评估;结论underdetermined克制,可接受"
+L-0287,correct,3,yes,步骤9/37已引出14-15行entry_count上限检查，:17/:18义务可据此解决却仍UNRESOLVED，偏保守；噪声信号未驱动结论，其余点依赖未展开宏判未决可成立
+L-0288,too_aggressive,1,no,24点无引证行与源码，步骤2直接safe_proved称三义务已证明；local_guard_observed无据可核，跨度过大
+L-0289,too_aggressive,2,no,"全程零引证零上下文;步骤1行63用内存泄漏信号却配readable_extent义务判VIOLATED两层脱节;步骤4行139零引证判safe_proved;local_guard_observed无可见防护支撑,结论凭空"
+L-0290,correct,3,yes,步骤2对6行&ofdev->dev套canned空指针信号，初判VIOLATED无据；步骤3义务均?->UNRESOLVED无跳跃，ofdev是否可空单文件难证，underdetermined可接受。
+L-0291,too_aggressive,2,yes,20行确含oap->start.lnum+1算术但同行自示lnum<=oap->end.lnum有界循环约束，signed/unsigned信号在行内无符号混合证据，溢出前提未查即0.6报vuln与可见约束相悖
+L-0292,correct,4,yes,14/15行curwin解引用且片段内无判空，null_guard VIOLATED为片段内可见事实，attacker_control保持未决，vuln(CWE-476)在该证据水平方向可立
+L-0293,too_aggressive,2,no,步骤4对行18判arithmetic_bound VIOLATED但行18无任何引证内容与上下文；引证行34/39/40为链表遍历与溢出无关；报vuln CWE-190零证据
+L-0294,too_aggressive,2,no,"步1引证行8属实;但决定性步2把循环写buf[i]与strcpy信号套在uint8_t *stack_pos=ctx->stack_base指针初始化上,引证与判断完全不符,仍据此报CWE-787"
+L-0295,correct,4,yes,步骤1引证5行atusb->usb_dev->dev真实且为解引用链，3行usb_get_intfdata取值后无判空可见，报CWE-476在该证据水平站得住，流转有据
+L-0296,too_conservative,3,yes,"行56 omAlloc(strlen+strlen+2)与行57 sprintf写量精确匹配,行79-81 len+1分配可见,readable_extent本可下安全定论却全UNRESOLVED,过保守;system注入依赖editor来源未决合理"
+L-0297,correct,3,no,步骤1-2引证相符，8行memcpy按dl->length读dl->str而一致性未证，CWE-125读越界模式在该证据水平站得住；步骤6对4行safe无引证为瑕疵
+L-0298,too_aggressive,2,no,步骤3对13行无任何引证内容即判arithmetic_bound VIOLATED报CWE-369除零；9行memcpy的left_width来源与目标容量均未展示，报vuln证据不足
+L-0299,too_aggressive,2,no,步骤2用C++空catch与Java throws信号判C代码行3越界读，信号与源码毫无关联，readable_extent凭空翻转，CWE-703无据
+L-0300,correct,3,yes,行93常规SSL_set_fd调用，片段未见ssl判空，步2配NULL同步信号与调用内容不称；arbiter保持UNRESOLVED，未决在该片段证据下成立
+L-0301,too_aggressive,2,no,步骤3把malloc尺寸信号套在23行input(0)上，而其自引24-26行紧跟OP_REQUIRES校验；步骤4信号亦不符29行；vuln结论无据，30/31行safe_proved无引证
+L-0302,too_aggressive,2,no,"步骤1引证属实但行24仅VLOG日志;步骤2配strcpy写缓冲信号判readable_extent VIOLATED与内容脱节;步骤6/7行49/62零引证判safe_proved;local_guard_observed无可见防护支撑,结论凭空"
+L-0303,correct,3,yes,步骤1引证相符，15行strncpy拷入定长sun_path属定长缓冲拷贝模式，截断无NUL隐患下翻转尚可；步骤4信号不符24行；underdetermined站得住
+L-0304,correct,2,no,步12/15对:24/:108无任何引证即判safe_proved，义务凭空SATISFIED；步8以符号扩展信号判:96的size+1写索引违背readable_extent，未验dire缓冲区；最终未决成立
+L-0305,correct,2,no,步骤2对31行无任何引证即safe_proved并翻SATISFIED，属凭空跳跃；步骤1无信号无引证；最终local_guard_observed保守可接受
+L-0306,too_aggressive,2,no,vuln(CWE-190)无据：144行已有src_output()>=0防护，147行为布尔数组写不涉及尺寸运算，信号所述符号混合与行内容脱节
+L-0307,correct,4,yes,引证9-12/66/68行均与源码一致，66行dims为0时索引越界且前置校验未示，留UNRESOLVED合理；forensics步骤7-13统一套共享指针锁信号与代码无关，未驱动结论
+L-0308,correct,4,yes,全3点未决合理；4行tree->car解引用与null_guard主题相关，义务流转无凭空跳跃
+L-0309,correct,2,no,唯一引证为函数签名行1却被翻readable_extent并判vuln0.45，完全无据；行5/6未展示未决；最终未决可接受但步骤5过激
+L-0310,too_aggressive,2,no,步1以共享指针判空信号翻null_guard VIOLATED、步2承接判vuln0.9，链条连贯非模板噪声；但全包无引证无源码，SetupWriters:6关键步缺证据，锁2
+L-0311,correct,3,yes,步骤8-10对memcpy行套wrapped-bytes信号不相称，:86/:107的长度与strcpy信号相称；83行goto corrupted的检查条件未展开，义务全UNRESOLVED判未决自洽
+L-0312,correct,3,yes,"行13地址与运算被判循环越界写,行46函数指针调用被判strcpy,信号全面错配;漏查行39 args.rets按guest nargs索引这一真疑点;underdetermined尚可"
+L-0313,correct,4,yes,line3判空路径STFATAL后仍return it->second存疑，UAF信号与map访问不符；未决可接受
+L-0314,correct,2,no,arbiter步骤6对rtcp_xr->buf取指针判vuln与最终underdetermined矛盾，自报未决0与轨迹矛盾，步骤8/9 safe_proved无引证；未决结论本身尚可。
+L-0315,correct,3,yes,全程无引证行与上下文，7/15行copy/format信号未指向具体代码，arbiter保持UNRESOLVED判未决，未夸大结论，与证据水平相称
+L-0316,too_aggressive,2,no,27行为GetAuthenticPixels且28-29行紧跟判空，步骤2套scanf/strcpy信号判readable_extent VIOLATED属张冠李戴；32/35无引证即safe_proved，vuln不成立
+L-0317,too_aggressive,2,no,可疑点11无引证无上下文，仅凭减法泛化信号翻arithmetic_bound为VIOLATED判vuln(0.6)报CWE-191；义务凭空跳跃，结论零证据
+L-0318,too_aggressive,2,no,全程无源码展示，步骤1仅凭通用下标信号对5行翻VIOLATED，步骤2即以0.6判CWE-125，确定vuln无任何引证支撑，结论凭空
+L-0319,too_aggressive,2,no,39行为reg_startp[0]常量下标指针存，信号却称外部索引越界读，误读引证；vuln CWE-125与引证所示模式脱节
+L-0320,correct,2,no,步骤3对28行循环赋值翻readable_extent VIOLATED，信号称i<=len与实际cx<m_ucCount不符，容量关系未展示；52/53/158行safe_proved无引证；最终未决可接受
+L-0321,correct,3,yes,未决合理；26行为ragel状态机字符区间判断，步骤2套malloc/recv信号属模板错配，但未据此下确定结论
+L-0322,correct,3,yes,未决可接受；但可疑点选17行回调分发与风险无关，19行nSubrects乘法该查未查，所幸其有RFB_BUFFER_SIZE上界守卫未致误报
+L-0323,too_aggressive,2,no,行23/29为context->input取输入，配malloc与数组写信号不匹配，翻VIOLATED无据；行24-28的OP_REQUIRES形状检查未评估；CWE-190/787无据
+L-0324,too_aggressive,2,no,步骤2的除零信号与9行TIFFDataWidth赋值无关，引证行无任何除法运算，义务凭空翻VIOLATED即以0.9判CWE-369，张冠李戴
+L-0325,correct,3,yes,步骤1-2引证与行号相符；步骤3-4把scanf/strcpy与NULL信号套在6行位与判断和8行strchr上，模板噪声未翻转；义务全UNRESOLVED站得住
+L-0326,correct,3,yes,行6确为路径首段校验，前缀检查信号与引证相符；但仅凭片段不足以断定path_validated被违背，最终未决稳妥
+L-0327,too_aggressive,2,no,步骤3称52行有i--纯属虚构却翻arithmetic_bound判vuln@52并导向CWE-191；60行array_offset+i越界模式虽可见，但步骤4误称缺i<bias_size守卫(59行有)
+L-0328,correct,3,yes,未决合理；14行malloc在15-16行已判空、11行有size<32守卫，步骤2信号与内容错配但未据此翻转义务
+L-0329,correct,4,yes,空轨迹，无凭空引证，包内亦无明显可疑点，按口径接受local_guard_observed
+L-0330,correct,4,yes,引证行9/16/46/54/60/73/74均与上下文相符；九点全未决无义务跳跃；信号如行9被当空指针属误配但未致错误结论
+L-0331,correct,5,yes,空轨迹0可疑点，无引证无凭空判断，未发现可疑点的结论自洽，按校准口径reasoning给5。
+L-0332,too_aggressive,2,no,唯一实质引证是1行函数签名，calloc→malloc信号无对应代码即翻arithmetic_bound推vuln(CWE-190)；步骤6/7对9/45零引证即safe_proved；所需尺寸运算未展示
+L-0333,correct,4,yes,步骤1引证8行operand->getKind()真实且为解引用点，文件内无判空可见，报CWE-476在该证据水平站得住，null_guard翻VIOLATED流转有据
+L-0334,correct,3,yes,信号给C代码配catch与throws完全无关，但无翻转无确定结论，义务未决自洽；setuid失败处理可见，未决可接受
+L-0335,too_aggressive,2,no,"引证行号与内容属实,但vuln落点信号全脱节:步骤13行7 memset无算术减法,步骤15行30赋值非strcpy,步骤16行42与JS验证无关;真疑点行45 FORC(jh->sraw)仅判underdetermined"
+L-0336,correct,3,yes,9行int next_offset=offsetof+actions_len符号混合值得查，步骤4翻VIOLATED但未给actions_len界限证据；11行ksize-next_offset无符号回绕未深查；未决可接受
+L-0337,too_aggressive,2,no,eval7:8与eval7:21两步forensics无信号无引证无上下文，arbiter直接safe_proved三义务SATISFIED，local_guard_observed零证据支撑。
+L-0338,correct,3,yes,唯一引证:14为context->input取参行，无风险；步2-3信号与内容错配；自报2个可疑点仅展示:14一处引证（:15无展示）；未决成立
+L-0339,too_aggressive,2,no,步骤3对drop_table:1函数签名判null_guard VIOLATED报CWE-476置信0.9，签名行无解引用且line3有!file检查，关键步骤无引证支撑。
+L-0340,correct,4,yes,6行expCtx->opCtx引证相符，信号为泛化空指针模式；未查expCtx来源但单文件下未决合理
+L-0341,correct,3,yes,行71为数组声明，配锁与判空信号不匹配；无翻转无确定结论，义务未决自洽，最终未决可接受
+L-0342,too_aggressive,2,no,步骤3对313行无任何引证内容即翻null_guard VIOLATED并报CWE-476；262行memcpy的ruleArea边界依赖前文allocateSpace未展示，报vuln证据不足
+L-0343,correct,3,yes,引证:45/:71的buffer[length-2]=0有if(length>1)防负下标，缓冲区分配不在片段内；strcpy类信号与内容错配；arbiter未决成立
+L-0344,too_aggressive,2,no,updateDigestForSessionId:38无引证无上下文，forensics无信号，arbiter直接safe_proved三义务SATISFIED，local_guard_observed零证据支撑。
+L-0345,correct,2,no,"步骤13/28把常量长度28当输入长度判readable_extent VIOLATED，前提与15行f.read(&header->name,1,28)矛盾；215/237无引证即safe_proved；文件级未决可成立"
+L-0346,too_aggressive,3,no,"步1/2引证行11/14属实;决定性步5据步3对行11 rb->consumer_pos无判空解引用翻null_guard相称;缺陷在次要步4把C#/Java强转套行14,步6已置未决;0.9偏高"
+L-0347,correct,4,yes,引证8/17/53/56/59/61行均与源码一致，arbiter步骤17-26全UNRESOLVED；forensics步7对8行比较、步15对61行自增套减法与gethostbyaddr信号属模板噪声，未驱动结论
+L-0348,correct,4,yes,req指针约定由调用方保证，单文件难证未决成立；信号对3/4行纯赋值偏泛但未翻转义务，引证准确流转自洽
+L-0349,correct,4,yes,"行35/37/38为buf写点但容量与idx上限在片段外,underdetermined合理;信号loop-writes对单次写略错配;无凭空义务跳跃"
+L-0350,correct,3,no,步骤42-43对56/60行无任何引证内容即宣称三义务SATISFIED并safe_proved，属凭空确定判断；其余未决判定引证相符，结论可接受
+L-0351,correct,4,yes,步骤1命中use-after-free信号但未展示引证；arbiter对object_live_at_use留UNRESOLVED未放大；单文件下underdetermined成立
+L-0352,correct,2,no,步骤3对行13无引证内容即判readable_extent VIOLATED；步骤4/5把行40固定sizeof结构体拷贝当输入长度memcpy；引证行40/160相符；未决合理
+L-0353,correct,3,no,步骤4对8行无任何引证与防护证据即safe_proved，义务?->SATISFIED凭空跳跃；7行null信号未展开；最终未决可接受
+L-0354,too_aggressive,2,no,"步骤1引证属实但行10仅指针递增;步骤2可疑点3零引证即判null_guard VIOLATED置信0.9,步骤3把行10递增配数组越界读信号均脱节;步骤7行12零引证判safe_proved;CWE-125/476凭空"
+L-0355,too_aggressive,2,no,119行仅对exists[0]固定下标赋MagickTrue，无数组大小或越界证据，循环/strcpy信号与该行不符，据此判CWE-787(0.6)跨度大
+L-0356,too_conservative,3,no,"步骤2上下文行10可见if(!ax)判空防护,行6/7的null_guard本可下确定结论却仍UNRESOLVED,过保守;行23/25/28/29/31/33等6点零引证判safe_proved义务凭空SATISFIED"
+L-0357,too_aggressive,2,no,14行是index<0||num_inputs<=index显式校验并以errors::Internal拒绝，属防护而非可达断言，把校验行误读为CWE-617漏洞
+L-0358,correct,3,yes,步骤15/17/19等把行6/10/13误标完整性元数据信号；步骤1-13引证与源码一致；arbiter步骤33-51义务全UNRESOLVED未越权，未决可接受
+L-0359,too_aggressive,2,no,do_viewlog:12/:14两步无任何引证即safe_proved并称local_guard_observed，防护证明无据
+L-0360,correct,4,yes,步骤1-10引证与源码一致；11-21命中信号为模板噪声但未翻义务；22-32全UNRESOLVED；29行Index上限防护漏识别但未误报；underdetermined成立
+L-0361,correct,3,yes,引证:7为it->second返回，前有end()检查但STFATAL是否终止执行片段内不可知，未决成立；步2信号为模板命中
+L-0362,correct,4,yes,引证1/12/14行均与源码一致，12行input按size取值越界与否单文件难证，留UNRESOLVED合理；forensics步4对1行签名、步6对12行套减法与共享指针锁信号属噪声，未驱动结论
+L-0363,correct,3,yes,步骤2-3对8/11行(条件比较与判空)套数组下标信号不相称但未驱动流转；义务全UNRESOLVED判未决自洽，最终结论可接受
+L-0364,too_aggressive,2,no,步骤2对11行streams[SNDRV_PCM_STREAM_PLAYBACK]常量下标取值套除零信号翻arithmetic_bound违规属张冠李戴，上下文无除法，报CWE-369无据
+L-0365,correct,3,yes,39行value->len减oldval.len为潜在下溢点，分析器只挂格式串信号未查算术义务，方向错位；单文件下未决仍可接受
+L-0366,correct,4,yes,line7用nc前未判空确属可疑模式，判未决恰当；信号主题相称，引证相符
+L-0367,correct,4,yes,步骤1-2引证与源码一致，常规取输入与TensorStore存储流程无可疑证据；步骤3-4信号与代码不符但均留UNRESOLVED；underdetermined成立
+L-0368,correct,2,yes,"步骤6/7无视70/126行min(w_length,…)截断把readable_extent翻VIOLATED并给两处vuln0.45，与自身引证相抵；req->buf容量未展示故整体未决尚可"
+L-0369,too_aggressive,2,no,唯一vuln点13行从未引证，CWE-617无源码支撑；37/40行memcpy长度为sizeof常量却被记作输入长度，终判与证据脱节
+L-0370,too_aggressive,3,no,"步1引证行163 ReadBlob含depth/8*image->columns乘法,与arithmetic_bound及CWE-190相称,主要步骤成立;缺陷在步3套calloc/malloc替换信号文本不符,步4 strcpy信号套行190亦错配"
+L-0371,too_aggressive,3,yes,"步骤3与5对:7 memcpy(data,...,count)引证属实，长度受count约束与readable_extent相称，缺的只是data容量在包外(锚点3)；次要缺陷在步骤2与4对:4减法忽视可见min截断"
+L-0372,correct,4,yes,引证15/141行与内容相符，16行紧跟cdf_check_stream_offset守卫；信号模板与代码不符但无义务翻转，全部UNRESOLVED，未决结论成立
+L-0373,correct,3,no,步骤4对66行ReadBlob 4字节凭循环写与strcpy信号翻VIOLATED，信号与引证无关；步骤7 vuln未被最终采纳，未决结论仍可接受
+L-0374,correct,2,no,无引证即翻arithmetic_bound给vuln子结论(:29)，凭空；最终underdetermined未采纳该子结论，成立
+L-0375,too_aggressive,3,no,步1/2引证行7/35属实;决定性步5据步3对行7 filp->f_flags无判空解引用翻null_guard相称;缺陷在缺filp可空证据即0.9报CWE-476;步4/6留未决正确
+L-0376,too_aggressive,2,no,行4/15是context->input取张量，步3/4却配输入偏移读与VLA信号翻readable_extent为VIOLATED，引用行不体现该模式；行16真实下标使用未被引证；vuln无据
+L-0377,too_aggressive,2,no,步4凭remain=logicalSize-pos减法模板判违背，未证明pos>logicalSize可达，且引证上下文本有行11的remain>=len界检；步5对memcpy:20套scanf信号；vuln无据
+L-0378,too_aggressive,2,no,vuln(CWE-121)挂于:99虚构gets/strcat信号，99行实为data_signed[0]=0x0与所报模式脱节；步骤13-16对108/111/114/117零引证即safe_proved
+L-0379,too_aggressive,2,no,行9无任何引证内容与上下文即判readable_extent VIOLATED并报vuln CWE-125，全程零代码证据，结论凭空
+L-0380,too_aggressive,2,no,步骤8对21行tab_prefix[0]常量下标赋值报递减越界信号并翻VIOLATED，张冠李戴；步骤12把62行已守卫三元式判算术越界；vuln结论与引证脱节
+L-0381,correct,4,yes,引证11行与内容相符，10行循环上界*nmdev_types可见；12行点未引证即underdetermined；无义务翻转，均UNRESOLVED，未决成立
+L-0382,correct,2,no,line197按dataLength分配、line200按dataLength拷贝长度自洽，local_guard_observed站得住；但步骤3以Java断言信号判VIOLATED且arbiter报vuln，自相矛盾。
+L-0383,too_aggressive,2,no,步1-2引证真实，上下文行7 alloc三项相加、行11 vim_memset与行13 mch_memmove可见，与arithmetic_bound/readable_extent方向相称，非噪声；但信号挂行6/10，决定步引证与判断错位，给2
+L-0384,too_aggressive,2,no,9行为b_op_start.lnum赋值，行内无数组无索引读，array[index]信号与readable_extent VIOLATED和引证内容脱节，0.6报vuln:9属结论凭空，CWE-125无据
+L-0385,correct,3,no,18行szLineConv[j]循环写与57行strcpy的无界写模式可见，报CWE-121在该证据水平站得住；步骤7对8行无展示即判vuln、步骤10对80行safe无引证为瑕疵
+L-0386,correct,4,yes,"行13/14为普通指针赋值,underdetermined合理;信号signed-mix与strcpy均与赋值内容无关属错配;无凭空义务跳跃"
+L-0387,too_aggressive,2,no,7行realloc后8行即if(!tmp&&result)判空清理，null_guard明显满足仍翻转为VIOLATED判vuln，误读自身引证；23行i+1溢出亦无据
+L-0388,correct,3,no,"150行STRCPY(s,dp->d_name)向缓冲区写入且片段无边界检查，vuln方向在该证据水平可立；但步骤5/6对65/123零引证即safe_proved，dst容量未展示"
+L-0389,correct,4,yes,步骤1-2数组读/判空信号与义务主题相称，全部落UNRESOLVED无过度断言，未决自洽
+L-0390,too_aggressive,3,no,"步1引证第9行,上下文6行DCHECK属致命断言,步2信号与代码相称且CWE-617方向一致;缺陷在步3:attacker_control仍UNDERDETERMINED即判vuln,且DCHECK可达性未证"
+L-0391,correct,2,no,步骤5-8对vidioc_querycap:5/14/15/47无引证即三义务?->SATISFIED得safe_proved置信0.0，safe结论凭空但未报vuln且引证无可见风险，保correct。
+L-0392,too_aggressive,1,no,全程无引证内容与代码，凭free后解引用信号直接翻object_live_at_use并判vuln 0.9 CWE-416，结论凭空
+L-0393,too_aggressive,2,no,42行分配argc+1而43行循环上界argc-first_arg更小，读写均不越界，步骤3仍翻arithmetic_bound属误读；步骤4以检查器元信号直接翻45行readable_extent，无代码证据
+L-0394,correct,3,yes,步骤1-2引证与行号相符；步骤3-4把NULL信号套在1169行assert与1794行for头上属模板噪声且未翻转；义务全UNRESOLVED，underdetermined站得住
+L-0395,too_aggressive,2,no,全程无引证内容与上下文，行27判VIOLATED、行31/35判safe_proved均零证据；最终local_guard_observed亦无守卫展示支撑
+L-0396,too_aggressive,1,no,43/44两点无任何引证行源码与信号，直接safe_proved称三义务已证明；local_guard_observed在零证据下不可核验
+L-0397,correct,4,yes,步骤1-6引证11/12/23-25/175行与内容相符，23-25行本为判空守卫；步骤9/11分配规模信号错位但义务未翻转，全UNRESOLVED，未决成立
+L-0398,correct,4,yes,空轨迹未做无据引证，按口径evidence_grounded=yes；无可疑点结论站得住
+L-0399,too_aggressive,2,no,2行是if(!bin->entry_table)判空本身，步骤2套scanf/strcpy信号以0.9置信判vuln属误读引证内容；14/20无引证即safe_proved，CWE-119不成立
+L-0400,correct,2,no,最终未决可接受；但步骤2凭deterministic checker空话判:11 vuln(0.45)，步骤13-15对50/51/53零引证即safe_proved，确定子结论均无据
+L-0401,too_aggressive,2,no,vuln(CWE-362)无据：4/6行仅字段读取，被套信号处理函数与数组越界信号均与行内容无关，竞态模式片段无任何体现；步骤10-12对7/8/11零引证即safe_proved
+L-0402,too_aggressive,2,no,步3对可疑点22无引证无上下文，凭calloc信号翻arithmetic_bound为VIOLATED判vuln(0.7)；步2对行1签名配Java空检查信号；CWE-190结论零证据
+L-0403,correct,3,no,步骤1-2引证相符；步骤3把calloc信号套33行malloc(label_length+1)尚可相称，步骤4对38行debug_print套scanf/strcpy信号属误读，步骤12-13safe无引证；终判underdetermined站得住
+L-0404,too_aggressive,2,no,步骤2对gem_transmit:86的tx_desc_addr[q]赋值命中scanf栈数组信号、步骤3对加法命中calloc信号，CWE-121张冠李戴，关键步骤无引证支撑。
+L-0405,correct,3,yes,步骤1上下文4行显示sizeof(dummy)+sizeof(data[0])*size的int尺寸运算无溢出检查，风险模式真实可见，报CWE-190尚可接受但引证行仅函数签名
+L-0406,too_aggressive,2,no,行22无引证内容与上下文即判arithmetic_bound VIOLATED并报vuln CWE-190置信0.7，全程零代码证据，结论凭空
+L-0407,too_aggressive,2,no,步骤3/6对line31以gets/strcat信号判vuln但无该代码引证；line35 x_new[nx_new]界未示，vuln无据
+L-0408,correct,4,yes,"15行memset(data,0x00,DATA_SIZE)常量长度未决合理；array[index]读信号与该行不符，模板噪声未驱动结论"
+L-0409,correct,3,yes,步骤1仅信号无引证无上下文，但未下确定判断仅keep，步骤2留UNRESOLVED未越权；链条极简但成立
+L-0410,correct,4,yes,23行自示strreset_inseq-1减法且可见窗口无前置检查，步骤4减法信号相称升VIOLATED，attacker_control如实标UNDERDETERMINED，该证据水平内vuln成立；步骤3对22行套calloc信号属模板噪声
+L-0411,correct,4,yes,setup_secureChannel:1签名行无风险证据，未决成立；引证与源码一致，信号错配未升级。
+L-0412,too_conservative,4,yes,步骤1-2引证属实：13行fread上限sizeof(buf)-1且buf[512]可见，buf[n]=0界内；义务无凭空流转，仅arbiter未据可见边界下结论，推理连贯属严谨未决
+L-0413,correct,3,yes,"20行memcpy(buf,dp->data+dp->pos,rlen)长度来自变量，buf容量与remain定义未示，越界与防护单文件内均不可证，memcpy读取与readable_extent主题相称，attacker_control如实标未决；scanf信号名错配"
+L-0414,too_aggressive,2,no,引证8行attr->type赋值处于if(attr)空守卫内，却翻readable_extent VIOLATED并以0.9报CWE-125，引用内容与判断不符，9行buffer读取未引证
+L-0415,correct,4,yes,"行7/11/29防护链可见却全判UNRESOLVED未评估;信号错配如行14 smp_load_acquire被判NULL检查;rb->data容量片段外,underdetermined尚可"
+L-0416,correct,3,yes,行6下标经%sizeof(s->edid_blob)限界，数组实际大小不可见，步骤5留未决尚可；步骤3 getenv信号与数组读取无关属误命中
+L-0417,too_aggressive,2,no,步骤4在行12纯长度加法上翻path_validated，CWE-22无据；行32/39/42/47四个safe_proved无引证；仅行18的dir->length减1有下溢疑点，整体定vuln跨太大
+L-0418,too_aggressive,2,no,全包零引证零上下文，步骤5-8对19/23/96/108仅凭keep即safe_proved并称local_guard_observed，防护证明全凭空
+L-0419,too_aggressive,2,no,步骤2对4行WithRank调用套operator[]信号翻VIOLATED；步骤3对5行取张量指针套malloc信号判arithmetic_bound属张冠李戴；步骤7对13行无引证safe_proved；CWE-125无据
+L-0420,too_aggressive,1,no,步骤2对10行push_back套限流/EOF模板翻input_sanitized VIOLATED，信号与内容无关；步骤3/5对25行零引证即翻VIOLATED；9行判空可见；CWE-20/400无据
+L-0421,too_conservative,3,no,步1-3引证真实(行7 kzalloc、行11 e->id、行14 kstrdup)，步5-6判空信号对应行11/14解引用相称；缺陷在步4凭deterministic信号翻readable_extent无据、步8-9忽略行8/13可见判空，给3
+L-0422,too_aggressive,2,no,步4把vuln锚在行1函数签名配calloc与符号混合信号，签名无算术无分配，模式脱节；行36-39有keylen>password_len守卫反而支持安全；步11行58零引证即safe_proved
+L-0423,too_aggressive,2,no,步骤2对15行dbuf_getu16be赋值凭未初始化信号翻VIOLATED与引证无关；步骤5对16行de_dbg打印宣称防护已证明；final无据略偏过度断言
+L-0424,too_aggressive,2,no,步3翻arithmetic_bound依赖包内未见的回绕分配事实；步5把行194写入NUL当缺NUL读取，模式脱节；步7对行118零引证即safe_proved；vuln(CWE-125/190)不成立
+L-0425,correct,3,yes,未决结论合理；但步骤17对30行allocate_temp套gethostbyaddr返回值信号明显错配，各步仅keep无实质义务分析
+L-0426,correct,2,no,未决主体成立；步骤14把常量28误作输入长度翻转readable_extent，步骤38对load:233无引证即safe_proved，关键步骤扣分
+L-0427,too_aggressive,2,yes,10行kzalloc后11-12行紧接if(!priv)返回，判空防护就在引证上下文内，步骤3仍翻null_guard VIOLATED0.9，明显误读自身引证；CWE-476不成立
+L-0428,too_aggressive,2,no,引证行2/3仅获取tensor，信号为C#/Java cast模板噪声，readable_extent VIOLATED与CWE-125无据
+L-0429,correct,3,yes,步骤1引证上下文9-11行while(1)从码流读字节写str[i]无可见界，vuln方向成立；锚定行8仅str[0]=0且gets信号错配属瑕疵
+L-0430,too_aggressive,2,no,步骤2引证19行LT_POS位置比较却套strcpy类信号翻readable_extent VIOLATED报CWE-119，引用内容与判断无关
+L-0431,correct,3,yes,可疑点45无引证无上下文，步1信号无从核对但未据此翻转义务；arbiter保持UNRESOLVED未越权下结论，未决在该证据水平下成立
+L-0432,correct,4,yes,17个memcpy/减法点引证与源码一致且信号基本相符，如步骤1行72、步骤3行129；义务全UNRESOLVED自洽；未对hdr_store_alloc定量核算略简
+L-0433,too_aggressive,1,no,步骤1无信号无引证，步骤2直接safe_proved，pcx_write_rle防护未展示，结论零证据
+L-0434,correct,4,yes,行30 aid_len取自skb->data[1]且行31 memcpy前无边界检查，步骤5判vuln站得住；行40同型却留未决标准不一；引证真实链条连贯
+L-0435,correct,3,yes,行1为测试注册函数签名，步骤2 strncmp(sizeof(ptr))信号误命中；步骤3义务全UNRESOLVED留未决，未越权
+L-0436,correct,2,no,行55上方52-53即有perm范围检查，vuln步与自身引证上下文矛盾；步骤5对行59宣称防护无引证；最终local_guard_observed有可见守卫支撑，可接受
+L-0437,correct,3,yes,4-6行自示handshakeLayer解引用无判空，步骤2信号相称升null_guard VIOLATED，attacker_control如实标未决，该证据水平内vuln成立；步骤5对6行safe_proved零引证且与5行同模式判罚矛盾
+L-0438,correct,3,no,59行window[window_posn++]写入在包内无边界守卫，报vuln CWE-787在此证据水平内成立；步骤3翻转所凭信号笼统；步骤4对13行无引证即safe_proved故eg为no
+L-0439,correct,3,yes,步1-7引证为debug/assert/memset(sizeof)防御行却初判VIOLATED属误读，义务format_string_fixed等错配；arbiter步16-23全UNRESOLVED，未决成立
+L-0440,too_aggressive,2,no,11行仅标志判断加num_actions自增无size运算，判arithmetic_bound违背报CWE-190(0.6)证据不足；31行safe_proved亦无引证
+L-0441,too_aggressive,2,no,步骤2对9行previous_active_frame置NULL凭strcpy信号翻VIOLATED，明显误读引证；步骤5对11行safe_proved亦无引证；vuln CWE-787无据
+L-0442,correct,3,no,步骤1引证line32-33 memset长度PAGE_SIZE-i_lenAlloc无可见上界，vuln方向成立；但步骤2信号错配、7-9步safe_proved零引证
+L-0443,correct,4,yes,"行281 memcpy以ai_addrlen复制进固定raddr.addr,容量关系未查只判null_guard;信号把addrinfo当malloc返回值错配;未决合理"
+L-0444,too_aggressive,2,no,步骤5把18行malloc(sizeof(struct dir))定长分配当外部输入尺寸无预检翻arithmetic_bound:VIOLATED与引证矛盾；步骤9据此vuln 0.6；82行dire->name[size+1]写点反而未深究；CWE-190无据
+L-0445,correct,3,yes,步骤1信号保留但未翻转义务，arbiter判UNRESOLVED未下确定结论，无凭空引证，未决自洽可接受
+L-0446,too_aggressive,3,no,"步骤1/2引证属实,上下文行21-27完整展示keylen来源与emalloc(keylen);步骤3信号(长度参数窄整型)与行24相称;缺陷在步骤6未消化行22守卫即判vuln"
+L-0447,correct,3,yes,步骤1引证与行号相符；步骤2-3把NULL信号套在23/25行赋值与调用上属模板噪声且未翻转；义务全UNRESOLVED，underdetermined站得住
+L-0448,correct,3,no,"步骤2/6/14立足84行memcpy(gopherState->buf+len,pos,llen)无界写模式，容量上界未展示属数据集稀疏不扣分；步骤18-20对105/251/255行safe无引证为瑕疵"
+L-0449,correct,4,yes,步骤1行29 memcpy源长取自cert->serial确为风险点；步骤10/11把行55/59 snprintf误标判空/scanf信号；义务全UNRESOLVED自洽
+L-0450,correct,2,no,最终local_guard_observed为弱判定未越界；步骤2对3行输入获取套无界队列信号属引证脱节，vuln:3无据；步骤5对94行safe_proved零引证；包内无防护引证支撑local_guard_observed
+L-0451,correct,3,yes,空轨迹即未定位可疑点的结论，无凭空引证；按空轨迹口径判定接受
+L-0452,too_aggressive,2,no,步骤2用a-b信号套171行自增写入，且其自引上下文170行已有length<name_max防护，与VIOLATED判断矛盾；步骤5对193行safe_proved无引证
+L-0453,correct,3,yes,行1-173引证均与内容一致；步48-105信号泛化误配（步77对C代码配Java断言信号），但义务全UNRESOLVED未越权；未决在单文件证据下成立
+L-0454,too_aggressive,2,no,9行为TIFFDataWidth查表赋值，行内无除法无取模，除零信号与引证内容脱节，typesize后续用途未展示即0.6报vuln:9，CWE-369无据
+L-0455,correct,3,yes,空轨迹0步未定位任何可疑点，空步骤集与local_guard_observed结论自洽，按口径evidence_grounded记yes，记correct
+L-0456,correct,2,no,步骤2对4行空指针检查翻readable_extent VIOLATED系误读自身引证；步骤8对9行safe_proved无引证；final未决可接受但链路多处凭空
+L-0457,correct,4,yes,全10点未决合理；7-16步信号为模板噪声(mutex_lock行被套锁外NULL解引用)与代码不符，但未驱动任何确定结论，引证与行号相符
+L-0458,too_aggressive,2,no,步骤3对3行指针获取套calloc与符号混合信号判arithmetic_bound属引证脱节；步骤5对25行memcpy常量长度判输入长度与内容脱节；真风险26行keylen反被步骤10零引证判safe_proved
+L-0459,correct,3,yes,步骤1对41行浮点矩阵式初判VIOLATED无据，步骤2/3除零与calloc信号错配，步骤4-5义务均?->UNRESOLVED，underdetermined稳健。
+L-0460,correct,3,no,"整体underdetermined可接受,但步骤61把行42的if条件判safe_proved,attacker_control等义务凭空SATISFIED;forensics把普通bs读取误配integrity metadata信号"
+L-0461,correct,4,yes,空轨迹未定位可疑点，无引证亦无凭空判断；按空轨迹口径判correct，eg为yes，无义务流转可评
+L-0462,too_conservative,2,yes,"行14引证准确且检查同时含index<0与上界,防护清晰可见;步骤2信号称无index>=0检查属误读自引内容,vuln子步骤凭空;最终underdetermined未采信但本可下安全定论,过保守"
+L-0463,too_aggressive,1,no,行4仅sock_net初始化语句，无循环无内存访问，以循环终止信号判readable_extent VIOLATED落CWE-835，与引证完全脱节
+L-0464,correct,3,yes,空轨迹：自报可疑点0、无推理步骤、判定local_guard_observed；包内无源码无法指认漏查点，未见凭空引证
+L-0465,too_aggressive,2,no,全程零引证零上下文，268行无任何内容即翻readable_extent VIOLATED给vuln0.6/CWE-125，仅凭数组读模板，无据
+L-0466,too_aggressive,2,no,步骤7对428行ReadBlob行套calloc→malloc信号，该行无任何分配属张冠李戴须≤2；425-427行防护可见，arithmetic_bound翻VIOLATED与vuln0.6越权
+L-0467,too_aggressive,2,no,步骤5引证257行if(i<=0)正数校验守卫却判arithmetic_bound VIOLATED并报CWE-191，明显误读自己引用的代码，0.6置信无据
+L-0468,too_aggressive,2,no,唯一引证为函数签名行1，被翻arithmetic_bound并以0.6判vuln报CWE-190，完全无据，跨太大
+L-0469,too_aggressive,2,no,引证行26是错误消息StrCat构造，与NULL解引用无关，误读自身引证；null_guard VIOLATED 0.9无据
+L-0470,correct,4,yes,两个null_guard疑点(:8/:24)均保持UNRESOLVED，无凭空翻转，未决结论成立
+L-0471,correct,3,yes,24-25行hdl判空与39-40行strlen+7>=GmfStrSiz边界检查同框展示但未被识别；42行strcpy写侧容量未展示留UNRESOLVED可辩；漏识别防护为主要扣分
+L-0472,correct,3,yes,6行自示n=2*p->size且7-8行以n索引rp无可见边界检查，乘法索引模式在引证行可见，attacker_control如实标未决，该证据水平内vuln成立；步骤6-7对72/73行safe_proved零引证
+L-0473,correct,4,yes,2行已守卫bf与bf->o，3行bin_obj未查即于4行解引用，分析器保留信号但未决；单文件无法证可触达，未决成立
+L-0474,correct,2,yes,步骤2对8行if条件套循环终止类信号属错配，readable_extent?->VIOLATED无据，步骤3自判vuln0.45与最终underdetermined不一致；引证行8内容属实，未决结论稳健。
+L-0475,too_aggressive,2,no,"27行calloc(len,1)前24-25行可见len无效即返回检查，步骤3/6仍翻arithmetic_bound VIOLATED给vuln0.9，与自身引证相抵；步骤8对55行无引证safe_proved"
+L-0476,correct,2,no,步骤2对line27无引证即翻VIOLATED并vuln 0.45，与最终underdetermined自相矛盾；line35/59无引证内容
+L-0477,too_aggressive,2,no,行18已滤mmidx!=-1、行19写索引来自GetMetaMethodIdxByName，无越界证据仍于步骤5判vuln(CWE-787)；步骤4行7零引证safe_proved
+L-0478,correct,4,yes,空轨迹零步骤与自报0可疑点一致，local_guard_observed可由空轨迹推出，无凭空判断与无据引证，判定correct。
+L-0479,too_aggressive,2,no,步骤1以gets与strcat栈数组信号翻mcba_usb_start_xmit:45 readable_extent，步骤2同点同义务vuln0.6报CWE-121，前后一致；缺陷仅在包内零源码引证(锚点2)，非无关联
+L-0480,correct,2,no,行1函数签名被配calloc与符号混合信号，与内容不称；步5对可疑点10零引证零上下文即safe_proved，确定判断无据；arbiter未决部分成立
+L-0481,too_conservative,4,yes,行146格式串为字面量且以sizeof(trans->hw_id_str)为界，format_string_fixed本可判SATISFIED却留未决，偏保守；步骤2 printf(user)信号误命中
+L-0482,too_aggressive,2,no,行4仅从limits取max_size赋值，无长度传递无越界读，信号与内容无关；CWE-195凭空
+L-0483,correct,2,no,行31无引证内容与上下文即判arithmetic_bound VIOLATED，内部vuln置信0.45无据；最终未决保守可接受
+L-0484,correct,4,yes,arbiter步骤36-54全UNRESOLVED且0.0未凭空定论，16处引证均与源码一致；forensics步20对30行、步22对32行信号与代码不符属模板噪声，未驱动结论
+L-0485,correct,2,no,53行自证TfLiteIntArrayCreate(2)，54/55行写data[0]/data[1]界内，步骤9/10仍判vuln属误读自引上下文；步骤12-13对75/76行safe_proved零引证；最终underdetermined未越界
+L-0486,correct,4,yes,空轨迹，自报0可疑点0未决；按口径空轨迹即结论，evidence_grounded记yes；标签与零步骤略不自洽但无实质推理缺陷
+L-0487,correct,3,no,行26以sizeof(struct capability)从流指针pnt+1定长读确为风险模式，步骤8判vuln站得住；步骤7/9对行18/33零引证即safe_proved
+L-0488,correct,2,yes,步骤3对1行入口套malloc信号、步骤5把35行已判空日志分支判readable_extent VIOLATED均属误读；但2行CHECK_NOTNULL(a)防护可见，1/35引证与内容一致，local_guard_observed有据
+L-0489,correct,3,yes,未决结论合理；但步骤3/4对6/10行套除零取模信号与内容无关，所幸未据此翻转义务，仅污染中间步骤
+L-0490,correct,4,yes,步骤1对1行命中catch/throws信号与C函数seccomp场景不符，但未升级义务；步骤2全UNRESOLVED 0.0未下确定判断，未决结论在该证据水平成立
+L-0491,correct,4,yes,步骤1引证5行num_indices计算与循环相符，义务全UNRESOLVED；indices->bytes来源未查但单文件下未决合理
+L-0492,too_aggressive,2,no,471行ci->stack[0]=recv无尺寸运算却套calloc信号判CWE-190凭空；276行仅缺b下界且b源自字节码未证可控，vuln(0.6)偏快；步骤9/10对516/527零引证即safe_proved
+L-0493,correct,4,yes,行3的u32 elem_size=sizeof+value_size与行6乘法确为输入派生溢出模式，信号a+b无pre检查相符；value_size上界在跨文件处；报CWE-190可辩护
+L-0494,too_aggressive,2,no,步骤6把86行定长sizeof读的offset累加套符号混合信号翻arithmetic_bound:VIOLATED无溢出证据；步骤11据此vuln 0.6；步骤12-13对90/94行safe_proved零引证；CWE-190不成立
+L-0495,correct,3,yes,步骤1-5引证与行号相符；步骤6-11对allocate_output与data()各行统一套NULL信号属模板噪声且未翻转；义务全UNRESOLVED站得住
+L-0496,correct,3,yes,空轨迹自报0个可疑点，无引证无翻转；local_guard_observed标签依据不明但未报确定漏洞，按空轨迹口径可接受
+L-0497,too_aggressive,2,no,line25 sprintf用%.256s限宽非无界scanf；suffix缓冲大小未知即判VIOLATED 0.6过跳；步骤6-7 safe_proved无引证
+L-0498,too_aggressive,2,no,行28为表查询、行41为切片拷贝，与CWE-400资源耗尽无关；两次翻转用Java限流类信号与C代码不符；vuln结论无证据支撑，跨太大
+L-0499,correct,3,yes,步骤22等risk_forensics信号与C++代码错配(Java信号套setUnderlying)；行43读buf受12/16行__rfbmin钳制可证安全却未展开；义务全UNRESOLVED无跳跃，未决站得住
+L-0500,correct,3,yes,自报1个可疑点（pax_decode_header:34）但无引证行与上下文源码，步1信号为模板命中；arbiter步2判未决未越权，未决即合理结论
+L-0501,correct,4,yes,26-30行自示/bin/sh -c执行cmdline.c_str()的命令注入汇点，信号与引证相称，attacker_control如实标UNDERDETERMINED未谎称已证，该证据水平内vuln成立；cmdline来源未追属个别步骤简略
+L-0502,too_aggressive,2,no,FlxHeaderSize是常量，步骤3称窄整型算术与行22不符；步骤4对行67纯比较语句用a-b减法信号，完全无关；义务翻转全凭空
+L-0503,correct,3,yes,memcpy至array->start[start]且items*sizeof为长度，start与array->size的clamp未展示，引证涉及该风险模式，报CWE-190可接受；信号表述与上下文不符。
+L-0504,correct,4,yes,13行num_writes++注释已说明非原子仅统计；49行ptr[words]依赖的buffer分配未见，未决合理；步骤3/4信号错配但未传导，成立
+L-0505,correct,2,no,"line70的value=min(w_length,sizeof desc)防护可见，local_guard_observed站得住；但步骤2以scanf信号判readable_extent VIOLATED且arbiter报vuln，链条错配自相矛盾。"
+L-0506,correct,4,yes,32/37行allocate_output的height/width来自解码结果，界限不可本地证明；步骤4套Java强转信号错配但全未决无义务跳跃，成立
+L-0507,correct,3,no,"最终未决可站住；步骤4对10行memset(&sffield,0,sizeof)固定结构体清零套限流/EOF循环信号翻readable_extent属张冠李戴，未影响最终判定"
+L-0508,too_aggressive,2,no,步骤9对66行patChanX[j]赋值翻readable_extent VIOLATED，信号i<=len与实际j<chans不符且无边界证据；步骤21据此报vuln，id缓冲区大小未展示
+L-0509,correct,3,yes,行61写neighbor[(vnot1+1)%3]，该查的vnot1取值与下标范围义务未查，步2反配NULL同步信号与内容不称；arbiter保持UNRESOLVED，未决成立
+L-0510,correct,4,yes,引证行67/201相符；行64按同shape分配、行66有SharesBufferWith守卫；信号称长度未查目标略过；未决合理
+L-0511,too_aggressive,2,no,步骤4对5行vs->vd指针赋值套scanf/strcpy信号翻readable_extent违规属张冠李戴，步骤13据此0.6置信报vuln无据
+L-0512,too_aggressive,2,no,行8已有SIZE_MAX溢出预检查并return，行23-24亦有溢出返回，无视包内自示防护判:26 realloc为CWE-190；义务翻转凭空；行2/4/33/36未展示却safe_proved
+L-0513,correct,2,yes,步骤2给14行图优化条件判断套read/recv返回值信号完全错配，readable_extent?->VIOLATED无据，步骤3自判vuln0.45；最终回落underdetermined稳健，引证行14内容属实。
+L-0514,correct,3,yes,步骤1保留15行strcpy信号但未翻转义务，义务全UNRESOLVED；未对未见内容的行下确定判断，未决结论成立
+L-0515,correct,4,yes,Lua解析器代码无可疑风险，Java getProperty信号错配；引证行相符，未决可接受
+L-0516,correct,3,yes,行3本身就是函数入口判空守卫却被配check-after-use信号，误读明显；但无翻转无确定结论，义务未决自洽，可接受
+L-0517,correct,2,no,1行函数声明套malloc模板；步骤5对26行零引证即safe_proved三义务SATISFIED无据；1行FromProto在4行形状校验可见下未决尚可
+L-0518,too_aggressive,2,no,步骤2把行6的switch当数组索引读取判readable_extent VIOLATED，张冠李戴；真正的表索引代码未展示；报CWE-125属引证与模式脱节
+L-0519,correct,3,yes,仅2点：1行函数头套calloc信号属模板错配，22行无上下文；均判未决未越界；ga_concat_shorten_esc实际拼接逻辑未深查但不越据，成立
+L-0520,correct,3,no,expCtx解引用未决合理。步骤8对createRandomCursorExecutor:13无引证无上下文判safe_proved，义务凭空SATISFIED。
+L-0521,too_aggressive,1,no,包内无源码无引证，vuln:41与safe_proved:42均为无任何引证下的确定判断，memcpy信号无上下文可核对，结论凭空
+L-0522,correct,2,no,步6/11把arithmetic_bound违背安在:37的cp->ccps=0纯赋值上，引证与判断张冠李戴；:283/:284/:326越界疑点未实质验界；步11无据vuln但最终未决成立
+L-0523,too_aggressive,2,no,步骤1空keep无信号无引证，步骤2义务凭空翻SATISFIED判safe_proved，终判local_guard_observed无任何防护展示，结论跨度过大
+L-0524,too_aggressive,2,no,全程无任何源码引证，两次翻readable_extent并以0.6判vuln报CWE-125/20，属无引证下确定判断，跨太大
+L-0525,correct,3,no,3行a_indices解引用且片段无判空，null_guard VIOLATED为可见事实，vuln(CWE-476)方向在该证据水平可立；但步骤5对:6零引证即safe_proved属跳跃
+L-0526,correct,4,yes,line24本身即!ent1->data空检查，ent1来自stack_top的可空性包内未展示，未决合理；引证与源码一致，信号错配未升级。
+L-0527,correct,4,yes,引证行4为genmask读取无风险模式；信号use-after-free错配但仅keep未下确定判断；未决合理
+L-0528,correct,3,yes,6行edid_blob[s->reg]整函数可见且无下标守卫，reg自增，涉险属实；但步骤2所引NUL截断信号与判断错位
+L-0529,too_conservative,3,yes,"引证真实:7行kzalloc后8行if(!e)先查后用,判UNRESOLVED未错误翻转义务,属arbiter末步漏证null_guard过保守;步3-4信号文本与引证矛盾但未驱动结论"
+L-0530,correct,2,no,步骤2信号为Java循环i<=length，与行8的tailen赋值无关即判readable_extent VIOLATED；内部vuln凭空；最终未决保守可接受
+L-0531,too_aggressive,2,no,步骤2对14行IsAnyMul类型检查套JS前后端校验信号翻readable_extent违规属张冠李戴，唯一可疑点直接报vuln无任何缓冲证据
+L-0532,correct,3,yes,步骤4-6信号(Java Map.get/锁)与7/10/12行代码不符但仅keep未驱动流转；9-12行OP_REQUIRES对tuple.size的防护可见但非其考察点，未决整体自洽
+L-0533,too_aggressive,2,no,17/18行仅从curve读字段，scanf信号与之脱节仍翻转readable_extent判vuln0.6/0.7；步骤13-16对19/22/36/57行无引证即safe_proved
+L-0534,correct,3,no,步骤1引证line8可见operand解引用且无判空，CWE-476模式在证据水平内成立；但步骤5对line11零引证判safe_proved是瑕疵
+L-0535,correct,4,yes,可疑点多为masks[i]=0常量赋值，全未决可接受；5-11步信号全为模板噪声与行内容无关，未驱动结论
+L-0536,correct,2,no,行5-6的readU32入int确涉CWE-190模式，vuln尚可辩；但步骤3在行5配buf[offset]信号无据，步骤10-12对18/24/29宣称防护无引证，推理粗糙
+L-0537,too_aggressive,2,no,步骤2对6行翻object_live_at_use为VIOLATED但该行无引证内容即下确定判断，12行注释称任务完成后data为NULL且13行已判空，报CWE-416无据
+L-0538,correct,2,no,步骤26-28对line24-26零引证判safe_proved，义务与mutex_lock/list_add不符；最终未决本身可接受
+L-0539,too_aggressive,2,no,步骤4信号谈wrapped bytes与count bound，与行66的ngrams_splits_data累加无关，所报分配/循环失配模式未展示；步骤5/6无引证判safe_proved；报CWE-190凭空
+L-0540,correct,3,no,步骤23-27对45-51行无引证即safe_proved，义务?->SATISFIED凭空；26-37行克隆空指针检查引证属实，最终未决尚可
+L-0541,correct,3,yes,步骤2对1行函数签名套canned空指针信号，初判VIOLATED无据；步骤3义务均?->UNRESOLVED无跳跃，selinux_ptrace_traceme凭单文件难下定论，underdetermined可接受。
+L-0542,too_aggressive,2,no,步骤6把malloc(sizeof(struct dir))常量分配当成外部输入乘加判arithmetic_bound VIOLATED，张冠李戴；line76上文有goto corrupted检查未核实即判VIOLATED。
+L-0543,too_aggressive,2,no,步骤10对265行凭scanf/strcpy信号翻readable_extent，信号与该行按num_channels限界的拷贝无关；步骤13-16对106/121/195/197行无引证即safe_proved；vuln CWE-119超出引证
+L-0544,correct,2,no,全程无源码展示，步骤1凭scanf/strcpy信号对8行翻VIOLATED判vuln0.45属无引证确定子结论；终判退回underdetermined站得住
+L-0545,correct,2,no,最终underdetermined成立；步骤3对11行栈空检查套malloc信号、步骤4对22行PHP代码套Jackson/BeanUtils信号均属引证脱节，vuln:11/22无据
+L-0546,too_aggressive,2,no,无任何引证与上下文源码，步2凭空将三义务判SATISFIED给safe_proved，最终local_guard_observed无据；零证据下不得证明防护
+L-0547,too_conservative,3,yes,10行map下标写不涉及可空指针解引用，null_guard本可判满足仍未决过保守；NULL信号与map赋值行不匹配
+L-0548,too_aggressive,2,no,步骤1对parse_query:15无引证即readable_extent?->VIOLATED，步骤3报CWE-125置信0.9，包内无任何引证行呈现无边界读模式，确定漏洞结论无据，too_aggressive。
+L-0549,correct,2,no,最终未决可接受；但全包零引证：步骤1对44行凭calloc信号判vuln(0.45)，步骤9-12对604/613/750/850零引证即safe_proved，确定子结论均无据
+L-0550,correct,3,no,"行426引证真实,packet_size*image->colors乘积长度读入且窗口内无溢出预检,该证据水平下报CWE-190可站住;步骤13行470零引证判safe_proved属凭空;分配片段外仅可控性未证"
+L-0551,correct,3,yes,仅1步信号(NULL检查/锁)与分配包装函数不符但未驱动流转，arbiter全UNRESOLVED判未决，与证据水平相称
+L-0552,correct,4,yes,空轨迹无可评步骤，未做无据引证；local_guard_observed宜读作未定位可疑点，维持correct
+L-0553,correct,2,no,步骤8在断言行54凭scanf/strcpy无关信号把readable_extent翻VIOLATED，步骤20据此vuln0.45无据；步骤29-31对行104-106宣称防护已证无引证；最终未决可接受
+L-0554,correct,4,yes,引证行14/16/17相符；四点全未决无跳跃；信号把context->input当空指针误配但仅keep；后续索引使用需跨文件判断
+L-0555,correct,3,no,步骤1引证line6可见id解引用无判空，CWE-476模式在证据水平内成立；但步骤5对line7零引证判safe_proved是瑕疵
+L-0556,correct,2,no,最终未决可接受；但步骤15/16/23对1/9/48行零引证即判三义务SATISFIED属凭空跳跃，步骤8/12的integrity信号与内容错配
+L-0557,too_aggressive,2,no,行4是context->input(0)引用绑定，无buf[offset]操作，信号张冠李戴；CWE-125置信0.9凭空；行15/30未展示却safe_proved
+L-0558,correct,4,yes,步骤3引证35行PTR_ERR先于IS_ERR属实但无害，义务全UNRESOLVED无跳跃；未决结论在单文件证据下成立
+L-0559,correct,3,yes,步1-5引证为取输入与epsilon/num_streams校验行却初判VIOLATED与内容不符；步6-11信号与标量读取无关；arbiter步12-17全UNRESOLVED，未决成立
+L-0560,too_aggressive,2,no,步骤3称无上界校验，但其自引上下文9行已有nbytes>=MAX_DRC_NAME_LEN返回检查，与VIOLATED判断矛盾；步骤4对1行safe_proved无引证
+L-0561,correct,4,yes,两疑点(:5/:7)仅命中信号未翻转义务，全部UNRESOLVED，未决自洽成立
+L-0562,correct,4,yes,空轨迹，无凭空引证，包内亦无明显可疑点，按口径接受local_guard_observed
+L-0563,correct,4,yes,引证4行OP_REQUIRES_OK与内容相符；信号与代码无关但无义务翻转，均UNRESOLVED，未决结论成立
+L-0564,correct,4,yes,"14行snprintf(cap->card,labellen,dev->card_label)非字面量格式串是关键，但步骤9仅停在format_string_fixed未决；card_label可控性未展示，未决成立；步骤6-8信号错配"
+L-0565,correct,5,yes,空轨迹0可疑点，无引证无凭空判断，未定位问题点的结论自洽，按校准口径reasoning给5。
+L-0566,too_aggressive,1,no,5行是int bh=lprn->nBh的标量字段读取，无任何数组下标，步骤2套array[index]信号判VIOLATED并报CWE-125，引用内容与判断完全不符
+L-0567,correct,3,yes,行163/190的ReadBlob长度depth/8*columns确为输入派生算术，关切与引证相称；但pixels目标大小未展示即翻VIOLATED，步5中途vuln与最终未决脱节；未决成立
+L-0568,too_aggressive,2,no,步3对:66的output_strides[dims-1]=1常量赋值套calloc信号、步4对:68乘法行套除零信号，引证与判断错配；CWE-190无操作数来源分析，vuln证据不足
+L-0569,too_aggressive,3,no,"步1/2引证行5/42属实;步6对行41 memcpy(url->errormsg,input,copy_len)信号相称,步11据此CWE-125主要链成立;缺陷在步3配行5与自引行7 if(client)矛盾翻null_guard"
+L-0570,correct,4,yes,25行prelink_range->range.size解引用来源未在片段内；步骤5/7排除未给理由但未翻义务；四点UNRESOLVED无凭空翻转；underdetermined成立
+L-0571,too_aggressive,2,no,1行签名明确为int返回，与信号所述无符号返回负值的前提直接矛盾，CWE-195不成立；readable_extent翻转与引证脱节
+L-0572,too_aggressive,2,no,步4把行7的gf_bs_read_int读4位字段配malloc信号翻readable_extent为VIOLATED，行内无任何分配，模式脱节；步11对行10零引证即safe_proved；vuln(CWE-770)锚错行
+L-0573,correct,4,yes,引证行11/14/19/20/24相符；全程未决无义务跳跃；信号如行14atomic_read被当除零属误配但未致错误结论
+L-0574,correct,3,yes,步骤2对262行memcpy经(*table)解引用且259-265窗口内无判空，null_guard报VIOLATED在该证据水平成立，261已先解引用属瑕疵，报CWE-476站得住，改判correct。
+L-0575,too_aggressive,2,no,引文11已有p+len<=end且len为单字节读，src界已查；line15无引证即VIOLATED与可见防护矛盾
+L-0576,correct,2,no,7行kzalloc配8-9行空检查属实，final观察到局部防护可接受；但步骤2凭泄漏信号翻readable_extent且步骤5 vuln与6/7步safe_proved自相矛盾
+L-0577,correct,4,yes,步骤1-2析构仅mutex_destroy/kfree无输入路径，引证与源码一致；步骤3-4null信号与代码不符但未翻义务；underdetermined成立
+L-0578,correct,3,no,行18减法确来自报文hdr->length涉CWE-191，步骤6判vuln模式可见；未析行19守卫能否兜住；步骤5/7对行15/22零引证即safe_proved
+L-0579,correct,3,yes,步骤10-20把完整性/NULL信号套在7行i_nlink检查与31行BUG_ON等行上，模板噪声未致翻转；义务全UNRESOLVED，underdetermined站得住
+L-0580,correct,4,yes,16个点引证均与源码一致，req链上解引用的null_guard单文件无法定论，未决成立；forensics信号错配普遍但未影响结论。
+L-0581,too_aggressive,2,no,行11是普通赋值self->rpc_tid=sw.tid，无缓冲无读长度，配scanf信号翻readable_extent判vuln报CWE-119，完全无据
+L-0582,too_aggressive,2,no,vuln(CWE-125)挂于13行GETATTRHDR上的未检查循环信号，该行无循环；实际buf[6]/buf[7]读取在15行却仅判未决；步骤8/11/12对1/19/25零引证即safe_proved
+L-0583,too_aggressive,2,no,步骤2把135行parameter[0]=size普通赋值套strcpy信号翻readable_extent:VIOLATED与内容不符；步骤3据此vuln 0.6；CWE-787无越界证据
+L-0584,too_conservative,4,yes,步骤1-2引证行6/7源码真实，行4判空先于两处解引用，null_guard本可判SATISFIED；步3-4仅信号标签check-after-use与顺序不符且未翻转义务；步5-6留UNRESOLVED属过保守非推理断裂
+L-0585,correct,3,yes,步骤3翻null_guard靠模板信号，但引证上下文line3-4可见qo=bf->o->bin_obj未判空即解引用qo->fixups，line2防护不覆盖bin_obj，vuln方向成立
+L-0586,correct,4,yes,步骤9定位:11 GetNode结果未判空即被:12解引用，疑点真实但调用方契约不可见；义务流转无凭空翻转，underdetermined成立
+L-0587,too_aggressive,2,no,vuln(CWE-787)挂在1行函数签名上的循环/strcpy虚构信号；片段5-7行明明有ctx判空防护，所报模式与代码脱节
+L-0588,too_aggressive,1,no,11行可疑点无引证无上下文，步骤2凭空safe_proved并得local_guard_observed，无任何防护证据，属无引证下确定判断
+L-0589,correct,4,yes,步骤9-17全以NULL检查模板信号套device指针行，未追溯device来源；引证行32/37/42/48等与内容相符；义务全UNRESOLVED无跳跃，未决成立
+L-0590,correct,4,yes,TestingPolicy与UA_SecureChannel_init为外部调用效果不可见，未决成立；信号与1/2行关联牵强但未翻转，引证准确
+L-0591,too_aggressive,2,no,仅2步且无任何源码，步骤2即宣称三项防护已证明并safe_proved，属无引证下确定判断；最终local_guard_observed同样无据
+L-0592,too_aggressive,2,no,分配argc+1大于循环上界argc-first_arg，方向安全，翻arithmetic_bound判vuln跨太大；行44末端取argv[argc]疑点未指出；步骤5宣称防护无引证
+L-0593,too_aggressive,2,no,行2为ctx->input(0)取输入，被翻readable_extent并以0.6判vuln报CWE-20，信号与引证内容无关，无据跨太大
+L-0594,correct,4,yes,引证行相符；初判VIOLATED无据、forensics信号模板化，arbiter未决自洽；中断随机数池混合逻辑单文件难定论
+L-0595,correct,4,yes,引证4至42行均与源码一致，arbiter步骤31-48全UNRESOLVED 0.0；forensics步14对4行赋值、步20对23行数组写套共享指针锁信号属模板噪声，未驱动结论
+L-0596,too_aggressive,2,no,步骤2对63行无任何引证即翻arithmetic_bound，步骤3用泄漏信号套139行却支撑readable_extent结论(步骤5判vuln)，引证与判断脱节
+L-0597,too_aggressive,2,no,步6把行4-5自身含length<so_ext_len短路守卫判成arithmetic_bound违背，误读自己引证；步9对守卫行判null_guard违背；行8分配已约束步11的memcpy，vuln无据
+L-0598,correct,4,yes,行96 dire->name[size+1]写确为镜像可控疑点，但name分配逻辑未展示，未决合理；步骤5对:96套null信号与写越界主题不合但未致翻转
+L-0599,too_aggressive,2,no,行124无引证内容与上下文，未展示任何守卫即判safe_proved并报local_guard_observed，确定结论零证据
+L-0600,correct,3,yes,SCM_DEFINE宏行套C#/Java强转模板，信号错配；未下确定结论判未决，无凭空义务翻转，成立
+L-0601,correct,3,yes,13点未决成立，57行p+=blen推进与decodePkt边界需外部上下文；步骤9等信号与签名或循环行不符但未翻转，义务流转自洽
+L-0602,too_aggressive,2,no,引证行2为VLOG日志与readable_extent主题无关属张冠李戴，步骤2信号为自指checker无代码依据，关键步骤无引证支撑，报CWE-682与证据脱节，too_aggressive。
+L-0603,too_aggressive,2,no,步骤2把循环写与strcpy信号套在119行exists[0]简单赋值上，readable_extent凭空翻VIOLATED；327行safe_proved无引证；vuln无据
+L-0604,too_aggressive,3,yes,步2信号与119行while(--i>=0)模式相称，链条连贯；但i类型包内不可见即翻arithmetic_bound VIOLATED并vuln(CWE-191)，前提未证属明显跳跃，主步成立升3
+L-0605,correct,5,yes,三处memcpy的left/src/right_width与目的容量关系未见，未决成立；尺寸未受目的容量约束的信号与引证相称，义务流转有据，结论可推出
+L-0606,correct,2,no,最终underdetermined成立；步骤6对1行函数签名套循环写buf信号升VIOLATED属引证脱节，步骤13据此vuln:1无据；步骤19对140行safe_proved零引证
+L-0607,too_aggressive,2,no,全程无源码展示，步骤1凭scanf/strcpy信号对121行翻VIOLATED判vuln无引证支撑，步骤5-6对122/123行翻SATISFIED亦无凭据，结论凭空
+L-0608,correct,4,yes,空轨迹无可疑点亦无凭空引证，未下任何确定判断，local_guard_observed为保守结论，判定成立
+L-0609,too_aggressive,2,no,步骤1给出malloc尺寸未预检信号并翻arithmetic_bound、步骤2据此聚合为vuln0.6，义务状态前后流转自洽非模板堆砌；缺陷是全包零引证零上下文，关键步无证据支撑
+L-0610,too_aggressive,2,no,line13vector以tensor_in_and_out_dims分配、line15循环同界，信号声称的分配与循环失配在上下文内不成立，报CWE-190无据。
+L-0611,correct,3,no,行6/7锁内取sp置NULL、行16refcount等待，模式成立但判未决；行17/23/31等无引证即safe_proved，与相邻未决划分武断
+L-0612,correct,4,yes,全未决合理；步骤2对14行比较语句套malloc(sizeof(ptr))信号、步骤3对17行日志串套NULL解引用信号均不符，但未驱动确定结论
+L-0613,too_aggressive,1,no,步骤5把5行-input2->params.zero_point一元取负误读为除零/取模风险并vuln0.6，引证与判断完全不符；步骤7/10对3/10行无引证safe_proved；CWE-190/369无据
+L-0614,correct,4,yes,引证53行与内容相符，循环条件i<bias_size可见但array_ptr容量关系未展示；信号未翻义务，UNRESOLVED，未决成立
+L-0615,correct,3,yes,行76 memcpy长度dire->size+1取自目录表确为风险模式；步骤4/5即翻VIOLATED未析行73守卫覆盖；步骤8/9判vuln在该证据内站得住
+L-0616,too_aggressive,2,no,行2-3仅为ctx->input取输入，无守卫可见，步骤4即vuln、步骤5宣称防护均无据；最终local_guard_observed无引证支撑，跨太大
+L-0617,correct,4,yes,空轨迹无可疑点，未有无据判断，evidence_grounded按口径填yes
+L-0618,correct,4,yes,全7点未决合理；145/146等纯赋值行被套path前缀校验、scanf/strcpy信号与代码不符，但均未驱动确定结论
+L-0619,correct,4,yes,Unref后release防UAF依赖Unref语义，单文件难证，未决成立；步骤7/9/11 free信号安在input行偏泛但未翻转，主链引证准确
+L-0620,correct,2,no,包内无源码无引证，步骤1无信号无内容，步骤2对82行safe_proved凭空断言SATISFIED；final local_guard_observed弱判定未越界但无可核验内容
+L-0621,correct,3,yes,行1签名与行6边界检查被初判VIOLATED属机械泛化；步7/9/11对扫描器代码配完整性元数据信号不称；arbiter全UNRESOLVED，未决在该证据水平成立
+L-0622,correct,3,no,"行15 strcpy至sun_path固定108字节无长度预检,CWE-121模式相称;但行24 map赋值被判gets/strcat属张冠李戴;pipePath来源未验证"
+L-0623,correct,2,no,45/71行引证自身含if(length>1)守卫却翻readable_extent VIOLATED报vuln，与引证内容矛盾；最终local_guard_observed与守卫相符；669/671行safe_proved无引证
+L-0624,correct,4,yes,步骤1-12引证41/54/117/124等行内容均相符，初判VIOLATED仅为倾向未翻转义务，arbiter全UNRESOLVED；单文件下定论不可得，未决成立
+L-0625,correct,3,yes,空轨迹即无问题点的结论，未做无据引证；最终local_guard_observed按空轨迹口径接受
+L-0626,correct,3,yes,步骤2信号(仅if内赋值后无else即读)与9-11行cb条件赋值、11行解引用的模式相称，CWE-457方向可辩护；但cb声明不可见且义务名readable_extent与问题类型脱节
+L-0627,correct,4,yes,warnf为printf类封装，format_string义务主题相称，line3引证相符；未决可接受
+L-0628,too_aggressive,2,no,步骤8对21行tab_prefix[0]普通赋值套p--信号翻readable_extent:VIOLATED属张冠李戴；步骤12对64行拷贝循环套wrapped bytes信号；18步据此vuln 0.9；23-26步safe_proved零引证；CWE-124不成立
+L-0629,too_aggressive,2,no,dbuf_getu16be为封装读取调用而非裸数组下标访问，信号array[index]与引证不符，报CWE-125置信0.6缺乏依据，跨步过大。
+L-0630,correct,3,yes,行141/201为范围比较与break条件，配check-after-use与calloc信号不匹配；无翻转无确定结论，义务未决自洽，最终未决可接受
+L-0631,correct,3,yes,步骤1引证与行号相符；步骤2把vector下标信号套在6行switch上不符，但未翻转义务亦无确定结论；单文件下underdetermined站得住
+L-0632,correct,3,yes,步1-6把OP_REQUIRES校验行初判VIOLATED与内容不符，步7-16 null信号为模板噪声；arbiter步17-26全UNRESOLVED未下确定结论，未决成立
+L-0633,too_aggressive,2,no,"步1/2引证行3/92属实;决定性步5/6用限流与写文件循环信号套OP_REQUIRES_OK及行92 SubtleMustCopy,而自引行93 FastBoundsCheck恰在眼前,引证与判断脱节"
+L-0634,too_aggressive,2,no,无引证行无上下文源码，仅凭loop write信号判readable_extent VIOLATED报CWE-119置信0.7，关键步骤无引证支撑。
+L-0635,correct,3,no,9行altsetting[0]是否有元素需USB描述符上下文，未决可辩；步骤3/5对从未引证的122行即safe_proved三义务SATISFIED无据
+L-0636,too_aggressive,2,no,全程无引证内容与源码上下文，仅凭getenv类模板信号即翻null_guard VIOLATED并以0.9报CWE-476，确定结论完全无据
+L-0637,correct,3,yes,步骤1-116对21行静态数组等逐行初判VIOLATED属噪声，117-261套canned信号非决定性，262-406义务均?->UNRESOLVED无跳跃，引证属实，underdetermined成立。
+L-0638,too_aggressive,2,no,步骤11称line68分配无上限，但引文69-71恰有io.size()上限并抛错；步骤9-11无引证即翻VIOLATED；vuln 0.6站不住
+L-0639,too_aggressive,2,no,步3把行12普通NULL赋值配信号处理器/锁信号翻readable_extent为VIOLATED，与内容脱节；步4对行1零引证即safe_proved；片段内无可见防护，local_guard_observed不成立
+L-0640,correct,3,yes,步骤4把行15 memset标成scanf/strcpy、步骤6把行42 snprintf标成路径规范化信号均误命中；引证真实；义务全UNRESOLVED自洽
+L-0641,correct,3,yes,步骤3/4把行8/11 xstrdup误标calloc/符号混合信号；引证真实；步骤5/6义务全UNRESOLVED留未决，未越权自洽
+L-0642,correct,3,no,步骤1-8引证与内容相符、义务全UNRESOLVED无跳跃，最终未决成立；步骤33-34对23/24行无引证即safe_proved三义务SATISFIED属无据跳跃
+L-0643,correct,3,yes,空轨迹0步未定位任何可疑点，无步骤无引证，结论与空步骤集自洽，按口径evidence_grounded记yes，记correct
+L-0644,correct,3,yes,引证为循环头与条件行，配a-b减法信号牵强；义务均UNRESOLVED无翻转无凭空结论，s_len与oap边界单文件定不了，未决可接受
+L-0645,correct,3,no,最终未决可站住；步骤3对2行context->input(0)引用套array[index]=value信号翻VIOLATED属张冠李戴，错配未影响最终未决判定
+L-0646,too_aggressive,2,no,步骤4/5对7/8行4位位读凭限流与泄漏信号翻VIOLATED，引证内容与信号无关；final vuln CWE-401与所引义务链条脱节，结论超出引证
+L-0647,correct,2,no,步骤5把函数签名行1翻成readable_extent VIOLATED无据，步骤10据此vuln0.45；行48/50/52循环头本无边界信息；最终未决可接受
+L-0648,too_aggressive,1,no,3行是OP_REQUIRES_OK取输入张量，无任何分配运算，步骤2套malloc尺寸信号判arithmetic_bound VIOLATED并报CWE-190，属张冠李戴
+L-0649,correct,3,yes,空轨迹未定位任何可疑点，无凭空义务判断，local_guard_observed作弱结论成立
+L-0650,correct,2,no,"步3把readable_extent违背安在行1函数签名上，签名无索引操作，模式脱节；行11的decodePkt(p,pend-p)有界传递可见；步5 vuln与最终未决脱节；未决成立"
+L-0651,too_conservative,3,yes,"步1引证属实:197行按dataLength分配、200行memcpy同长,读写相称;缺陷在步5未据该匹配下安全结论而止于未决(过保守);步3的Java断言信号与C代码错配但未驱动终判"
+L-0652,correct,3,yes,"最终vuln主链由85行memcpy(buf+len,pos,llen)支撑：输入派生长度写入、边界调整代码不在可见范围，报vuln在该证据水平站得住；91行null_guard信号错配但置信仅0.45"
+L-0653,correct,1,no,包内无源码无引证，步骤4-6对1/14/15行safe_proved凭空断言SATISFIED；final local_guard_observed为弱判定未宣称已证安全，但无任何轨迹支撑
+L-0654,correct,3,yes,行5确有offset+aoffset+len上限检查，local_guard_observed有据；但步骤7凭单分支检查宣称全防护过度，负偏移分支检查未查；行3翻转信号半匹配
+L-0655,correct,4,yes,tp[len]=NUL边界未示属可疑，判未决恰当；loop-write信号主题相称
+L-0656,too_aggressive,2,no,步骤4-6把Java静态字段并发与malloc尺寸信号套在2-4行ctx->input上，引证行无对应模式，义务凭空翻VIOLATED即判vuln，误读引证
+L-0657,correct,3,yes,仅4行上下文，未决合理；步骤2对签名行套NULL解引用信号为模板噪声；store对buf的实际处理不在可见范围
+L-0658,too_aggressive,2,no,"引证:45为memset(end_data,0,7)定长填充，end_data缓冲区大小未在片段给出；步2套的是循环越界/strcpy信号与memset不符；CWE-787无extent证据"
+L-0659,correct,4,yes,引证行均与上下文相符；初判全面VIOLATED无据，但arbiter全转UNRESOLVED自洽；单文件证据下未决可接受
+L-0660,correct,4,yes,warnf为变参格式化封装，调用方fmt来源未见，未决成立；信号与3行mute判断不符但未翻转，arbiter维持UNRESOLVED自洽
+L-0661,correct,3,yes,6行确为assert(qeh->qeh_flags&QEH_INITIALIZED)，断言模式真实可见，vuln(CWE-617)方向在该证据水平可立；但信号称expr读请求/包字段不符，可达性未证
+L-0662,correct,4,yes,空轨迹：未定位可疑点亦无凭空引证；包内无可见可疑内容，按锚点空轨迹记correct，推理无跳跃记4
+L-0663,correct,3,no,3行real_mount取值后6行即用且包内无判空，null_guard风险模式可见，报vuln在此证据水平内成立；步骤5对9行无引证即safe_proved故eg为no
+L-0664,too_aggressive,2,no,"步1/2引证行2/3属实且义务流自洽;但决定性步8/9把C#/Java强转与while(true)信号套在C++ ctx->input行上判CWE-197/400,引证与判断对不上"
+L-0665,correct,4,yes,单点信号虽未展示引证内容，但仅判未决未做确定断言，义务全UNRESOLVED，结论谨慎可接受
+L-0666,correct,3,no,3行链式解引用需解析层证据，未决可辩；步骤16-17对10/11行无引证即safe_proved三义务SATISFIED，属无据确定判断，其余引证准确
+L-0667,correct,4,yes,"行7循环界SegCount来自文件,行12索引segment_entries,分配片段外,underdetermined合理;信号错配为NULL检查;SegCount上界义务未深究"
+L-0668,correct,2,no,步7对:1函数签名、步9对:6除法行判readable_extent违背，引证与判断张冠李戴；步8/10无引证给safe_proved；最终local_guard_observed有行7-9负值检查支撑，尚可接受
+L-0669,correct,4,yes,引证26/29行与内容相符；信号与代码不符但无义务翻转，两点均UNRESOLVED，LZW重启边界需更多上下文，未决成立
+L-0670,too_aggressive,2,no,行89是archive_set_error错误报告调用，被挂Java Paths.get路径归一化信号翻path_validated，完全无关；CWE-22凭空
+L-0671,correct,4,yes,步骤1-12引证与内容逐一相符，arbiter全UNRESOLVED无跳跃，未决成立；步骤13-26的C#/Java强转信号模板错配但未传导进结论；不计材料稀疏分
+L-0672,too_aggressive,2,no,行8普通赋值配循环写信号、行10无减法if配算术信号、行27无分配配calloc信号，三处翻VIOLATED全与引用内容脱节；vuln(CWE-190/191/787)无据
+L-0673,correct,2,no,行61 calloc有MTAB_OPTIONS_LEN定长、行62判空、strlcat限长，步2仍翻readable_extent为VIOLATED与可见守卫矛盾；步3中途vuln与最终未决脱节；未决成立
+L-0674,too_aggressive,2,no,"全程零引证零上下文且无任何信号,步骤2即判safe_proved义务凭空SATISFIED;local_guard_observed无可见防护支撑,安全结论凭空"
+L-0675,correct,2,yes,10行memset长度为常量MAX_MGMT_PKT_SIZE无算术溢出点，步骤2翻VIOLATED0.45无据但未入final；12行safe_proved亦无引证；final看到7行判空，保守可接受
+L-0676,correct,2,no,步骤4对7行零上下文引证即翻readable_extent VIOLATED并vuln0.45，无据确定判断；36/53行memmove前可见越界返回检查但未展开；最终未决可接受
+L-0677,too_aggressive,2,no,"步1-3引证行177/200/202属实且义务链自洽;决定性步9却把行177刷子缓冲写套path.startsWith信号判CWE-22,引证与判断对不上;步8留未决尚可"
+L-0678,correct,3,no,步骤1-18引证行均相符；步骤19/30信号错配（switch当scanf、守卫strcpy当算术越界）升VIOLATED，步骤75/76无引证判safe_proved；最终未决合理
+L-0679,too_aggressive,1,no,"仅2步:步1零信号零引证,步2即判三义务SATISFIED并safe_proved,最终local_guard_observed,无可核验推理内容,属模板噪声"
+L-0680,too_aggressive,2,no,步骤2把10行光标列赋值当外部下标读翻readable_extent:VIOLATED与内容无关；步骤4据此vuln 0.6；步骤5对11行safe_proved零引证；CWE-125不成立
+L-0681,too_aggressive,2,no,步骤2对9行w_cursor.col字段读取套数组下标信号翻VIOLATED属张冠李戴，该行无数组访问，报CWE-125无据
+L-0682,correct,2,no,步骤5对行15无引证内容即判readable_extent VIOLATED且未考量行11已有p+len>end守卫；行7的p>end边界语义存疑；最终未决可接受
+L-0683,too_aggressive,2,no,步骤1对extract_arg:9无引证即arithmetic_bound?->VIOLATED，步骤4据此报CWE-190置信0.6，包内无引证行呈现所报模式，结论超出证据，too_aggressive。
+L-0684,too_aggressive,2,no,全程无上下文与引证，步骤1无信号仅keep，步骤2凭空宣称三义务SATISFIED即safe_proved；local_guard_observed零证据，确定判断无据
+L-0685,too_aggressive,2,no,包内无引证行与上下文源码，步3凭array-index信号以0.9置信判vuln报CWE-125，无据定论；步4对:43无引证即safe_proved，义务凭空SATISFIED
+L-0686,too_aggressive,2,no,无源码无引证，仅凭operator[]信号即翻readable_extent判CWE-125，凭空
+L-0687,too_aggressive,2,no,2行仅为input获取，步骤2套解码后未验证信号判VIOLATED属张冠李戴；3行无引证即safe_proved，包内看不到任何防护，local_guard_observed无据
+L-0688,too_aggressive,2,no,步骤1无信号无引证，步骤2凭空判三义务SATISFIED报local_guard_observed，safe结论无任何代码支撑
+L-0689,correct,3,yes,步骤4对6行无引证即宣称三义务SATISFIED属跳跃但非最终结论承重；步骤3信号与7行赋值不符未翻义务；最终underdetermined成立
+L-0690,too_aggressive,2,no,无源码无引证，仅凭scanf/strcpy信号即判CWE-119，凭空
+L-0691,correct,4,yes,唯一疑点(:16)被exclude后保持UNRESOLVED，无凭空翻转，未决结论成立
+L-0692,too_aggressive,2,no,步骤2用scanf无宽度信号翻转行11的readable_extent，但行11仅指针转换赋值无读取操作，张冠李戴；CWE-119凭空，行14后代码未展示
+L-0693,correct,4,yes,仅一步信号keep且未翻义务，无引证亦无确定判断，结论UNRESOLVED保守，未决成立
+L-0694,correct,3,yes,行5/7为swaps固定宽度翻转，配窄整型与strcpy信号不匹配但未翻转；行6的REQUEST_AT_LEAST_SIZE守卫未评估；义务未决自洽，可接受
+L-0695,correct,2,no,可疑点为占位符<file>:15且包内无源码无引证，步骤2safe_proved凭空断言SATISFIED；final local_guard_observed弱判定未越界但轨迹无实据
+L-0696,correct,4,yes,空轨迹无可疑点无引证，未做任何确定断言；按口径空轨迹本身即结论，local_guard_observed标签含糊但无凭空断言
+L-0697,correct,3,yes,"空轨迹无步骤无引证,无违规;local_guard_observed在零信息下无从反驳,按口径接受"
+L-0698,correct,3,yes,"步骤1仅凭格式串信号模板推进,未展示引证;结论underdetermined克制,义务UNRESOLVED有据,无凭空确定判断"
+L-0699,too_aggressive,3,yes,步骤1引证3行sock->sk属实且与步骤2空指针解引用信号相称，null_guard翻转有据；缺陷仅在步骤3：attacker_control仍UNDERDETERMINED却以0.9报vuln(CWE-476)，结论跨步非推理断裂
+L-0700,correct,3,yes,步骤8-15信号多为null类误命中，如步骤9把行8判空守卫标成check after first use；引证真实；步骤16-23义务全UNRESOLVED未越权
+L-0701,correct,4,yes,引证行与源码一致，索引点110/115与OP_REQUIRES检查真实，单文件无法定界，未决合理；信号错配未影响结论。
+L-0702,correct,4,yes,line13统计自增与line49 ptr[words]写引证真实，words边界包内未展示，未决合理；信号错配未影响结论。
+L-0703,too_aggressive,2,no,步骤3把sprintf的%.256s有宽度限定当scanf无宽度信号判readable_extent VIOLATED，与引证内容矛盾，报CWE-120依据失效；步骤8/9 safe_proved无引证。
+L-0704,correct,4,yes,引证42/210/435行均与源码一致，arbiter步骤8-11全UNRESOLVED；forensics步7对435行memcpy常量长度判输入长度、步5-6套assert信号属错位，未驱动结论
+L-0705,too_aggressive,2,no,步骤2对afra_box_read:7位流读取赋值命中malloc泄漏类信号却流转readable_extent VIOLATED，报CWE-401无据；步骤6/7 safe_proved无引证。
+L-0706,correct,4,yes,6/7行在write_lock内取置disc_data，守卫模式正确，信号为噪声未翻转义务；未决成立
+L-0707,correct,3,yes,空轨迹无引证无确定判断，按口径成立；包内亦无可疑点，无从要求更多推理，local_guard_observed可接受
+L-0708,correct,4,yes,空轨迹0可疑点未做任何无据引证，local_guard_observed弱判定未宣称已证安全；无引证无推理可扣分点，证据稀疏属数据集属性而非分析器之过
+L-0709,correct,3,no,行33只查目标大小未查skb->len，行36 memcpy越界读成立；但步骤7-8对未展示的行5/12宣称防护无引证；行47的skb->len减2下溢该查未查
+L-0710,correct,1,no,全程无任何引证行与上下文，步骤6-8即safe_proved、步骤9凭Java check-then-act信号判vuln，步骤间无证据链；文件级未决可接受但推理不成立
+L-0711,correct,2,no,最终未决可接受；但步骤3对6行movie指针赋值套calloc信号判vuln(0.45)，行内容与信号无关，属凭空跳跃
+L-0712,correct,2,no,步骤1上下文自示79行有start>=size检查，步骤5仍对78行升arithmetic_bound VIOLATED、步骤9报vuln:78属误读自引上下文；步骤7-8对15/16行safe_proved零引证；最终underdetermined未越界
+L-0713,too_aggressive,2,no,行4是mode检查非判空，步骤2/4据此判null_guard VIOLATED并给0.9置信落CWE-476无据；步骤5行7零引证即safe_proved
+L-0714,too_aggressive,2,yes,7-10行引证与内容一致且9-10行OP_REQUIRES(epsilon>0)验证可见，步骤2却称验证后未验最终值判readable_extent VIOLATED，误读引证内容，CWE-20不成立
+L-0715,correct,3,yes,空轨迹无推理步骤与引证，未定位可疑点；无无据主张故grounded为yes；结论无从查证但无越界主张
+L-0716,too_aggressive,2,no,步骤6/9以无关信号（行1签名、行83标C#强转）令readable_extent跳VIOLATED，步骤11/14据此判vuln与引证脱节；行21/24格式串信号误命中
+L-0717,too_aggressive,1,no,唯一引证为1行函数签名，无任何读取证据即升readable_extent VIOLATED并0.6报vuln:1；步骤9-13对9/13/15/19/22行safe_proved零引证；CWE-20结论凭空
+L-0718,correct,3,yes,步骤1-5引证与上下文一致，行14的OP_REQUIRES守卫可见；步骤6-11给C++代码配Java空指针信号不符但零翻转，义务均UNRESOLVED，未决成立
+L-0719,correct,4,yes,"29行memcpy(&serial,cert->serial,sizeof serial)与65行rrlen-1-strlen(rr)均值得查且单文件无法定论；步骤9对54行套scanf模板错配；全未决无跳跃"
+L-0720,correct,2,no,88行描述符地址算术边界需仿真上下文，未决成立；步骤2在86行wrap分支以scanf信号翻转readable_extent判vuln0.45，无据
+L-0721,too_aggressive,2,no,"步1引证行5属实;决定性步5却把calloc被malloc替换信号套在自引的calloc(1,sizeof(*ret))上判CWE-190,且行6-7自示判空,引证与判断直接矛盾"
+L-0722,too_aggressive,1,no,无信号无引证却判三义务SATISFIED并safe_proved，凭空证明防护；最终local_guard_observed无据
+L-0723,too_conservative,3,yes,79行calloc后80行if(mountent.mnt_opts)即判空防护可见，strlcat亦带MTAB_OPTIONS_LEN上限，null_guard本可判SATISFIED，arbiter仍UNRESOLVED过保守
+L-0724,correct,3,yes,步骤1对11行malloc判VIOLATED与自引上下文12行if(!b)矛盾，步骤3把buf[offset]信号挂在malloc行锚点；步骤4-5均UNRESOLVED无跳跃，最终underdetermined稳健。
+L-0725,correct,2,yes,129/150引证与内容一致但均为map赋值，步骤3套HTTP头注入信号判readable_extent VIOLATED属信号误用；150行未决自洽，文件级未决可接受
+L-0726,correct,3,no,行9守卫真实可见，最终local_guard_observed有据；步2把该守卫当算术溢出翻VIOLATED属误读，步8-11对行14/15/17/19零引证即safe_proved
+L-0727,too_aggressive,2,no,"19行R_NEWS0(int,imagesCount)分配被套数组读信号翻readable_extent VIOLATED，溢出前提未证且CWE-125落点缺失；步骤5对126行零引证safe_proved"
+L-0728,correct,2,no,终判未决可立；步骤2以死循环信号翻转3行input_sanitized判vuln0.45与取Tensor行无关，56点仅凭SQL信号无引证
+L-0729,correct,2,no,全程无源码无引证即翻arithmetic_bound与readable_extent并给vuln子结论，凭空；最终underdetermined未采纳该子结论，尚可成立
+L-0730,correct,2,no,步骤2把行44的wm_SemLock当free后解引用判object_live_at_use VIOLATED，信号与代码无关；内部vuln无据；最终未决保守可接受
+L-0731,correct,3,yes,步骤2对195行memset套strcpy族信号属错配，但195按宽高计长写且窗口内无容量检查，readable_extent报VIOLATED在该证据水平成立，报vuln站得住；230行safe_proved无据是瑕疵。
+L-0732,correct,4,yes,引证行10/11相符，行11已查fc->source重复；信号shared pointer错配但仅keep；未决合理
+L-0733,too_aggressive,2,no,"全程零引证零上下文,仅凭check-after-use模板信号即判null_guard VIOLATED置信0.9报CWE-476;零证据确定结论,vuln凭空"
+L-0734,correct,4,yes,sprintf写IObuff与STRCAT拼接是经典疑点但IObuff容量约束未展示，未决合理；义务全UNRESOLVED无凭空跳跃
+L-0735,correct,4,yes,引证28/62行均与源码一致，x/y与im->sx/sy边界单文件难证，全留UNRESOLVED合理；forensics步4对62行if比较套循环写buf信号属模板噪声，未驱动结论
+L-0736,too_aggressive,1,no,全程无引证内容无上下文，行121凭减法信号判arithmetic_bound VIOLATED落vuln(0.45)；行122/123零引证safe_proved皆无据
+L-0737,correct,4,yes,引证行1/6/28/42/57相符，行25有CHECK_GE、行43查s.ok；五点全未决无跳跃；步骤8用Java模式匹配C++代码属噪声
+L-0738,correct,4,yes,轨迹为空无任何步骤与引证，无义务流转可核；包内未展示源码，无据认定漏查可疑点，按空轨迹口径判correct且grounded=yes
+L-0739,correct,3,yes,步骤3-4对input_list获取行套数组下标/calloc信号不相称但未驱动流转；11/19行尺寸检查可见，义务全UNRESOLVED判未决自洽，最终结论可接受
+L-0740,correct,4,yes,步骤1引证4行get_fuse_inode(inode)->state真实且为解引用点，函数内无判空可见，报CWE-476在该证据水平站得住，null_guard流转有据
+L-0741,too_aggressive,2,no,步2把行38常量下标[0]写当外部下标读翻readable_extent为VIOLATED，模式脱节；步5对行39零引证即safe_proved且与步4同型判断矛盾；attacker_control未决即报vuln跨大
+L-0742,correct,2,no,步骤3-4仅凭deterministic checker一句声明即把arithmetic_bound/readable_extent推进VIOLATED，未展示检查证据；8行safe_proved无引证；未决可成立
+L-0743,correct,3,yes,自报2个可疑点（gen_hash:9/:21）但全程无引证无源码，步1-2为模板信号命中；arbiter步3-4全UNRESOLVED未越权，未决即合理结论
+L-0744,correct,4,yes,22行memcpy长度为sizeof(zend_object_handlers)常量非输入，未决合理；信号称长度来自输入与行不符但未驱动结论
+L-0745,too_aggressive,2,no,行2仅取input无分配却于步骤3/7判arithmetic_bound VIOLATED；行55上下文52-53明示越界检查仍于步骤5/9判vuln；步骤8零引证safe_proved
+L-0746,too_aggressive,2,no,"步1/2引证行4/9属实,步6对行9留未决尚可;决定性步5把C#/Java强转信号套C++宏OP_REQUIRES_OK判CWE-197,引证与判断对不上"
+L-0747,too_aggressive,2,no,步骤5对ins_bs:37的col<=ai_col比较命中除零与取模信号，line37无任何除法运算，arithmetic_bound VIOLATED与CWE-369无引证支撑。
+L-0748,correct,2,no,步骤2对17行AddItem/StrCat凭分配字节数信号翻VIOLATED与引证无关；步骤3 vuln未被最终采纳，未决可接受
+L-0749,too_aggressive,2,no,步骤2对5行stl->error守卫项套数组下标信号翻VIOLATED属张冠李戴，6行明明有facet_num<0检查，报CWE-125被自身引证反驳
+L-0750,correct,3,yes,引证:88为fail路径archive_set_error错误上报，无风险；步2信号为Java Paths.normalize与C代码无关；arbiter步3保持UNRESOLVED，未决成立
+L-0751,too_aggressive,2,no,步骤1-2围绕disable_priv_mode:1推进，义务?->SATISFIED流转自洽无凭空跳跃；缺陷仅在关键步骤零信号零引证即safe_proved(锚点2)，非步骤间无逻辑关联
+L-0752,correct,2,no,最终未决可接受；但步骤3对263行无任何上下文与引证内容即翻readable_extent为VIOLATED，263行vuln子结论无法核对
+L-0753,too_conservative,4,no,"步骤1引证行9属实,上下文行7/9/11的resource界、拷贝错误返回、rlim_cur>rlim_max三重校验可见且相称;缺陷仅步骤2把copy_from_user误配malloc尺寸信号,arbiter停在underdetermined未把未决当已证"
+L-0754,correct,3,no,11行GetNode取点后12行直接解引用无空检查，CWE-476方向可立；步骤3把calloc/符号信号安在if判断行，CWE-190链无据
+L-0755,correct,3,yes,cmdbuff容量与j上界未见，493/495行未决成立；步骤3 integrity信号安在数组搬移行、步骤4 NULL信号安在NUL赋值行，均未翻转
+L-0756,correct,3,yes,行19/22为位置比较与赋值，配calloc与len上限信号不匹配；无翻转无确定结论，义务未决自洽，最终未决可接受
+L-0757,correct,3,yes,引证:1签名与:9 putcmdline均为UI交互行无风险迹象；步3-4信号（client-side JS/输入解码）与C代码无关；arbiter步5-6保持UNRESOLVED，未决成立
+L-0758,correct,4,yes,全15点未决站得住；14-28步信号为模板噪声(OP_REQUIRES_OK行被套锁外NULL解引用与buf[offset]信号)但未驱动任何确定结论
+L-0759,correct,2,no,步骤4对95行masks[0]=0定值赋句判arithmetic_bound VIOLATED属张冠李戴，步骤10据此报vuln无据；其余信号与代码无关；最终未决可接受
+L-0760,correct,3,yes,步骤2把12行判空当分配点套calloc信号翻arithmetic_bound:VIOLATED信号不符；步骤3点级vuln 0.45但整体回退underdetermined；13行elementCount+4非攻击者长度
+L-0761,correct,4,yes,引证行15/23相符；行20循环有cc<ccend边界；信号把switch与SLJIT_ASSERT当数组索引误配；全程未决保守合理
+L-0762,correct,2,no,步骤2对行22无引证内容即判arithmetic_bound VIOLATED；步骤4的scanf/strcpy信号与行49赋值错配；步骤3判null_guard VIOLATED无视行46已有return 0守卫迹象；未决保守
+L-0763,too_aggressive,2,no,行35无引证内容与上下文，未展示任何守卫即判safe_proved并报local_guard_observed，确定结论零证据
+L-0764,correct,4,yes,空轨迹本身即结论：未发现值得深究的点，无无据引证；eg按口径填yes，无义务流转可评
+L-0765,correct,4,yes,仅2步，信号与null_guard义务主题相关，义务落UNRESOLVED无过度断言，未决结论自洽
+L-0766,too_aggressive,2,no,line148在line145的src_output()>=0检查内写outputs_required，防护可见；信号rate limiting与代码无关，报CWE-770无据，凭空升级。
+L-0767,too_aggressive,2,no,全程无上下文源码可核对，步骤1凭calloc信号即翻arithmetic_bound:VIOLATED、步骤3点级vuln；步骤4safe_proved零引证；local_guard_observed零证据支撑
+L-0768,correct,3,yes,行41/46是value<=0守卫，被初判VIOLATED并配calloc信号不称；arbiter保持UNRESOLVED，ww/hh后续分配不在片段内，未决在该证据水平成立
+L-0769,too_aggressive,2,no,行16本身是cdf_check_stream_offset边界检查调用，被挂malloc无预检查信号翻arithmetic_bound，完全误读自身引证；CWE-190凭空
+L-0770,correct,3,yes,步1-41引证与内容一致；步43-93把format_string_fixed/path_validated等错挂到f.read/memcpy行属模板噪声，arbiter步94-145未采信而全UNRESOLVED；未决成立
+L-0771,correct,4,yes,"85行memset(m,c,--len)长度来自span且dst容量不在可见范围，84行len>1仅下界守卫，报CWE-787在该证据水平站得住；步骤4信号名与memset略偏"
+L-0772,too_aggressive,3,no,步骤1引证行5-8源码真实，gf_malloc(sizeof(char)*(s->size+1))确是尺寸算术，与步2尺寸溢出关切同族；缺陷仅在步2/3未分析s->size类型宽度与回绕可达，行6已判空、行8写[s->size]在界内
+L-0773,too_aggressive,2,no,"全程零引证零源码,决定性步2仅凭读取无上限信号对行36翻readable_extent判vuln 0.6报CWE-770,关键步骤缺乏证据支撑"
+L-0774,too_aggressive,2,no,步1以数组下标读信号命中ParseEquation:17并翻readable_extent、步3承接判vuln0.6，链条连贯非噪声；但全包无引证无上下文，:21亦零引证safe_proved，关键步缺证据锁2
+L-0775,correct,3,yes,空轨迹：自报可疑点0、无推理步骤、判定local_guard_observed；与L-0091/L-0464同理，无凭空引证
+L-0776,correct,4,yes,66行定长4读与71行sizeof memset无风险模式；步骤3-4命中信号为strcpy模板噪声但未翻义务；两点UNRESOLVED；underdetermined成立
+L-0777,too_aggressive,2,no,步骤2引证2行context->input(1)取引用却套信号处理与锁信号翻readable_extent VIOLATED报CWE-362，引用与判断无关，无任何并发证据
+L-0778,too_aggressive,2,no,vuln(CWE-843)凭2行Tensor获取语句上的PHP/Perl标量信号，与C++代码完全无关，引证与所报模式脱节
+L-0779,too_aggressive,2,no,步骤2对2行ctx->input引用套decoded/normalized信号即翻readable_extent违规，无任何边界或长度证据，报CWE-20无据
+L-0780,too_aggressive,2,no,步骤2对gen_assignment:4的nint(tree->car)取类型宏命中malloc解引用信号，报CWE-754无据，张冠李戴；步骤5 safe_proved无引证。
+L-0781,correct,3,no,11个未决点引证真实；但步骤25对mrb_vm_exec:55无引证即safe_proved三义务SATISFIED，步骤12对regs赋值命中strlen信号错配，未决结论成立。
+L-0782,too_aggressive,2,no,步骤1引证行10属实为OP_REQUIRES错误消息构造；步骤2套path.startsWith/URLDecoder信号翻path_validated属引用与判断不符(锚点2)，非无逻辑关联；另步骤3 vuln0.45与最终underdetermined矛盾
+L-0783,correct,2,no,步骤2信号仅为candidate fact空壳，与行44的wm_SemLock无关联即判readable_extent VIOLATED；内部vuln凭空；最终未决保守可接受
+L-0784,too_aggressive,1,no,全程零引证零上下文，步骤2凭空宣布三义务SATISFIED落local_guard_observed，防护未证，跨步过大
+L-0785,too_aggressive,2,no,可疑点268/463均无引证行无上下文，代码完全未展示即翻readable_extent为VIOLATED判vuln并safe_proved；义务流转凭空，CWE-787结论零证据
+L-0786,too_aggressive,2,no,步骤1以循环写定长缓冲信号翻kvmppc_rtas_hcall:15 readable_extent，步骤3同点同义务vuln0.6报CWE-787，义务流转前后连贯；缺陷仅在全程零引证(锚点2)，非无关联
+L-0787,too_aggressive,2,no,5/6行仅从xml_writer取字段，realloc/memcpy信号与引证完全脱节仍判vuln0.6；116行无引证即safe_proved，结论凭空
+L-0788,correct,3,no,步骤1-11引证真实相关；步骤37对175行无引证即safe_proved，义务?->SATISFIED凭空跳跃；最终underdetermined对sprintf/strcpy类点可接受
+L-0789,too_aggressive,2,no,步骤2锚点16行是ovs_mutex_lock，包内无任何free或释放后解引用代码即判object_live_at_use?->VIOLATED，步骤3报CWE-416无据，引证行与UAF风险不相称，too_aggressive。
+L-0790,too_aggressive,2,no,全程无上下文与引证内容，步骤2凭空宣称三义务SATISFIED即safe_proved；local_guard_observed无据
+L-0791,correct,4,yes,步骤1-20引证与上下文逐行相符；步骤21-48信号为模板噪声但未翻义务，arbiter全UNRESOLVED且置信0.0，未决结论成立
+L-0792,too_aggressive,2,no,步骤2对734行memset套scanf/strcpy信号翻readable_extent违规属张冠李戴，730-733行显示同extent分配且已判空，0.7置信报vuln无据
+L-0793,too_aggressive,2,no,可疑点62无引证无上下文，仅凭外部下标泛化信号翻readable_extent为VIOLATED判vuln(0.6)；义务流转凭空，CWE-125结论零证据
+L-0794,too_aggressive,2,no,步骤3对1行函数签名套buf[offset]信号翻readable_extent:VIOLATED属张冠李戴；步骤4把6行算子调用当判空后用翻null_guard:VIOLATED；步骤8对7行safe_proved零引证；CWE-476不成立
+L-0795,correct,4,yes,"memcpy(elem.in_sg[0].iov_base,buf,len)引证可见无界拷贝模式，len来源与iov_base容量包内未展示，报CWE-120在该证据水平可接受。"
+L-0796,correct,3,no,"步骤1引证相符，224行STRCPY(p+c,st_word)无界写模式可见，p容量未展示属数据集稀疏不扣分；步骤5对225行翻SATISFIED与自引STRCAT无防护矛盾"
+L-0797,correct,3,yes,allocate_output尺寸与CommonFinishDecode边界需外部上下文，未决成立；步骤6-11对全部行套用同一NULL检查信号与内容不符，但无翻转
+L-0798,correct,3,yes,步骤7-11完整性元数据/签名类信号与挂载克隆代码不符但未驱动义务流转；10-14行check_mnt与has_locked_children防护可见而null_guard未据此解决，未决尚自洽
+L-0799,correct,4,yes,纯哈希运算无风险汇点；步骤1-4引证与源码一致；步骤5-10命中null信号与哈希代码不符但未翻义务；步骤11-16全UNRESOLVED；underdetermined成立
+L-0800,correct,3,no,"步骤1引证属实,行14上下文另可见OP_REQUIRES校验;步骤2把行11输入获取配归一化信号判readable_extent VIOLATED与内容脱节且未被最终采信;最终underdetermined克制"
+L-0801,too_aggressive,2,no,步骤2对45行stbase[0]赋值链套calloc/size信号翻arithmetic_bound违规属张冠李戴，该行无分配运算，报CWE-190无据
+L-0802,correct,3,no,步骤1引证相符；步骤3把清理标签泄漏信号套在6行dev初始化上翻VIOLATED属张冠李戴，但该子结论未驱动终判，underdetermined站得住
+L-0803,correct,3,yes,引证:6为satype上界校验守卫本身，初判VIOLATED属误读守卫；步2信号为C#/Java强转与内核C代码无关；片段外使用未展示，单点未决成立
+L-0804,correct,2,no,步骤4对216行aad_len*8乘法套减法信号翻arithmetic_bound VIOLATED无据，步骤8据此报vuln跨度大；219行safe_proved无引证；最终未决可接受
+L-0805,too_aggressive,2,no,步骤3对2行c->Dim方法调用套判空信号跳null_guard:VIOLATED，片段内无check-after-use模式可见；步骤5据此0.9置信vuln；CWE-476无据
+L-0806,too_aggressive,2,no,"全程零引证零上下文,信号为Java Jackson与BeanUtils与PHP代码完全无关,即判readable_extent VIOLATED置信0.6报CWE-915;零证据确定结论"
+L-0807,correct,3,yes,步骤2把9行*p=='\0'普通判断套路径规范化信号翻path_validated:VIOLATED属噪声；步骤4点级vuln 0.45但整体回退underdetermined；可接受
+L-0808,correct,4,yes,纯形状推断代码，步骤1-10机械遍历初判VIOLATED无差别无依据，但义务全UNRESOLVED自洽，underdetermined成立
+L-0809,too_aggressive,2,no,步骤3对6行sizeof常量赋值套符号混合判arithmetic_bound:VIOLATED无算术；步骤4无视12行pskb_may_pull既有防护翻VIOLATED；步骤5-6据此vuln；CWE-191不成立
+L-0810,too_aggressive,2,no,步骤9对66行inoptsbuf[0]单字节写套scanf/strcpy信号翻readable_extent违规属张冠李戴，57行malloc已判空，报vuln无据
+L-0811,too_aggressive,2,no,"步骤6对ismnt_access:18的memset(priv->buffer,0,sizeof)命中strcpy族信号并判readable_extent VIOLATED，明显误读自引代码，arbiter据此报CWE-119无据。"
+L-0812,too_aggressive,2,no,行6是指针初始化，配a-b减法信号翻arithmetic_bound判vuln报CWE-191，与引证内容无关，无据
+L-0813,correct,4,yes,空轨迹零步骤与自报0可疑点一致，local_guard_observed可由空轨迹推出，无凭空判断与无据引证，判定correct。
+L-0814,correct,2,no,最终underdetermined成立；步骤3对81行数组写套scanf信号升VIOLATED属引证脱节，步骤6据此vuln:81无据；步骤8对117行safe_proved零引证；步骤2对111行引证相符留未决合理
+L-0815,too_aggressive,2,no,零引证零上下文，步骤3/4对7/77仅凭keep即safe_proved并称local_guard_observed，防护证明全凭空
+L-0816,too_aggressive,2,no,步骤3/4把4行kiocb取址与6行async_data赋值误读为free/new错配与减法下溢并翻VIOLATED，信号与代码完全无关；vuln CWE-191无据
+L-0817,correct,4,yes,:6仅查k>Kmax上界未查k<0下界，:11的freelist[k]依赖k非负，arithmetic_bound义务未实质展开；调用方约束不可见，未决成立
+L-0818,too_aggressive,2,no,步骤1引证属实但行13仅magic_int版本比较;步骤2配calloc溢出与符号混用信号判arithmetic_bound VIOLATED与内容完全无关;步骤5行35零引证判safe_proved;vuln/CWE-190凭空
+L-0819,correct,2,no,行29数组写numTriggeredTopics上标查不到上界，判未决合理；但步骤2对未展示的行25凭信号处理器信号翻VIOLATED并vuln，步骤7对行49宣称防护无引证
+L-0820,correct,2,no,行116/137是对map的下标赋值，步3/4却配未初始化读与缺NUL信号翻VIOLATED，引用与模式脱节；步5/6中途vuln与最终未决矛盾且无交代；未决本身成立
+L-0821,too_aggressive,3,no,步骤1引证118行memcpy属实，步骤2信号(长度未受目的容量约束)与该行同类相称；缺陷在步骤3 arbiter：attacker_control仍UNDERDETERMINED、115行按iMaxLine-iMsg截断未核实即定vuln0.6
+L-0822,correct,2,no,8行循环i<abbrev->count-1且attr_values分配未见，未决合理；步骤5/6对6/7行无引证即safe_proved三义务SATISFIED，属无据判断
+L-0823,too_aggressive,2,no,行7 if((rv=freelist[k]))即判空，行8在其体内，判null_guard VIOLATED属明显误读自身引证；CWE-476置信0.9无据
+L-0824,correct,3,yes,行605 sprintf入IObuff确为风险点；步骤7/8把行610/683误标完整性信号；步骤9-12义务全UNRESOLVED未越权，未决可接受
+L-0825,too_aggressive,2,no,行48是循环头无尺寸运算，signed/unsigned信号与之无关，step8凭空vuln；最终local_guard_observed亦无防护证据且与step8矛盾
+L-0826,too_aggressive,2,no,无源码无引证；泄漏信号被挂到readable_extent义务，义务与CWE-401错位，凭空判vuln
+L-0827,too_aggressive,3,yes,步骤1引证行9-14源码真实，new double[4*maxVertices]与行10循环上界maxVertices构成分配/循环界配对，与步2关切相称；缺陷仅在步3未证maxVertices来源与回绕可达，可见写i*4+3在界内
+L-0828,too_aggressive,2,no,步骤1空keep无信号无引证，步骤2义务凭空翻SATISFIED，终判local_guard_observed称观察到防护但轨迹无任何防护展示，结论跨度过大
+L-0829,correct,2,no,终判未决可立；步骤2把除零/取模信号安在6行纯指针赋值上翻转arithmetic_bound判vuln0.45，该行无任何算术，关键步骤无据
+L-0830,too_aggressive,2,no,"引证行号内容属实但判断脱节:步骤3把行3 OP_REQUIRES_OK输入获取判readable_extent VIOLATED,步骤4把行4输入获取配malloc溢出信号,CWE-190/20无据;步骤8行5零引证判safe_proved"
+L-0831,correct,4,yes,"行490/492索引界与cmdbuff容量在片段外,underdetermined合理;步骤4信号free后解引用与行492内容完全无关,错配未深究"
+L-0832,too_aggressive,2,no,行136是create_tmp_table调用，步3配循环写/strcpy信号翻readable_extent为VIOLATED，引用行无缓冲写，模式脱节；步4对行6零引证即safe_proved；vuln(CWE-787)无据
+L-0833,correct,4,yes,line27-28有from<array->length与is_valid检查仍初判VIOLATED；scanf/strcpy信号与代码错配；未决可接受
+L-0834,correct,4,yes,line19取节点后line20即CHECK非check-after-use，信号与代码不符；引证真实，未决可接受
+L-0835,correct,2,no,步骤3把allocation size信号挂到行25条件判断即翻readable_extent，信号与引证内容脱节；step5的vuln子结论无据；最终underdetermined自洽
+L-0836,too_aggressive,1,no,全程零引证零代码展示，三个safe_proved纯模板输出，local_guard_observed无任何防护证据
+L-0837,too_aggressive,2,no,全程无引证内容与源码上下文，仅凭空指针类模板信号即翻null_guard VIOLATED并以0.9报CWE-476，确定结论完全无据
+L-0838,correct,4,yes,两点经exclude后判未决，与证据水平一致，流转自洽；141行create_tmp_table返回值未深究但未乱下结论，推理干净
+L-0839,correct,4,yes,line188按image->colors分配、line190循环上界为colormap_index，两界失配模式引证可见，报CWE-190在该证据水平成立；可控性未证略有跳跃。
+L-0840,correct,3,yes,32点未决成立，367/1017行DT_NEEDED读串值得查；步骤24-55信号与引证行大面积错配(如36行switch配scanf信号)但未翻转任何义务，主链引证准确
+L-0841,correct,2,no,步骤4对25行函数指针声明套signed/unsigned信号、步骤5无视52行常量124且带回读检查判readable_extent VIOLATED；167/178/295无引证即safe_proved
+L-0842,too_aggressive,2,no,7/8行是fd关闭清理代码，uninit与calloc替换信号均与引证脱节仍判CWE-190/457双vuln0.6，关键步骤无据
+L-0843,correct,4,yes,行29 memcpy长度actions_len源自流表属性确为风险点，行26 IS_ERR守卫可见；信号与引证相符；arbiter留未决未凭信号跳VIOLATED，自洽
+L-0844,correct,2,no,最终未决可接受；但步骤2对25行get_bits分支套循环/strcpy信号判vuln(0.45)，与行内容无关，凭空
+L-0845,correct,4,yes,空轨迹，自报0可疑点；无步骤可评亦无无据引证，按口径接受其未定位可疑点的结论；local_guard_observed标签略与零步骤不匹配
+L-0846,correct,2,no,"最终未决可接受；但步骤2对10行memset(&sffield,0,sizeof(GF_FieldInfo))套外部输入尺寸分配信号判vuln(0.45)，与行内容不符"
+L-0847,too_aggressive,2,no,步骤2用scanf/strcpy信号翻转行4指针转换的readable_extent，操作类型完全无关；skb加offset边界在调用方未展示，CWE-119凭空
+L-0848,too_aggressive,2,no,步骤4判341行strcpy越界但包内未给该行任何引证内容；步骤6对15行凭空safe_proved；vuln CWE-120超出引证
+L-0849,correct,3,yes,空轨迹自报0个可疑点，无引证无翻转无确定漏洞结论；local_guard_observed标签无步骤支撑，按空轨迹口径可接受
+L-0850,too_aggressive,2,no,行15-17是固定宽度位读取，arithmetic_bound与readable_extent翻VIOLATED均无据；步骤11对行18宣称防护无引证；最终local_guard_observed与三vuln步矛盾且无守卫可见
+L-0851,correct,4,yes,line4-6先OP_REQUIRES判空session_state再用，check-after-use信号与代码不符；引证相符，未决可接受
+L-0852,too_aggressive,1,no,30行零信号零引证零上下文即safe_proved三义务SATISFIED，final local_guard_observed无观察基础；无vuln主张但防护结论超出证据，归此档
+L-0853,too_aggressive,2,no,可疑点:52/:57全程无引证无上下文，步5/6却分别判vuln与safe_proved；步7对:66仅套wrapped-bytes模板未验累计和边界；CWE-190证据不足
+L-0854,correct,3,yes,"行6范围检查可见却未约束行10/12/23的1<<satype判定,全UNRESOLVED;信号把位操作当NULL检查;hdr/pfk来源片段外,underdetermined尚可"
+L-0855,correct,3,no,最终local_guard_observed由7-12行可见守卫（7行resource界检查、11行rlim_cur<=rlim_max）支撑；步骤2对9行套Java信号张冠李戴但未影响最终判定
+L-0856,too_aggressive,2,no,步骤4用a-b减法信号判line216乘法行，无underflow证据；CWE-191不成立；步骤10 safe_proved无引证
+L-0857,too_aggressive,2,no,7/8行引证均为OP_REQUIRES_OK取输入宏却分别翻arithmetic_bound与input_sanitized VIOLATED报CWE-400，信号与内容无关，步骤7的safe_proved亦无引证
+L-0858,too_aggressive,2,no,12行spin_lock_init无分配，泄漏信号与其脱节且误用readable_extent翻转，CWE-401取决于未见的state分配方式，vuln0.6无据
+L-0859,correct,3,yes,引证line44-45以booth_conf->name拼.pid路径且无可见校验，CWE-22模式在引证内可见，vuln方向在该证据水平成立；Java信号错配属瑕疵
+L-0860,too_aggressive,2,no,步骤3把除法维量信号套在23行input(0)上，行内无任何除法，步骤4把malloc信号套在29行input(1)；引证与判断不符，vuln无据；30行safe_proved无引证
+L-0861,too_aggressive,2,yes,175行memcpy长度与来源同为seed->length，172-174可见紧邻分配失败分支暗示按length分配，步骤4未给出len超界证据即判VIOLATED报CWE-125，跨度过大
+L-0862,too_aggressive,2,no,行12是check_read_type类型检查无任何减法，a-b信号完全无关；行14明有size>r_size(op1)防护未纳入；CWE-191凭空
+L-0863,correct,4,yes,三步引证与行号相符，7行base_name可能为NULL传入g_file_get_child已保留信号但未决；未决结论在此材料下成立
+L-0864,too_aggressive,2,no,步骤8的vuln@4无任何引证；步骤4对17行保存变量判arithmetic_bound VIOLATED属张冠李戴；220行STRCPY的p缓冲区大小未展示，报CWE-121跨度过大
+L-0865,correct,3,yes,14行ctx->fds[0]先取后验，15行才查size与fd<0，fd_num未验前访问数组，报vuln与引证相符；但步骤2用scanf模板、步骤5义务命名不当，扣分
+L-0866,too_aggressive,2,no,全程无引证行无上下文源码，仅凭gets信号判readable_extent VIOLATED报CWE-121，步骤4 safe_proved亦无引证，确定结论零支撑。
+L-0867,too_aggressive,2,no,唯一引证:15为OP_REQUIRES错误消息StrCat拼接，仅在校验失败分支执行；步2套calloc/符号混合信号判arithmetic_bound违背，与内容无关；CWE-190无据
+L-0868,too_aggressive,2,no,全程零引证零上下文;步骤1行150凭索引读模板信号即判readable_extent VIOLATED置信0.6报CWE-125;步骤4行839零引证判safe_proved;vuln结论凭空
+L-0869,correct,3,yes,行974 STRCAT向new_start无界拼接且copycol来源未示，无边界写模式在引证内可见，可控性留UNDERDETERMINED，判vuln在此证据内站得住；信号calloc与本行不符
+L-0870,too_aggressive,2,no,步5把引证行5的vd指针赋值判成数组越界读，张冠李戴；步14在attacker_control仅UNDERDETERMINED时报vuln；步21-22对case行凭空给SATISFIED防护

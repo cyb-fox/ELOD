@@ -1,0 +1,95 @@
+{
+  "cwe_id": "CWE-89",
+  "name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-74",
+      "CWE-943"
+    ],
+    "parent_of": [
+      "CWE-564"
+    ]
+  },
+  "principle": "The product constructs SQL command text using externally influenced input without correctly neutralizing SQL syntax. The database can interpret user data as SQL code, enabling query changes, data disclosure, authentication bypass, data modification, or command execution.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "PHP",
+    "Python",
+    "JavaScript",
+    "SQL"
+  ],
+  "detection_signals": [
+    "SQL string built with +, +=, StringBuilder.append, snprintf, sprintf, strcat, interpolation, or || using request, cookie, header, body, or form input",
+    "Java Statement.executeQuery(sql), Statement.executeUpdate(sql), Statement.execute(sql), or DriverManager query called with concatenated SQL",
+    "C/C++ mysql_query(conn, sql), PQexec(conn, sql), or sqlite3_exec(db, sql, ...) called with formatted external input",
+    "Java createNativeQuery(sql), Hibernate createSQLQuery(sql), MyBatis ${param}, or JPA query text built by concatenation",
+    "PHP mysqli_query($conn,$sql), mysql_query($sql), or PDO::query($sql) called with $_GET, $_POST, $_COOKIE, $_REQUEST, or $_SERVER in SQL text",
+    "Dynamic SQL in stored procedure using EXEC(@sql), EXECUTE IMMEDIATE, sp_executesql(@sql) without parameters, or OPEN CURSOR FOR concatenated SQL",
+    "External input concatenated into SQL identifiers or clauses such as ORDER BY, table name, column name, LIMIT, WHERE, UNION, or IN list"
+  ],
+  "negative_signals": [
+    "Java PreparedStatement or CallableStatement uses ? placeholders with setString, setInt, setLong, setDate, or other typed bindings for all values",
+    "C/C++ mysql_stmt_prepare plus mysql_stmt_bind_param, PQexecParams, sqlite3_prepare_v2 plus sqlite3_bind_* used for all values",
+    "PDO prepare($sql) followed by bindParam, bindValue, or execute([$param]) with no user data concatenated into SQL",
+    "ORM query uses named or positional parameters such as :name, ?1, setParameter, CriteriaBuilder, or LINQ expression APIs",
+    "Non-value SQL tokens are selected from a fixed allowlist map or enum-to-hardcoded-token mapping",
+    "Numeric input is parsed to a numeric type and rejected on parse failure before being used, with no raw string concatenated into SQL"
+  ],
+  "false_defense_traps": [
+    "Manual escaping such as mysql_real_escape_string alone is insufficient if quoting, charset, or every call site is not correct",
+    "Wrapping input in quotes like '\" + input + \"' is unsafe because input can contain quotes, comments, or operators",
+    "Stored procedures are unsafe when they build dynamic SQL with EXEC, sp_executesql, EXECUTE IMMEDIATE, or concatenation",
+    "Client-side validation only is bypassable by modifying requests, cookies, headers, or scripts",
+    "Denylist filters for '--', ';', UNION, OR, or quotes miss encodings, comments, case changes, and alternate SQL syntax"
+  ],
+  "verification_focus": "Does any externally influenced value reach SQL command text as syntax instead of a typed bound parameter or fixed allowlist token?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-287"
+      ],
+      "trigger": "' OR '1'='1 injected into a login WHERE clause",
+      "consequence": "Authentication bypass or identity assumption"
+    },
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-200"
+      ],
+      "trigger": "UNION SELECT, error-based injection, or blind extraction succeeds",
+      "consequence": "Sensitive database data disclosure"
+    },
+    {
+      "chain": [
+        "CWE-89",
+        "CWE-78"
+      ],
+      "trigger": "Injection reaches xp_cmdshell, COPY PROGRAM, or database file write followed by execution",
+      "consequence": "Operating system command execution"
+    },
+    {
+      "chain": [
+        "CWE-89"
+      ],
+      "trigger": "Stacked query or injected UPDATE, DELETE, DROP, or INSERT is accepted",
+      "consequence": "Unauthorized data modification or deletion"
+    }
+  ],
+  "patch_principle": [
+    "Use prepared statements, parameterized queries, or typed stored procedure parameters for all data values.",
+    "Do not build dynamic SQL by concatenating externally influenced strings, including inside stored procedures.",
+    "For identifiers and clauses that cannot be parameterized, map fixed input IDs to hardcoded SQL tokens.",
+    "Apply strict server-side allowlist validation for type, length, range, and business rules as defense in depth.",
+    "Run database accounts with least privileges and return generic errors to reduce exploit impact."
+  ],
+  "minimal_examples": {
+    "vuln": "ResultSet rs = stmt.executeQuery(\"SELECT * FROM users WHERE name='\" + name + \"'\");",
+    "safe": "PreparedStatement ps = conn.prepareStatement(\"SELECT * FROM users WHERE name=?\"); ps.setString(1, name);"
+  }
+}

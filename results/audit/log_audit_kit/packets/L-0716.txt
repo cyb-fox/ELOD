@@ -1,0 +1,151 @@
+=== 待审推理日志 L-0716 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 5 个；未决 3 个。
+
+【推理轨迹】共 15 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: do_i2c_md:1
+  引证行: 1
+  引证内容: static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
+      2 | 		     char *const argv[])
+      3 | {
+      4 | 	uint	chip;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: do_i2c_md:21
+  引证行: 21
+  引证内容: if (argc < 3)
+  初判倾向: VIOLATED
+  上下文源码:
+     18 | 	alen   = i2c_dp_last_alen;
+     19 | 	length = i2c_dp_last_length;
+     20 | 
+     21 | 	if (argc < 3)
+     22 | 		return CMD_RET_USAGE;
+     23 | 
+     24 | 	if ((flag & CMD_FLAG_REPEAT) == 0) {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: do_i2c_md:24
+  引证行: 24
+  引证内容: if ((flag & CMD_FLAG_REPEAT) == 0) {
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 	if (argc < 3)
+     22 | 		return CMD_RET_USAGE;
+     23 | 
+     24 | 	if ((flag & CMD_FLAG_REPEAT) == 0) {
+     25 | 		/*
+     26 | 		 * New command specified.
+     27 | 		 */
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: do_i2c_md:83
+  引证行: 83
+  引证内容: printf(" %02x", *cp++);
+  初判倾向: VIOLATED
+  上下文源码:
+     80 | 			printf("%04x:", addr);
+     81 | 			cp = linebuf;
+     82 | 			for (j=0; j<linebytes; j++) {
+     83 | 				printf(" %02x", *cp++);
+     84 | 				addr++;
+     85 | 			}
+     86 | 			puts ("    ");
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: do_i2c_md:89
+  引证行: 89
+  引证内容: if ((*cp < 0x20) || (*cp > 0x7e))
+  初判倾向: VIOLATED
+  上下文源码:
+     86 | 			puts ("    ");
+     87 | 			cp = linebuf;
+     88 | 			for (j=0; j<linebytes; j++) {
+     89 | 				if ((*cp < 0x20) || (*cp > 0x7e))
+     90 | 					puts (".");
+     91 | 				else
+     92 | 					printf("%c", *cp);
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: do_i2c_md:1
+  命中信号: input decoded, concatenated, normalized, or arithmetic-derived after validation with no validation of the final value
+  命中信号: client-side JavaScript or UI validation exists but server-side C/C++/Java handler uses the same field without validation
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: do_i2c_md:21
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: do_i2c_md:24
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: do_i2c_md:83
+  命中信号: C# explicit cast (short)x, (byte)x, or unchecked((int)longVar)
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: do_i2c_md:89
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: do_i2c_md:1
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: do_i2c_md:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: do_i2c_md:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: do_i2c_md:83
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: do_i2c_md:89
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

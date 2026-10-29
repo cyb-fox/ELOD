@@ -1,0 +1,256 @@
+=== 待审推理日志 L-0010 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 13 个；未决 6 个。
+
+【推理轨迹】共 31 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:8
+  引证行: 8
+  引证内容: attr->type = R_BIN_JAVA_ATTR_TYPE_BOOTSTRAP_METHODS_ATTR;
+  初判倾向: VIOLATED
+  上下文源码:
+      5 | 	RBinJavaAttrInfo *attr = r_bin_java_default_attr_new (bin, buffer, sz, buf_offset);
+      6 | 	offset += 6;
+      7 | 	if (attr) {
+      8 | 		attr->type = R_BIN_JAVA_ATTR_TYPE_BOOTSTRAP_METHODS_ATTR;
+      9 | 		if (offset + 8 > sz)  {
+     10 | 			free (attr);
+     11 | 			return NULL;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:13
+  引证行: 13
+  引证内容: attr->info.bootstrap_methods_attr.num_bootstrap_methods = R_BIN_JAVA_USHORT (buffer, offset);
+  初判倾向: VIOLATED
+  上下文源码:
+     10 | 			free (attr);
+     11 | 			return NULL;
+     12 | 		}
+     13 | 		attr->info.bootstrap_methods_attr.num_bootstrap_methods = R_BIN_JAVA_USHORT (buffer, offset);
+     14 | 		offset += 2;
+     15 | 		attr->info.bootstrap_methods_attr.bootstrap_methods = r_list_newf (r_bin_java_bootstrap_method_free);
+     16 | 		for (i = 0; i < attr->info.bootstrap_methods_attr.num_bootstrap_methods; i++) {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:16
+  引证行: 16
+  引证内容: for (i = 0; i < attr->info.bootstrap_methods_attr.num_bootstrap_methods; i++) {
+  初判倾向: VIOLATED
+  上下文源码:
+     13 | 		attr->info.bootstrap_methods_attr.num_bootstrap_methods = R_BIN_JAVA_USHORT (buffer, offset);
+     14 | 		offset += 2;
+     15 | 		attr->info.bootstrap_methods_attr.bootstrap_methods = r_list_newf (r_bin_java_bootstrap_method_free);
+     16 | 		for (i = 0; i < attr->info.bootstrap_methods_attr.num_bootstrap_methods; i++) {
+     17 | 			// bsm = r_bin_java_bootstrap_method_new (bin, bin->b->cur);
+     18 | 			if (offset >= sz) {
+     19 | 				break;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:23
+  引证行: 23
+  引证内容: offset += bsm->size;
+  初判倾向: VIOLATED
+  上下文源码:
+     20 | 			}
+     21 | 			bsm = r_bin_java_bootstrap_method_new (buffer + offset, sz - offset, buf_offset + offset);
+     22 | 			if (bsm) {
+     23 | 				offset += bsm->size;
+     24 | 				r_list_append (attr->info.bootstrap_methods_attr.bootstrap_methods, (void *) bsm);
+     25 | 			} else {
+     26 | 				// TODO eprintf Failed to read the %d boot strap method.
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:24
+  引证行: 24
+  引证内容: r_list_append (attr->info.bootstrap_methods_attr.bootstrap_methods, (void *) bsm);
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 			bsm = r_bin_java_bootstrap_method_new (buffer + offset, sz - offset, buf_offset + offset);
+     22 | 			if (bsm) {
+     23 | 				offset += bsm->size;
+     24 | 				r_list_append (attr->info.bootstrap_methods_attr.bootstrap_methods, (void *) bsm);
+     25 | 			} else {
+     26 | 				// TODO eprintf Failed to read the %d boot strap method.
+     27 | 			}
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:1
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:5
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:7
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:8
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:9
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:10
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:13
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:15
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:16
+  命中信号: for/while loop reads buf[i] while i < untrusted_len without untrusted_len <= actual_buf_size
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:18
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:23
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:24
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:29
+  筛选: keep
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:1
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:5
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:7
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:9
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:10
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:16
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:18
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: r_bin_java_bootstrap_methods_attr_new:29
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

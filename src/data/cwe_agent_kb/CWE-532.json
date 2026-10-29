@@ -1,0 +1,79 @@
+{
+  "cwe_id": "CWE-532",
+  "name": "Insertion of Sensitive Information into Log File",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "data-exposure-and-trust",
+    "child_of": [
+      "CWE-538",
+      "CWE-200"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product writes secrets, personal data, system details, or internal queries into a log file. Logs are often retained, aggregated, or less protected than primary data stores, creating an alternate path to sensitive data.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Go",
+    "Python",
+    "JavaScript",
+    "PHP",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "Java logger.info/debug/error/warn(...) concatenates password, token, secret, credential, ccn, ssn, accountNumber, location, cookie, Authorization, user object, or full query",
+    "Java Logger.getLogger(...).log(Level.*, message, ex) where message includes SQL query string, request body, credentials, or PII",
+    "Android Log.d/e/i/w(tag, ...) includes User.toString(), Location, Intent extras, account data, or exception text with sensitive values",
+    "C/C++ syslog(), fprintf(logFile,...), printf-style logging, spdlog, glog, or log4cxx call formats sensitive variable names such as password/token/key/card/ssn",
+    "Exception catch block logs raw exception plus sensitive context: log(... + request/response/user/query/body) or e.printStackTrace() to persistent log",
+    "Logging of HTTP headers or bodies containing Authorization, Cookie, Set-Cookie, X-API-Key, access_token, refresh_token, or session id",
+    "Debug or verbose logging enabled in production config: DEBUG/TRACE level logs include secrets or PII"
+  ],
+  "negative_signals": [
+    "Logger call uses redaction helper such as mask(), redact(), sanitizeForLog(), or SensitiveDataMasker before the value reaches the log sink",
+    "Logged value is a constant event code/status string and does not concatenate or format sensitive variables",
+    "Credential or token is replaced with fixed placeholder such as \"[REDACTED]\" before logging",
+    "Allowlisted structured logging only records non-sensitive fields such as requestId, statusCode, operation, and duration",
+    "Production configuration disables DEBUG/TRACE and removes debug log files from deployment",
+    "Log files are access-controlled, but only as defense-in-depth and not relied on to permit secret logging"
+  ],
+  "false_defense_traps": [
+    "Relying on DEBUG level because production configuration can be changed or verbose logs can be shipped accidentally",
+    "Logging full objects via toString()/operator<< because future fields may add secrets or PII",
+    "Hashing secrets without salt or using reversible/base64 encoding before logging",
+    "Protecting log file permissions while still writing secrets into centralized logs, backups, or crash reports",
+    "Logging SQL queries with parameters because account numbers, usernames, schema, and query logic can still be exposed"
+  ],
+  "verification_focus": "Does any logging sink receive a raw sensitive value, full object, request/response body, exception context, or internal query without explicit redaction?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-532",
+        "CWE-200"
+      ],
+      "trigger": "Attacker or low-privileged user can read application, build, crash, or centralized logs",
+      "consequence": "Sensitive data is exposed to an unauthorized actor"
+    },
+    {
+      "chain": [
+        "CWE-532",
+        "CWE-89"
+      ],
+      "trigger": "Logs expose SQL query text, table names, column names, or unparameterized query structure",
+      "consequence": "Database attack planning and SQL injection exploitation are simplified"
+    }
+  ],
+  "patch_principle": [
+    "Do not write secrets, credentials, PII, precise location, or full internal queries to logs.",
+    "Redact, mask, tokenize, or omit sensitive fields before any logging call.",
+    "Use allowlisted structured logging fields instead of logging full objects, requests, responses, or exceptions with context.",
+    "Disable debug/verbose logging and remove debug log files before production deployment.",
+    "Restrict log read/write permissions and retention as defense-in-depth."
+  ],
+  "minimal_examples": {
+    "vuln": "logger.info(\"Username: \" + username + \", CCN: \" + ccn);",
+    "safe": "logger.info(\"Username: \" + username + \", CCN: [REDACTED]\");"
+  }
+}

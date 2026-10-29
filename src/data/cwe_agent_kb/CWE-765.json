@@ -1,0 +1,71 @@
+{
+  "cwe_id": "CWE-765",
+  "name": "Multiple Unlocks of a Critical Resource",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "race-condition",
+    "child_of": [
+      "CWE-667",
+      "CWE-675"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code unlocks or releases a critical resource more times than it locks or acquires it. The extra unlock can expose protected state, corrupt lock accounting, increase semaphore permits, or cause crashes and unexpected state.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "same pthread_mutex_unlock(&m) reachable twice after one pthread_mutex_lock(&m)",
+    "same std::mutex::unlock() or std::unique_lock::unlock() reachable twice after one lock()",
+    "same LeaveCriticalSection(&cs) or ReleaseMutex(h) reachable twice after one EnterCriticalSection/WaitForSingleObject",
+    "same sem_post(&s) reachable more times than sem_wait(&s) on an error path",
+    "Java Lock.unlock() called in both catch and finally for one lock.lock()",
+    "Java Semaphore.release() called on a path where acquire() did not succeed",
+    "duplicate unlock in cleanup labels, goto fail paths, or early-return branches for the same lock variable"
+  ],
+  "negative_signals": [
+    "C++ std::lock_guard or std::scoped_lock owns the mutex and no manual unlock() is called",
+    "C++ std::unique_lock checked with owns_lock() before unlock() and ownership is cleared after unlock",
+    "Java lock.lock(); try { ... } finally { lock.unlock(); } with no other unlock for that lock",
+    "boolean acquired flag set only after successful lock/acquire and tested before unlock/release",
+    "all control-flow paths have one unlock/release for each successful lock/acquire on the same resource"
+  ],
+  "false_defense_traps": [
+    "Calling unlock in both an error branch and a common cleanup/finally block",
+    "Using a cleanup label without nulling or clearing the ownership flag after unlock",
+    "Calling Semaphore.release() to compensate for a failed or timed-out acquire()",
+    "Assuming recursive/reentrant locks make extra unlocks safe",
+    "Catching and ignoring IllegalMonitorStateException or mutex unlock errors"
+  ],
+  "verification_focus": "For each lock/acquire that can succeed, can any control path perform more than one unlock/release on the same resource ownership?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-765",
+        "CWE-362"
+      ],
+      "trigger": "extra unlock releases mutual exclusion while protected state is still being accessed",
+      "consequence": "data race, memory corruption, or integrity loss"
+    },
+    {
+      "chain": [
+        "CWE-765",
+        "CWE-400"
+      ],
+      "trigger": "extra sem_post/Semaphore.release increases available permits beyond intended capacity",
+      "consequence": "resource exhaustion, crash, or denial of service"
+    }
+  ],
+  "patch_principle": [
+    "Make lock and unlock counts match on every control-flow path.",
+    "Use RAII, try-with-resources, or try/finally to centralize release ownership.",
+    "Track ownership with an acquired flag when acquisition can fail or time out.",
+    "After manual unlock/release, clear the ownership state to prevent later cleanup from unlocking again."
+  ],
+  "minimal_examples": {
+    "vuln": "pthread_mutex_lock(&m); pthread_mutex_unlock(&m); pthread_mutex_unlock(&m);",
+    "safe": "pthread_mutex_lock(&m); pthread_mutex_unlock(&m);"
+  }
+}

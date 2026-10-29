@@ -1,0 +1,89 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "lprn_is_black:5"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-369"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 5,
+      "snippet": "int bh = lprn->nBh;",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "lprn_is_black:5",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "lprn_is_black:5"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "bh",
+        "lprn",
+        "nBh"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "average/rate expression like total / count where count can be 0",
+        "binary % operator with RHS variable or expression not proven nonzero"
+      ]
+    },
+    "sink_id": "lprn_is_black:5",
+    "state_delta": {
+      "arithmetic_bound": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "numeric|arith"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "lprn_is_black:5"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "arithmetic_bound"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "lprn_is_black:5",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "arithmetic_bound": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "numeric|arith"
+  }
+]

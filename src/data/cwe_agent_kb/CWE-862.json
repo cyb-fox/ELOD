@@ -1,0 +1,87 @@
+{
+  "cwe_id": "CWE-862",
+  "name": "Missing Authorization",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-285",
+      "CWE-284"
+    ],
+    "parent_of": [
+      "CWE-425",
+      "CWE-638",
+      "CWE-939",
+      "CWE-1314"
+    ]
+  },
+  "principle": "The product lets an actor access a resource or perform an action without checking whether that actor is authorized. This exposes privileged data or functionality to users who are only authenticated, anonymous, or authorized for a different object.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "Spring @RequestMapping/@GetMapping/@PostMapping handler lacks @PreAuthorize/@PostAuthorize/@Secured and contains no SecurityContext/hasAuthority/isUserInRole check",
+    "Servlet doGet/doPost uses request.getParameter(\"id\") to read/update/delete data without request.isUserInRole(...) or ownerId == request.getUserPrincipal() check",
+    "public REST/RPC method performs delete/update/export/admin/config action before any role/permission/ACL check",
+    "DAO/repository call findById/save/deleteById uses user-controlled id without filtering by currentUserId/tenantId/ownerId",
+    "C/C++ request handler dispatches privileged command based on user input without caller uid/role/capability check",
+    "file/database/resource open/read/write on user-supplied identifier occurs before access-control function such as checkAccess/canRead/canWrite/acl_allow",
+    "route or command registered in dispatcher table without requiredRole/permission metadata while adjacent privileged routes have it"
+  ],
+  "negative_signals": [
+    "@PreAuthorize/@PostAuthorize/@Secured or equivalent annotation enforces the needed permission on the handler",
+    "server-side check compares resource.ownerId/tenantId to current authenticated user before access",
+    "central filter/interceptor/middleware maps the exact route/action to required role and denies by default",
+    "query constrains access with current user or tenant, e.g. findByIdAndOwnerId(id,currentUserId)",
+    "explicit ACL/RBAC call such as accessController.checkPermission(user,action,resource) gates the operation",
+    "operation is intentionally public/read-only and accesses only non-sensitive public resources"
+  ],
+  "false_defense_traps": [
+    "Authentication check only, e.g. user != null, with no authorization for the action or object",
+    "Hiding the button/link in the UI while the server endpoint remains callable directly",
+    "Client-side JavaScript role checks without matching server-side enforcement",
+    "Prepared statements or input validation without an authorization decision",
+    "Role check only, e.g. ROLE_USER, without object ownership or tenant check for peer users"
+  ],
+  "verification_focus": "Does every sensitive resource/action have a server-side authorization decision for the current actor before the operation executes?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-862",
+        "CWE-425"
+      ],
+      "trigger": "A protected page or endpoint is directly requested without a server-side authorization gate",
+      "consequence": "Unauthorized forced browsing to privileged functionality or data"
+    },
+    {
+      "chain": [
+        "CWE-862",
+        "CWE-200"
+      ],
+      "trigger": "Read path lacks authorization for sensitive application data",
+      "consequence": "Unauthorized disclosure of confidential records"
+    },
+    {
+      "chain": [
+        "CWE-862",
+        "CWE-639"
+      ],
+      "trigger": "User-controlled object id is used without checking ownership or tenant",
+      "consequence": "Horizontal authorization bypass across users with the same role"
+    }
+  ],
+  "patch_principle": [
+    "Enforce default-deny authorization at every server-side boundary for sensitive pages, APIs, commands, and resources.",
+    "Map roles, permissions, actions, and resources explicitly; use RBAC/ACL checks tied to business logic.",
+    "Check object-level ownership or tenant membership, not only coarse roles.",
+    "Use vetted authorization frameworks or centralized filters/interceptors, but verify route coverage.",
+    "Perform the authorization check before reading, modifying, deleting, or returning the protected resource."
+  ],
+  "minimal_examples": {
+    "vuln": "Order o = orderRepo.findById(request.getParameter(\"id\")).get();",
+    "safe": "Order o = orderRepo.findByIdAndOwnerId(id, currentUser.getId()).orElseThrow(AccessDeniedException::new);"
+  }
+}

@@ -1,0 +1,53 @@
+=== 待审推理日志 L-0105 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 1 个。
+
+【推理轨迹】共 5 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: stroke:13
+  引证行: 13
+  引证内容: d->strokeHandler = new StrokeHandler(path.elementCount()+4);
+  初判倾向: VIOLATED
+  上下文源码:
+     10 |         return;
+     11 | 
+     12 |     if (!d->strokeHandler) {
+     13 |         d->strokeHandler = new StrokeHandler(path.elementCount()+4);
+     14 |         d->stroker.setMoveToHook(qpaintengineex_moveTo);
+     15 |         d->stroker.setLineToHook(qpaintengineex_lineTo);
+     16 |         d->stroker.setCubicToHook(qpaintengineex_cubicTo);
+
+--- 步骤 2 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: stroke:12
+  筛选: keep
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: stroke:13
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+
+--- 步骤 4 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: stroke:12
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: stroke:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

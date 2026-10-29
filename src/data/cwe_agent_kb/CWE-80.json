@@ -1,0 +1,74 @@
+{
+  "cwe_id": "CWE-80",
+  "name": "Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS)",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-79"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product writes upstream input into a web page without neutralizing characters such as '<', '>', and '&'. A browser can interpret attacker-controlled text as script-related HTML and execute code in the user's session.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "JavaScript",
+    "PHP",
+    "C#"
+  ],
+  "detection_signals": [
+    "JSP '<%= request.getParameter(...) %>' or '<%= e.getText() %>' inside an HTML response",
+    "Servlet 'out.print(...)' or 'response.getWriter().write(...)' with request parameter, cookie, or header data",
+    "C/C++ CGI 'printf(\"%s\", getenv(\"QUERY_STRING\"))' or form data printed after 'Content-Type: text/html'",
+    "String concatenation builds '<html>' response with user-controlled variable and no 'escapeHtml' or 'escapeXml' call",
+    "Template disables escaping: '<c:out escapeXml=\"false\">', Struts 'filter=\"false\"', or raw triple-stash '{{{x}}}'",
+    "User-controlled comment, name, message, filename, or error parameter echoed between HTML tags without entity encoding",
+    "HTML response writes user-controlled bytes without explicit charset such as 'Content-Type: text/html; charset=UTF-8'"
+  ],
+  "negative_signals": [
+    "Output uses HTML body encoder: 'StringEscapeUtils.escapeHtml4(x)', 'Encode.forHtml(x)', 'HtmlUtils.htmlEscape(x)', or 'fn:escapeXml(x)'",
+    "JSP/JSTL uses '<c:out value=\"...\"/>' with default 'escapeXml=true'",
+    "Struts bean output uses 'filter=\"true\"'",
+    "C/C++ output passes user data through an HTML entity encoder for '&', '<', '>', '\"', and '\\'' before 'printf' or 'write'",
+    "Displayed value is a compile-time constant or server-generated enum with no request, cookie, header, URL, or storage taint"
+  ],
+  "false_defense_traps": [
+    "Filtering only the substring 'script' is bypassed by case changes or non-script tags",
+    "Escaping only '<' but not '&' or '>' leaves entity and parsing bypasses",
+    "Validating only visible form fields misses hidden fields, cookies, headers, and URL data later reflected",
+    "Setting 'HttpOnly' on cookies reduces cookie theft but does not stop injected script execution",
+    "Using a blacklist of tag names instead of context-appropriate HTML entity encoding"
+  ],
+  "verification_focus": "Can attacker-controlled request, cookie, header, URL, or stored data reach an HTML response body without entity-encoding '<', '>', and '&'?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-80",
+        "CWE-79"
+      ],
+      "trigger": "Unencoded script-related HTML tag is reflected or stored in a generated web page",
+      "consequence": "Browser executes attacker-controlled script, enabling session actions, data theft, or page modification"
+    },
+    {
+      "chain": [
+        "CWE-80",
+        "CWE-116"
+      ],
+      "trigger": "Output neutralization is absent or incomplete for HTML metacharacters",
+      "consequence": "Special characters are interpreted by the browser as markup instead of data"
+    }
+  ],
+  "patch_principle": [
+    "Apply context-appropriate HTML entity encoding at every HTML output sink.",
+    "Use framework auto-escaping templates and do not disable escaping for user data.",
+    "Validate all request parts with a positive specification before storage or reflection.",
+    "Specify a consistent response charset such as UTF-8 in headers and page metadata.",
+    "Use HttpOnly cookies only as defense in depth, not as the XSS fix."
+  ],
+  "minimal_examples": {
+    "vuln": "<p><%= e.getText() %></p>",
+    "safe": "<p><%= fn:escapeXml(e.getText()) %></p>"
+  }
+}

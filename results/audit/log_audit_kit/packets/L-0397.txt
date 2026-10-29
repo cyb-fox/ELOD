@@ -1,0 +1,174 @@
+=== 待审推理日志 L-0397 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 6 个；未决 6 个。
+
+【推理轨迹】共 18 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: EC_GROUP_new_from_ecparameters:11
+  引证行: 11
+  引证内容: if (!params->fieldID || !params->fieldID->fieldType ||
+  初判倾向: VIOLATED
+  上下文源码:
+      8 |     int curve_name = NID_undef;
+      9 |     BN_CTX *ctx = NULL;
+     10 | 
+     11 |     if (!params->fieldID || !params->fieldID->fieldType ||
+     12 |         !params->fieldID->p.ptr) {
+     13 |         ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_ASN1_ERROR);
+     14 |         goto err;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: EC_GROUP_new_from_ecparameters:12
+  引证行: 12
+  引证内容: !params->fieldID->p.ptr) {
+  初判倾向: VIOLATED
+  上下文源码:
+      9 |     BN_CTX *ctx = NULL;
+     10 | 
+     11 |     if (!params->fieldID || !params->fieldID->fieldType ||
+     12 |         !params->fieldID->p.ptr) {
+     13 |         ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_ASN1_ERROR);
+     14 |         goto err;
+     15 |     }
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: EC_GROUP_new_from_ecparameters:23
+  引证行: 23
+  引证内容: if (!params->curve || !params->curve->a ||
+  初判倾向: VIOLATED
+  上下文源码:
+     20 |      * encoded them incorrectly, so we must accept any length for backwards
+     21 |      * compatibility.
+     22 |      */
+     23 |     if (!params->curve || !params->curve->a ||
+     24 |         !params->curve->a->data || !params->curve->b ||
+     25 |         !params->curve->b->data) {
+     26 |         ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_ASN1_ERROR);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: EC_GROUP_new_from_ecparameters:24
+  引证行: 24
+  引证内容: !params->curve->a->data || !params->curve->b ||
+  初判倾向: VIOLATED
+  上下文源码:
+     21 |      * compatibility.
+     22 |      */
+     23 |     if (!params->curve || !params->curve->a ||
+     24 |         !params->curve->a->data || !params->curve->b ||
+     25 |         !params->curve->b->data) {
+     26 |         ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_ASN1_ERROR);
+     27 |         goto err;
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: EC_GROUP_new_from_ecparameters:25
+  引证行: 25
+  引证内容: !params->curve->b->data) {
+  初判倾向: VIOLATED
+  上下文源码:
+     22 |      */
+     23 |     if (!params->curve || !params->curve->a ||
+     24 |         !params->curve->a->data || !params->curve->b ||
+     25 |         !params->curve->b->data) {
+     26 |         ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_ASN1_ERROR);
+     27 |         goto err;
+     28 |     }
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: EC_GROUP_new_from_ecparameters:175
+  引证行: 175
+  引证内容: memcpy(ret->seed, params->curve->seed->data,
+  初判倾向: VIOLATED
+  上下文源码:
+    172 |             ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_MALLOC_FAILURE);
+    173 |             goto err;
+    174 |         }
+    175 |         memcpy(ret->seed, params->curve->seed->data,
+    176 |                params->curve->seed->length);
+    177 |         ret->seed_len = params->curve->seed->length;
+    178 |     }
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: EC_GROUP_new_from_ecparameters:11
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: EC_GROUP_new_from_ecparameters:12
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: EC_GROUP_new_from_ecparameters:23
+  命中信号: allocation size computed as count * sizeof(T) or a - b with no maximum-size check before allocation
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: EC_GROUP_new_from_ecparameters:24
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: EC_GROUP_new_from_ecparameters:25
+  命中信号: allocation size computed as count * sizeof(T) or a - b with no maximum-size check before allocation
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: EC_GROUP_new_from_ecparameters:175
+  命中信号: size_t len = signed_expr or subtraction result followed by allocation with len
+  命中信号: std::vector<T> v(n), vector.resize(n), string.reserve(n), or new T[n] using unbounded n
+  筛选: keep
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: EC_GROUP_new_from_ecparameters:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: EC_GROUP_new_from_ecparameters:12
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: EC_GROUP_new_from_ecparameters:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: EC_GROUP_new_from_ecparameters:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: EC_GROUP_new_from_ecparameters:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: EC_GROUP_new_from_ecparameters:175
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

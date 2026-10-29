@@ -1,0 +1,80 @@
+{
+  "cwe_id": "CWE-400",
+  "name": "Uncontrolled Resource Consumption",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [
+      "CWE-664"
+    ],
+    "parent_of": [
+      "CWE-405",
+      "CWE-770",
+      "CWE-771",
+      "CWE-779",
+      "CWE-920",
+      "CWE-1235",
+      "CWE-1246"
+    ]
+  },
+  "principle": "The code allocates or retains a limited resource without hard bounds or throttling. An attacker can drive the process, host, or dependent service into exhaustion, causing denial of service and sometimes fail-open behavior.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Python"
+  ],
+  "detection_signals": [
+    "attacker-controlled size/count passed to `malloc`, `new`, `ByteBuffer.allocate`, `ArrayList.add`, or similar with no max check",
+    "`while(true)`, `for(;;)`, or retry loops driven by input/network events with no termination or budget",
+    "`accept()` / request handler that creates a new `Thread`, `fork()`, or task per connection without a bounded pool",
+    "reads from socket/file into memory or disk until EOF with no quota, cap, or total-bytes counter",
+    "cache, queue, map, log, or buffer grows on each request with no eviction, size limit, or backpressure",
+    "expensive work on each request with no rate limiter, semaphore, or concurrency cap"
+  ],
+  "negative_signals": [
+    "explicit hard cap such as `if (n > MAX_N) reject();` before allocation or enqueue",
+    "bounded executor or pool, e.g. fixed thread pool or bounded queue with reject policy",
+    "token bucket, rate limiter, or semaphore guarding the expensive path",
+    "fixed-size buffers or preallocated pools with no attacker-driven growth",
+    "cache/log rotation or eviction policy with explicit size or entry limit",
+    "safe failure path on pressure, e.g. reject request and release resources immediately"
+  ],
+  "false_defense_traps": [
+    "`catch (OutOfMemoryError)` or generic exception handling without limiting the source of consumption",
+    "`sleep()` or artificial delay after each request instead of a hard concurrency/rate cap",
+    "relying only on OS/container limits while the application still allocates without bounds",
+    "validating payload type/format but not the maximum count, length, or lifetime",
+    "limiting per-request size while total concurrent requests, threads, or queued items remain unbounded"
+  ],
+  "verification_focus": "Is every attacker-influenced allocation, loop, queue, thread/process spawn, or cache growth bounded by a hard limit or throttle?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-400",
+        "CWE-770"
+      ],
+      "trigger": "attacker-controlled size or count reaches an allocation, spawn, or queue operation with no maximum",
+      "consequence": "CPU, memory, or descriptor exhaustion leading to denial of service"
+    },
+    {
+      "chain": [
+        "CWE-400",
+        "CWE-771"
+      ],
+      "trigger": "repeated creation of resources without tracking, reuse, or release",
+      "consequence": "resource leak accumulates until the process or host becomes unavailable"
+    }
+  ],
+  "patch_principle": [
+    "Add hard limits on count, size, duration, and concurrency before any expensive operation",
+    "Use bounded pools, bounded queues, and explicit rejection/backpressure for overflow",
+    "Apply per-user, per-IP, or per-session rate limits and quotas at the entry point",
+    "Fail closed under resource pressure and release resources promptly in all paths"
+  ],
+  "minimal_examples": {
+    "vuln": "new Thread(() -> handle(req)).start();",
+    "safe": "executor = Executors.newFixedThreadPool(32); executor.execute(() -> handle(req));"
+  }
+}

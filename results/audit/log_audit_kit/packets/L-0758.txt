@@ -1,0 +1,394 @@
+=== 待审推理日志 L-0758 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 15 个；未决 15 个。
+
+【推理轨迹】共 43 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:3
+  引证行: 3
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("x", &x_tensor));
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext* ctx) override {
+      2 |     const Tensor* x_tensor = nullptr;
+      3 |     OP_REQUIRES_OK(ctx, ctx->input("x", &x_tensor));
+      4 | 
+      5 |     const Tensor* cs_prev_tensor = nullptr;
+      6 |     OP_REQUIRES_OK(ctx, ctx->input("cs_prev", &cs_prev_tensor));
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:6
+  引证行: 6
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("cs_prev", &cs_prev_tensor));
+  初判倾向: VIOLATED
+  上下文源码:
+      3 |     OP_REQUIRES_OK(ctx, ctx->input("x", &x_tensor));
+      4 | 
+      5 |     const Tensor* cs_prev_tensor = nullptr;
+      6 |     OP_REQUIRES_OK(ctx, ctx->input("cs_prev", &cs_prev_tensor));
+      7 | 
+      8 |     const Tensor* h_prev_tensor = nullptr;
+      9 |     OP_REQUIRES_OK(ctx, ctx->input("h_prev", &h_prev_tensor));
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:9
+  引证行: 9
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("h_prev", &h_prev_tensor));
+  初判倾向: VIOLATED
+  上下文源码:
+      6 |     OP_REQUIRES_OK(ctx, ctx->input("cs_prev", &cs_prev_tensor));
+      7 | 
+      8 |     const Tensor* h_prev_tensor = nullptr;
+      9 |     OP_REQUIRES_OK(ctx, ctx->input("h_prev", &h_prev_tensor));
+     10 | 
+     11 |     const Tensor* w_tensor = nullptr;
+     12 |     OP_REQUIRES_OK(ctx, ctx->input("w", &w_tensor));
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:12
+  引证行: 12
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("w", &w_tensor));
+  初判倾向: VIOLATED
+  上下文源码:
+      9 |     OP_REQUIRES_OK(ctx, ctx->input("h_prev", &h_prev_tensor));
+     10 | 
+     11 |     const Tensor* w_tensor = nullptr;
+     12 |     OP_REQUIRES_OK(ctx, ctx->input("w", &w_tensor));
+     13 | 
+     14 |     const Tensor* wci_tensor = nullptr;
+     15 |     OP_REQUIRES_OK(ctx, ctx->input("wci", &wci_tensor));
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:15
+  引证行: 15
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("wci", &wci_tensor));
+  初判倾向: VIOLATED
+  上下文源码:
+     12 |     OP_REQUIRES_OK(ctx, ctx->input("w", &w_tensor));
+     13 | 
+     14 |     const Tensor* wci_tensor = nullptr;
+     15 |     OP_REQUIRES_OK(ctx, ctx->input("wci", &wci_tensor));
+     16 | 
+     17 |     const Tensor* wcf_tensor = nullptr;
+     18 |     OP_REQUIRES_OK(ctx, ctx->input("wcf", &wcf_tensor));
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:18
+  引证行: 18
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("wcf", &wcf_tensor));
+  初判倾向: VIOLATED
+  上下文源码:
+     15 |     OP_REQUIRES_OK(ctx, ctx->input("wci", &wci_tensor));
+     16 | 
+     17 |     const Tensor* wcf_tensor = nullptr;
+     18 |     OP_REQUIRES_OK(ctx, ctx->input("wcf", &wcf_tensor));
+     19 | 
+     20 |     const Tensor* wco_tensor = nullptr;
+     21 |     OP_REQUIRES_OK(ctx, ctx->input("wco", &wco_tensor));
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:24
+  引证行: 24
+  引证内容: OP_REQUIRES_OK(ctx, ctx->input("b", &b_tensor));
+  初判倾向: VIOLATED
+  上下文源码:
+     21 |     OP_REQUIRES_OK(ctx, ctx->input("wco", &wco_tensor));
+     22 | 
+     23 |     const Tensor* b_tensor = nullptr;
+     24 |     OP_REQUIRES_OK(ctx, ctx->input("b", &b_tensor));
+     25 | 
+     26 |     const int64_t batch_size = x_tensor->dim_size(0);
+     27 |     const int64_t input_size = x_tensor->dim_size(1);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:27
+  引证行: 27
+  引证内容: const int64_t input_size = x_tensor->dim_size(1);
+  初判倾向: VIOLATED
+  上下文源码:
+     24 |     OP_REQUIRES_OK(ctx, ctx->input("b", &b_tensor));
+     25 | 
+     26 |     const int64_t batch_size = x_tensor->dim_size(0);
+     27 |     const int64_t input_size = x_tensor->dim_size(1);
+     28 |     const int64_t cell_size = cs_prev_tensor->dim_size(1);
+     29 | 
+     30 |     // Sanity checks for our input shapes.
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:28
+  引证行: 28
+  引证内容: const int64_t cell_size = cs_prev_tensor->dim_size(1);
+  初判倾向: VIOLATED
+  上下文源码:
+     25 | 
+     26 |     const int64_t batch_size = x_tensor->dim_size(0);
+     27 |     const int64_t input_size = x_tensor->dim_size(1);
+     28 |     const int64_t cell_size = cs_prev_tensor->dim_size(1);
+     29 | 
+     30 |     // Sanity checks for our input shapes.
+     31 |     OP_REQUIRES(ctx, cs_prev_tensor->dim_size(0) == batch_size,
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:31
+  引证行: 31
+  引证内容: OP_REQUIRES(ctx, cs_prev_tensor->dim_size(0) == batch_size,
+  初判倾向: VIOLATED
+  上下文源码:
+     28 |     const int64_t cell_size = cs_prev_tensor->dim_size(1);
+     29 | 
+     30 |     // Sanity checks for our input shapes.
+     31 |     OP_REQUIRES(ctx, cs_prev_tensor->dim_size(0) == batch_size,
+     32 |                 errors::InvalidArgument("cs_prev.dims(0) != batch_size: ",
+     33 |                                         cs_prev_tensor->dim_size(0), " vs. ",
+     34 |                                         batch_size));
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:33
+  引证行: 33
+  引证内容: cs_prev_tensor->dim_size(0), " vs. ",
+  初判倾向: VIOLATED
+  上下文源码:
+     30 |     // Sanity checks for our input shapes.
+     31 |     OP_REQUIRES(ctx, cs_prev_tensor->dim_size(0) == batch_size,
+     32 |                 errors::InvalidArgument("cs_prev.dims(0) != batch_size: ",
+     33 |                                         cs_prev_tensor->dim_size(0), " vs. ",
+     34 |                                         batch_size));
+     35 |     OP_REQUIRES(ctx, cs_prev_tensor->dim_size(1) == cell_size,
+     36 |                 errors::InvalidArgument("cs_prev.dims(1) != cell_size: ",
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:35
+  引证行: 35
+  引证内容: OP_REQUIRES(ctx, cs_prev_tensor->dim_size(1) == cell_size,
+  初判倾向: VIOLATED
+  上下文源码:
+     32 |                 errors::InvalidArgument("cs_prev.dims(0) != batch_size: ",
+     33 |                                         cs_prev_tensor->dim_size(0), " vs. ",
+     34 |                                         batch_size));
+     35 |     OP_REQUIRES(ctx, cs_prev_tensor->dim_size(1) == cell_size,
+     36 |                 errors::InvalidArgument("cs_prev.dims(1) != cell_size: ",
+     37 |                                         cs_prev_tensor->dim_size(1), " vs. ",
+     38 |                                         cell_size));
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:37
+  引证行: 37
+  引证内容: cs_prev_tensor->dim_size(1), " vs. ",
+  初判倾向: VIOLATED
+  上下文源码:
+     34 |                                         batch_size));
+     35 |     OP_REQUIRES(ctx, cs_prev_tensor->dim_size(1) == cell_size,
+     36 |                 errors::InvalidArgument("cs_prev.dims(1) != cell_size: ",
+     37 |                                         cs_prev_tensor->dim_size(1), " vs. ",
+     38 |                                         cell_size));
+     39 | 
+     40 |     OP_REQUIRES(ctx, h_prev_tensor->dim_size(0) == batch_size,
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:3
+  命中信号: buf[offset] or *(buf + offset) where offset is input-derived and not checked against buffer size
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:6
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:9
+  命中信号: buf[offset] or *(buf + offset) where offset is input-derived and not checked against buffer size
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:12
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:15
+  命中信号: buf[offset] or *(buf + offset) where offset is input-derived and not checked against buffer size
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:18
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:21
+  命中信号: buf[offset] or *(buf + offset) where offset is input-derived and not checked against buffer size
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:24
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:26
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:27
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:28
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:31
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:33
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:35
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:37
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:3
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:9
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:12
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:27
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:33
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

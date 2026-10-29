@@ -1,0 +1,336 @@
+=== 待审推理日志 L-0138 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 16 个；未决 10 个。
+
+【推理轨迹】共 40 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:6
+  引证行: 6
+  引证内容: un= next_unit ? next_unit : un->next_unit())
+  初判倾向: VIOLATED
+  上下文源码:
+      3 |   SELECT_LEX_UNIT *next_unit= NULL;
+      4 |   for (SELECT_LEX_UNIT *un= first_inner_unit();
+      5 |        un;
+      6 |        un= next_unit ? next_unit : un->next_unit())
+      7 |   {
+      8 |     Item_subselect *subquery_predicate= un->item;
+      9 |     next_unit= NULL;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:8
+  引证行: 8
+  引证内容: Item_subselect *subquery_predicate= un->item;
+  初判倾向: VIOLATED
+  上下文源码:
+      5 |        un;
+      6 |        un= next_unit ? next_unit : un->next_unit())
+      7 |   {
+      8 |     Item_subselect *subquery_predicate= un->item;
+      9 |     next_unit= NULL;
+     10 | 
+     11 |     if (subquery_predicate)
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:13
+  引证行: 13
+  引证内容: if (!subquery_predicate->fixed)
+  初判倾向: VIOLATED
+  上下文源码:
+     10 | 
+     11 |     if (subquery_predicate)
+     12 |     {
+     13 |       if (!subquery_predicate->fixed)
+     14 |       {
+     15 | 	/*
+     16 | 	 This subquery was excluded as part of some expression so it is
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:19
+  引证行: 19
+  引证内容: next_unit= un->next_unit();
+  初判倾向: VIOLATED
+  上下文源码:
+     16 | 	 This subquery was excluded as part of some expression so it is
+     17 | 	 invisible from all prepared expression.
+     18 |        */
+     19 | 	next_unit= un->next_unit();
+     20 | 	un->exclude_level();
+     21 | 	if (next_unit)
+     22 | 	  continue;
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:20
+  引证行: 20
+  引证内容: un->exclude_level();
+  初判倾向: VIOLATED
+  上下文源码:
+     17 | 	 invisible from all prepared expression.
+     18 |        */
+     19 | 	next_unit= un->next_unit();
+     20 | 	un->exclude_level();
+     21 | 	if (next_unit)
+     22 | 	  continue;
+     23 | 	break;
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:28
+  引证行: 28
+  引证内容: if (in_subs->is_jtbm_merged)
+  初判倾向: VIOLATED
+  上下文源码:
+     25 |       if (subquery_predicate->substype() == Item_subselect::IN_SUBS)
+     26 |       {
+     27 |         Item_in_subselect *in_subs= (Item_in_subselect*) subquery_predicate;
+     28 |         if (in_subs->is_jtbm_merged)
+     29 |           continue;
+     30 |       }
+     31 | 
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:46
+  引证行: 46
+  引证内容: for (SELECT_LEX *sl= un->first_select(); sl; sl= sl->next_select())
+  初判倾向: VIOLATED
+  上下文源码:
+     43 |         If the subquery is a UNION, optimize all the subqueries in the UNION. If
+     44 |         there is no UNION, then the loop will execute once for the subquery.
+     45 |       */
+     46 |       for (SELECT_LEX *sl= un->first_select(); sl; sl= sl->next_select())
+     47 |       {
+     48 |         JOIN *inner_join= sl->join;
+     49 |         if (first)
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: optimize_unflattened_subqueries:48
+  引证行: 48
+  引证内容: JOIN *inner_join= sl->join;
+  初判倾向: VIOLATED
+  上下文源码:
+     45 |       */
+     46 |       for (SELECT_LEX *sl= un->first_select(); sl; sl= sl->next_select())
+     47 |       {
+     48 |         JOIN *inner_join= sl->join;
+     49 |         if (first)
+     50 |           first= false;
+     51 |         else
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:6
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:8
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:13
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:19
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:20
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:25
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:28
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:32
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:46
+  命中信号: A verification result is overwritten, inverted, or checked for the wrong object before a sensitive state transition or use
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:48
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:56
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:62
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:66
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:67
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:68
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: optimize_unflattened_subqueries:72
+  筛选: keep
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:19
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:46
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:48
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:56
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:62
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:66
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:67
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:68
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: optimize_unflattened_subqueries:72
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

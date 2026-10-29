@@ -1,0 +1,71 @@
+=== 待审推理日志 L-0858 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 1 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: cx23888_ir_probe:12
+  引证行: 12
+  引证内容: spin_lock_init(&state->rx_kfifo_lock);
+  初判倾向: VIOLATED
+  上下文源码:
+      9 | 	if (state == NULL)
+     10 | 		return -ENOMEM;
+     11 | 
+     12 | 	spin_lock_init(&state->rx_kfifo_lock);
+     13 | 	if (kfifo_alloc(&state->rx_kfifo, CX23888_IR_RX_KFIFO_SIZE, GFP_KERNEL))
+     14 | 		return -ENOMEM;
+     15 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: cx23888_ir_probe:22
+  引证行: 22
+  引证内容: snprintf(sd->name, sizeof(sd->name), "%s/888-ir", dev->name);
+  初判倾向: VIOLATED
+  上下文源码:
+     19 | 	v4l2_subdev_init(sd, &cx23888_ir_controller_ops);
+     20 | 	v4l2_set_subdevdata(sd, state);
+     21 | 	/* FIXME - fix the formatting of dev->v4l2_dev.name and use it */
+     22 | 	snprintf(sd->name, sizeof(sd->name), "%s/888-ir", dev->name);
+     23 | 	sd->grp_id = CX23885_HW_888_IR;
+     24 | 
+     25 | 	ret = v4l2_device_register_subdev(&dev->v4l2_dev, sd);
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: cx23888_ir_probe:12
+  命中信号: malloc/calloc/realloc/strdup/new followed by an error return path without free/delete
+  命中信号: C cleanup label frees only top-level struct but omits dynamically allocated member pointers
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: cx23888_ir_probe:22
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: cx23888_ir_probe:12
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: cx23888_ir_probe:22
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-401

@@ -1,0 +1,76 @@
+{
+  "cwe_id": "CWE-441",
+  "name": "Unintended Proxy or Intermediary ('Confused Deputy')",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-610"
+    ],
+    "parent_of": [
+      "CWE-918",
+      "CWE-1021"
+    ]
+  },
+  "principle": "A component forwards a request or command to another sphere while dropping or replacing the original initiator identity. The target sees the intermediary's authority, allowing the requester to bypass access controls or hide activity.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Other"
+  ],
+  "detection_signals": [
+    "Java URL.openStream()/URLConnection.openConnection() on req.getParameter() or other caller-controlled URL",
+    "Java HttpClient/Apache HttpClient execute(new HttpGet(userControlledUrl)) in a proxy/forwarder endpoint",
+    "C/C++ curl_easy_setopt(CURLOPT_URL, userControlledUrl) in a privileged service or backend relay",
+    "Forwarding code builds a new outbound request without propagating authenticated user/principal/delegation token",
+    "setuid/root daemon accepts IPC/socket commands and performs open(), connect(), ioctl(), or DMA configuration using process credentials",
+    "Proxy endpoint forwards caller-controlled host, port, path, method, body, or headers to internal/admin services",
+    "Absence of SO_PEERCRED/getpeereid/SCM_CREDENTIALS check before acting on local socket commands"
+  ],
+  "negative_signals": [
+    "Outbound target is selected only from a fixed allowlist mapping, not raw caller input",
+    "Forwarded request includes a server-generated signed caller identity or delegation token verified by the target",
+    "Target authorizes the original caller principal, not the proxy service account alone",
+    "Privileged helper checks peer credentials with SO_PEERCRED/getpeereid before performing the operation",
+    "Proxy strips caller-supplied identity headers and replaces them with authenticated server-generated identity",
+    "Forwarder rejects unexpected schemes, hosts, ports, methods, directives, and redirects before dispatch"
+  ],
+  "false_defense_traps": [
+    "Logging the original requester but not sending/verifying it at the target",
+    "Trusting caller-supplied X-Forwarded-For, Forwarded, X-User, or X-Principal headers",
+    "Checking only that the caller may use the proxy, not that the caller may access the target resource",
+    "Hostname/IP blacklist instead of strict allowlist and canonicalization",
+    "Preserving identity in one hop but dropping it on redirects or nested backend calls"
+  ],
+  "verification_focus": "Does the intermediary preserve and cause enforcement of the original initiator identity for every forwarded target, command, and resource?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-441",
+        "CWE-668"
+      ],
+      "trigger": "Intermediary uses its own authority for a caller-directed resource in another sphere",
+      "consequence": "Resource is exposed to an unauthorized requester"
+    },
+    {
+      "chain": [
+        "CWE-441",
+        "CWE-918"
+      ],
+      "trigger": "Caller controls an outbound URL or network destination sent by the server",
+      "consequence": "Server-side request forgery reaches internal or protected services"
+    }
+  ],
+  "patch_principle": [
+    "Use strong mutual authentication between intermediary and target.",
+    "Propagate an immutable, server-generated initiator identity through every hop.",
+    "Authorize the original caller at the target or at the proxy before forwarding.",
+    "Allow only explicit targets, ports, methods, commands, and resources intended for delegation.",
+    "Run proxy/helper with least privilege and separate credentials per requester where possible."
+  ],
+  "minimal_examples": {
+    "vuln": "InputStream s = new URL(req.getParameter(\"url\")).openStream();",
+    "safe": "InputStream s = fetchAllowed(req.getParameter(\"service\"), authenticatedUser);"
+  }
+}

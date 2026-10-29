@@ -1,0 +1,67 @@
+=== 待审推理日志 L-0216 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 2 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: eval_string:10
+  引证行: 10
+  引证内容: for (p = *arg + off; *p != NUL && *p != '"'; MB_PTR_ADV(p))
+  初判倾向: VIOLATED
+  上下文源码:
+      7 |     int		len;
+      8 | 
+      9 |     // Find the end of the string, skipping backslashed characters.
+     10 |     for (p = *arg + off; *p != NUL && *p != '"'; MB_PTR_ADV(p))
+     11 |     {
+     12 | 	if (*p == '\\' && p[1] != NUL)
+     13 | 	{
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: eval_string:12
+  引证行: 12
+  引证内容: if (*p == '\\' && p[1] != NUL)
+  初判倾向: VIOLATED
+  上下文源码:
+      9 |     // Find the end of the string, skipping backslashed characters.
+     10 |     for (p = *arg + off; *p != NUL && *p != '"'; MB_PTR_ADV(p))
+     11 |     {
+     12 | 	if (*p == '\\' && p[1] != NUL)
+     13 | 	{
+     14 | 	    ++p;
+     15 | 	    // A "\<x>" form occupies at least 4 characters, and produces up
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: eval_string:10
+  命中信号: allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)
+  筛选: keep
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: eval_string:12
+  命中信号: pointer write through p+n or p-- where n may be negative or greater than buffer length
+  筛选: keep
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: eval_string:10
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: eval_string:12
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

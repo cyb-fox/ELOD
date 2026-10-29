@@ -1,0 +1,152 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "save:1"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 1,
+      "snippet": "int HttpFileImpl::save(const std::string &path) const",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "save:1",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "save:9"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 9,
+      "snippet": "(fsPath.begin()->string() != \".\" && fsPath.begin()->string() != \"..\")))",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "save:9",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "save",
+        "string",
+        "path"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization"
+      ]
+    },
+    "sink_id": "save:1",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 4,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [],
+    "inputs": {
+      "tainted_tokens": [
+        "fsPath",
+        "begin",
+        "string"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "path.startsWith(base) or string prefix check performed before canonicalization"
+      ]
+    },
+    "sink_id": "save:9",
+    "state_delta": {},
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 5,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "save:1",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 6,
+    "cost": {},
+    "decision": false,
+    "evidence_refs": [],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [],
+      "mitigation_proved": [],
+      "resolution": "underdetermined",
+      "confidence": 0.0
+    },
+    "sink_id": "save:9",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNRESOLVED"
+      },
+      "path_validated": {
+        "to": "UNRESOLVED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  }
+]

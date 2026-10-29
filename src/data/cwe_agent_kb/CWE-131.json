@@ -1,0 +1,92 @@
+{
+  "cwe_id": "CWE-131",
+  "name": "Incorrect Calculation of Buffer Size",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-682"
+    ],
+    "parent_of": [
+      "CWE-467"
+    ]
+  },
+  "principle": "The code calculates an allocation size that is smaller or otherwise different from the bytes later required. The resulting buffer can be overrun or read past, causing crash, memory disclosure, memory modification, or code execution.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "malloc/calloc/realloc/alloca/new[] size argument uses user-controlled arithmetic without overflow checks",
+    "malloc(strlen(x)) or new char[strlen(x)] followed by strcpy/strcat/sprintf writing a NUL terminator",
+    "allocation uses element count without * sizeof(element_type) before indexing elements",
+    "allocation expression omits +1 or sentinel slot but later writes buf[n]=0, NULL, or terminator",
+    "encoding/escaping/conversion output buffer uses fixed multiplier smaller than maximum expansion, e.g. HTML '&' to '&amp;'",
+    "signed int/long length is checked only for upper bound then cast or passed to size_t allocation",
+    "allocation uses sizeof(pointer) where sizeof(*pointer) or sizeof(type) is required"
+  ],
+  "negative_signals": [
+    "allocation uses checked_mul/size_mul/SafeInt before malloc/new[]",
+    "code validates length >= 0 and length <= maximum before allocation",
+    "allocation includes terminator or sentinel, e.g. strlen(s)+1 or (n+1)*sizeof(T)",
+    "allocation uses sizeof *ptr or sizeof(T) consistently with element writes",
+    "conversion buffer is sized for documented worst-case expansion",
+    "Java code uses arrays/StringBuilder without manual byte-size arithmetic and catches impossible negative sizes by validation"
+  ],
+  "false_defense_traps": [
+    "Replacing strcpy with strncpy while keeping the undersized allocation",
+    "Checking only maximum length but not negative signed lengths",
+    "Relying on client-side length validation without server-side revalidation",
+    "Using ASLR/NX/canaries/FORTIFY_SOURCE as the only fix",
+    "Assuming sizeof(ptr) equals the pointed-to object size"
+  ],
+  "verification_focus": "Does the allocation-size expression exactly cover element size, count, sentinel, worst-case expansion, sign, and overflow before any write/read uses the buffer?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-131",
+        "CWE-119"
+      ],
+      "trigger": "allocated buffer is smaller than later memory operation requires",
+      "consequence": "out-of-bounds read/write, crash, memory disclosure, memory modification, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-131",
+        "CWE-193",
+        "CWE-787"
+      ],
+      "trigger": "calculation omits one byte or one element for a terminator/sentinel",
+      "consequence": "off-by-one out-of-bounds write"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-131",
+        "CWE-119"
+      ],
+      "trigger": "multiplication or addition wraps before allocation",
+      "consequence": "under-allocation followed by memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-195",
+        "CWE-131"
+      ],
+      "trigger": "negative signed length is converted to unsigned allocation size",
+      "consequence": "incorrect allocation size, allocation failure, or later memory error"
+    }
+  ],
+  "patch_principle": [
+    "Compute allocation in bytes with the correct element type and include all terminators or sentinels.",
+    "Validate numeric inputs for minimum and maximum bounds before allocation.",
+    "Use checked integer arithmetic for size additions and multiplications.",
+    "For transformations or encodings, allocate for the maximum possible output expansion.",
+    "Prefer vetted containers or safe allocation helpers that track size."
+  ],
+  "minimal_examples": {
+    "vuln": "char *p = malloc(strlen(s)); strcpy(p, s);",
+    "safe": "char *p = malloc(strlen(s) + 1); strcpy(p, s);"
+  }
+}

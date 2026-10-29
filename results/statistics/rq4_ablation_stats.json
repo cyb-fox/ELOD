@@ -1,0 +1,143 @@
+{
+  "criterion": "pair-grid (bench._pair_metrics, detection)",
+  "source": "predictions/rq1_primevul.jsonl (full arm)",
+  "n_files": 870,
+  "n_pairs": 435,
+  "PV_definition": "P-V / 435; clean fixed-side false-alarm count under the paired criterion, same source as tab:main sys row",
+  "arms": {
+    "full": {
+      "PC": 151,
+      "PV": 73,
+      "PB": 164,
+      "PR": 47,
+      "TP": 224,
+      "FP": 120,
+      "recall": 0.5149425287356322,
+      "FPR": 0.27586206896551724,
+      "precision": 0.6511627906976745,
+      "PV_rate": 0.167816091954023,
+      "PR_rate": 0.10804597701149425
+    },
+    "K": {
+      "PC": 139,
+      "PV": 79,
+      "PB": 167,
+      "PR": 50,
+      "TP": 218,
+      "FP": 129,
+      "recall": 0.5011494252873563,
+      "FPR": 0.296551724137931,
+      "precision": 0.6282420749279539,
+      "PV_rate": 0.18160919540229886,
+      "PR_rate": 0.11494252873563218
+    },
+    "R": {
+      "PC": 41,
+      "PV": 68,
+      "PB": 271,
+      "PR": 55,
+      "TP": 109,
+      "FP": 123,
+      "recall": 0.25057471264367814,
+      "FPR": 0.2827586206896552,
+      "precision": 0.4698275862068966,
+      "PV_rate": 0.15632183908045977,
+      "PR_rate": 0.12643678160919541
+    },
+    "E": {
+      "PC": 73,
+      "PV": 95,
+      "PB": 215,
+      "PR": 52,
+      "TP": 168,
+      "FP": 147,
+      "recall": 0.38620689655172413,
+      "FPR": 0.33793103448275863,
+      "precision": 0.5333333333333333,
+      "PV_rate": 0.21839080459770116,
+      "PR_rate": 0.11954022988505747
+    },
+    "G": {
+      "PC": 90,
+      "PV": 307,
+      "PB": 16,
+      "PR": 22,
+      "TP": 397,
+      "FP": 329,
+      "recall": 0.9126436781609195,
+      "FPR": 0.7563218390804598,
+      "precision": 0.546831955922865,
+      "PV_rate": 0.7057471264367816,
+      "PR_rate": 0.05057471264367816
+    }
+  },
+  "tests_vs_full_two_proportion_z_n435": {
+    "K": {
+      "dPV": 0.0138,
+      "z_PV": 0.54,
+      "p_PV": 0.592,
+      "dRecall": -0.0138,
+      "z_recall": -0.41,
+      "p_recall": 0.684,
+      "dPC_pairs": -12,
+      "z_PC": -0.86,
+      "p_PC": 0.388,
+      "family_wise_significant": false
+    },
+    "R": {
+      "dPV": -0.0115,
+      "z_PV": -0.46,
+      "p_PV": 0.646,
+      "dRecall": -0.2644,
+      "z_recall": -8.02,
+      "p_recall": 9.99e-16,
+      "dPC_pairs": -110,
+      "z_PC": -8.99,
+      "p_PC": 0.0,
+      "family_wise_significant": "recall/P-C yes; PV no"
+    },
+    "E": {
+      "dPV": 0.0506,
+      "z_PV": 1.89,
+      "p_PV": 0.0588,
+      "dRecall": -0.1287,
+      "z_recall": -3.82,
+      "p_recall": 0.000136,
+      "dPC_pairs": -78,
+      "z_PC": -6.05,
+      "p_PC": 1.47e-09,
+      "family_wise_significant": "recall/P-C yes; PV marginal"
+    },
+    "G": {
+      "dPV": 0.5379,
+      "z_PV": 16.0,
+      "p_PV": 0.0,
+      "dRecall": 0.3977,
+      "z_recall": 12.98,
+      "p_recall": 0.0,
+      "dPC_pairs": -61,
+      "z_PC": -4.62,
+      "p_PC": 3.82e-06,
+      "family_wise_significant": true
+    }
+  },
+  "ci95_dPV": {
+    "K": [
+      -0.0367,
+      0.0642
+    ],
+    "R": [
+      -0.0605,
+      0.0375
+    ],
+    "E": [
+      -0.0018,
+      0.1029
+    ],
+    "G": [
+      0.4825,
+      0.5933
+    ]
+  },
+  "identical_to_main_table": "the full arm (151/73/164/47) is the same as the main-table row for this system"
+}

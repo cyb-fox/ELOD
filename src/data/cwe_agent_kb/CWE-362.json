@@ -1,0 +1,91 @@
+{
+  "cwe_id": "CWE-362",
+  "name": "Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition')",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "race-condition",
+    "child_of": [
+      "CWE-662"
+    ],
+    "parent_of": [
+      "CWE-364",
+      "CWE-366",
+      "CWE-367",
+      "CWE-368",
+      "CWE-421",
+      "CWE-689",
+      "CWE-1223"
+    ]
+  },
+  "principle": "Concurrent code accesses a shared resource without enforcing exclusive or atomic access. Another thread, process, or signal handler can modify the resource during the timing window, corrupting state or bypassing security checks.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Go",
+    "Python",
+    "Perl"
+  ],
+  "detection_signals": [
+    "read-modify-write on shared state such as x++, balance = balance - amount, map.put(...) without mutex, synchronized, Lock, or atomic API",
+    "global, static, singleton, or heap object written from multiple threads without pthread_mutex_t, std::mutex, synchronized, java.util.concurrent.locks.Lock, or std::atomic/Atomic*",
+    "check-then-use file pattern access()/stat()/lstat()/File.exists() followed by open()/fopen()/unlink()/FileInputStream on the same path",
+    "pthread_mutex_lock(), pthread_mutex_trylock(), mtx_lock(), or lock acquisition return value ignored before shared-resource access",
+    "Java check-then-act on shared collection or field such as if (!map.containsKey(k)) map.put(k,v) without ConcurrentHashMap.computeIfAbsent or synchronization",
+    "database SELECT/read of balance, quota, or state followed by separate UPDATE/write without transaction, row lock, or atomic UPDATE predicate",
+    "signal handler reads/writes global state or calls malloc(), free(), printf(), or other non-async-signal-safe functions"
+  ],
+  "negative_signals": [
+    "entire read-check-write sequence is inside the same mutex/monitor/Lock critical section and lock acquisition failure is handled",
+    "shared counter/state uses atomic_int, std::atomic, AtomicInteger, AtomicReference, compareAndSet, fetch_add, or synchronized accessor",
+    "file creation/open uses atomic flags such as open(..., O_CREAT|O_EXCL), O_NOFOLLOW with fstat() after open, mkstemp(), or atomic rename()",
+    "database read-validate-write is inside one transaction with SELECT FOR UPDATE or a single conditional UPDATE statement",
+    "shared data is thread_local, ThreadLocal, stack-local, or otherwise not shared across concurrent executions",
+    "code path is provably single-threaded, single-process, and has no signal/interrupt handler touching the resource"
+  ],
+  "false_defense_traps": [
+    "declaring shared variables volatile instead of using locks or atomic operations",
+    "double-checked locking without correct memory-ordering or Java volatile",
+    "checking a file path with access()/stat()/exists() before opening the same path",
+    "using thread-safe individual calls while composing non-atomic check-then-act sequences",
+    "locking only the write but leaving related reads or validation outside the same critical section"
+  ],
+  "verification_focus": "Can two concurrent executions observe or change the same resource between a security-relevant check/read and its dependent use/write without one atomic synchronization boundary?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-367"
+      ],
+      "trigger": "path or permission is checked before a later file use",
+      "consequence": "attacker swaps the resource and bypasses authorization or modifies the wrong file"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-400"
+      ],
+      "trigger": "race bypasses cleanup or triggers repeated initialization",
+      "consequence": "CPU, memory, handle, or other resource exhaustion"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-59"
+      ],
+      "trigger": "race combines predictable pathname with loose permissions or symlink replacement",
+      "consequence": "read or overwrite unintended files and application data"
+    }
+  ],
+  "patch_principle": [
+    "Wrap the complete critical sequence in a mutex, monitor, Lock, transaction, or other synchronization primitive.",
+    "Use atomic operations or thread-safe abstractions for shared variables and collections; do not split check and update.",
+    "Remove shared mutable state where possible by using thread-local data, immutable objects, message passing, or ownership transfer.",
+    "For file TOCTOU, avoid path check-then-use; open/create atomically and validate the opened descriptor with fstat().",
+    "For database state, use one transaction with row locks or a single conditional atomic UPDATE."
+  ],
+  "minimal_examples": {
+    "vuln": "sharedCounter++;",
+    "safe": "sharedCounter.incrementAndGet();"
+  }
+}

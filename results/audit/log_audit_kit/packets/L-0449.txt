@@ -1,0 +1,188 @@
+=== 待审推理日志 L-0449 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 7 个。
+
+【推理轨迹】共 20 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dnsc_load_local_data:29
+  引证行: 29
+  引证内容: memcpy(&serial, cert->serial, sizeof serial);
+  初判倾向: VIOLATED
+  上下文源码:
+     26 |                 break;
+     27 |             }
+     28 |         }
+     29 | 		memcpy(&serial, cert->serial, sizeof serial);
+     30 | 		serial = htonl(serial);
+     31 |         if(rotated_cert) {
+     32 |             verbose(VERB_OPS,
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dnsc_load_local_data:50
+  引证行: 50
+  引证内容: rr = malloc(rrlen);
+  初判倾向: VIOLATED
+  上下文源码:
+     47 |                          4 * sizeof(struct SignedCert) + // worst case scenario
+     48 |                          1 + // trailing double quote
+     49 |                          1;
+     50 |         rr = malloc(rrlen);
+     51 |         if(!rr) {
+     52 |             log_err("Could not allocate memory");
+     53 |             return -2;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dnsc_load_local_data:55
+  引证行: 55
+  引证内容: snprintf(rr, rrlen - 1, "%s 86400 IN TXT \"", dnscenv->provider_name);
+  初判倾向: VIOLATED
+  上下文源码:
+     52 |             log_err("Could not allocate memory");
+     53 |             return -2;
+     54 |         }
+     55 |         snprintf(rr, rrlen - 1, "%s 86400 IN TXT \"", dnscenv->provider_name);
+     56 |         for(j=0; j<sizeof(struct SignedCert); j++) {
+     57 | 			int c = (int)*((const uint8_t *) cert + j);
+     58 |             if (isprint(c) && c != '"' && c != '\\') {
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dnsc_load_local_data:59
+  引证行: 59
+  引证内容: snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "%c", c);
+  初判倾向: VIOLATED
+  上下文源码:
+     56 |         for(j=0; j<sizeof(struct SignedCert); j++) {
+     57 | 			int c = (int)*((const uint8_t *) cert + j);
+     58 |             if (isprint(c) && c != '"' && c != '\\') {
+     59 |                 snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "%c", c);
+     60 |             } else {
+     61 |                 snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "\\%03d", c);
+     62 |             }
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dnsc_load_local_data:61
+  引证行: 61
+  引证内容: snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "\\%03d", c);
+  初判倾向: VIOLATED
+  上下文源码:
+     58 |             if (isprint(c) && c != '"' && c != '\\') {
+     59 |                 snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "%c", c);
+     60 |             } else {
+     61 |                 snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "\\%03d", c);
+     62 |             }
+     63 |         }
+     64 |         verbose(VERB_OPS,
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: dnsc_load_local_data:70
+  引证行: 70
+  引证内容: snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "\"");
+  初判倾向: VIOLATED
+  上下文源码:
+     67 | 			" to local-data to config: %s",
+     68 | 			serial, rr
+     69 | 		);
+     70 |         snprintf(rr + strlen(rr), rrlen - 1 - strlen(rr), "\"");
+     71 |         cfg_strlist_insert(&cfg->local_data, strdup(rr));
+     72 |         free(rr);
+     73 |     }
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dnsc_load_local_data:5
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dnsc_load_local_data:29
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dnsc_load_local_data:50
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dnsc_load_local_data:55
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dnsc_load_local_data:59
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dnsc_load_local_data:61
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: dnsc_load_local_data:70
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dnsc_load_local_data:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dnsc_load_local_data:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dnsc_load_local_data:50
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dnsc_load_local_data:55
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dnsc_load_local_data:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dnsc_load_local_data:61
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: dnsc_load_local_data:70
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

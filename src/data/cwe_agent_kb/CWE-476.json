@@ -1,0 +1,82 @@
+{
+  "cwe_id": "CWE-476",
+  "name": "NULL Pointer Dereference",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-710",
+      "CWE-754"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product dereferences a pointer or reference that it expects to be valid but is NULL. This usually crashes the process and can rarely allow memory access or code execution when address 0 is accessible to privileged code.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Go"
+  ],
+  "detection_signals": [
+    "malloc/calloc/realloc/strdup/new(std::nothrow) return value used with ->, *, [], memcpy, strcpy, or memset before NULL check",
+    "gethostbyaddr/getenv/fopen/dlopen/dlsym return value dereferenced or passed to a dereferencing API before NULL check",
+    "Java System.getProperty/Map.get/Intent.getStringExtra return value used with .trim(), .length(), .equals(), or other method before null check",
+    "function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null",
+    "callee may return NULL on error path and caller immediately dereferences result or passes it to another function that dereferences it",
+    "check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)",
+    "shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization"
+  ],
+  "negative_signals": [
+    "if (p == NULL) return/goto/throw occurs before every dereference on the same path",
+    "pointer is assigned from &local, &global, array name, or string literal immediately before use",
+    "Java reference is validated by Objects.requireNonNull(x) or explicit x != null guard before method call",
+    "C++ object is held by reference, gsl::not_null, std::optional checked with has_value(), or smart pointer checked before operator->",
+    "caller-side contract enforces non-null and all call sites pass &object, non-null allocation result, or already-checked value"
+  ],
+  "false_defense_traps": [
+    "checking errno or error code but still dereferencing a possibly NULL return value",
+    "assert(p != NULL) used as the only guard when assertions can be compiled out or disabled",
+    "input format validation before a lookup API such as gethostbyaddr without checking the lookup result",
+    "checking p for NULL after p->field, *p, or p.method() has already executed",
+    "checking a shared pointer without holding the lock through both check and dereference"
+  ],
+  "verification_focus": "Can NULL/null reach any dereference, method call, field access, array access, or dereferencing library call on the same execution path?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-252",
+        "CWE-476"
+      ],
+      "trigger": "a function that can return NULL fails and its return value is not checked",
+      "consequence": "process crash or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-476"
+      ],
+      "trigger": "another thread changes or frees a shared pointer between the NULL check and the dereference",
+      "consequence": "crash, unsafe state, or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-789",
+        "CWE-476"
+      ],
+      "trigger": "excessive allocation request fails and returns NULL before unchecked use",
+      "consequence": "denial of service by crash"
+    }
+  ],
+  "patch_principle": [
+    "Check every pointer or reference returned by a nullable API before first use.",
+    "On NULL/null, return, throw a controlled exception, use a safe default, or jump to cleanup before dereference.",
+    "Initialize pointers explicitly and avoid using uninitialized or error-path values.",
+    "In concurrent code, hold the proper lock from the NULL check through the final dereference.",
+    "Document and enforce non-null function contracts at API boundaries."
+  ],
+  "minimal_examples": {
+    "vuln": "char *p = getenv(\"HOME\"); printf(\"%c\", p[0]);",
+    "safe": "char *p = getenv(\"HOME\"); if (p == NULL) return; printf(\"%c\", p[0]);"
+  }
+}

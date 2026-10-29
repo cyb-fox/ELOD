@@ -1,0 +1,81 @@
+{
+  "cwe_id": "CWE-415",
+  "name": "Double Free",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-666",
+      "CWE-825",
+      "CWE-1341",
+      "CWE-672"
+    ],
+    "parent_of": []
+  },
+  "principle": "The program calls free(), delete, delete[], or an equivalent release routine twice on the same memory address. The second release corrupts allocator metadata and can cause crashes, overlapping allocations, write-what-where, or code execution.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "same pointer variable reaches two free(ptr), delete ptr, or delete[] ptr calls without ptr = NULL or reassignment between them",
+    "free(ptr) in an error branch followed by free(ptr) in a shared cleanup label or function epilogue",
+    "goto cleanup path frees ptr after an earlier early-exit branch already called free(ptr)",
+    "custom destructor/release API such as destroy_x(x), release_x(x), cleanup_x(x) frees an object, then caller also calls free(x) or delete x",
+    "object destructor deletes a member pointer and another method or cleanup path deletes the same member pointer",
+    "loop calls free(ptr) on an invariant pointer and the loop body does not assign ptr = malloc(...) or ptr = NULL",
+    "signal handler or asynchronous callback calls free(ptr) on storage also freed by the main control flow"
+  ],
+  "negative_signals": [
+    "free(ptr); ptr = NULL; occurs before any later free(ptr)",
+    "two release calls are in exclusive if/else branches that cannot both execute",
+    "between releases there is ptr = malloc(...), ptr = calloc(...), ptr = realloc(NULL,...), or new assigning a fresh allocation",
+    "code uses std::unique_ptr, std::shared_ptr, std::vector, std::string, or RAII ownership instead of manual delete/free",
+    "release function accepts a pointer-to-pointer and sets *p = NULL after freeing, e.g. free_x(&p)"
+  ],
+  "false_defense_traps": [
+    "checking if (ptr) before both free(ptr) calls without setting ptr = NULL after the first free",
+    "assuming free(ptr) changes ptr to NULL automatically",
+    "setting only a local alias to NULL while other aliases still point to the freed address",
+    "making a custom destroy() return early on NULL but not clearing the caller's pointer",
+    "using reference counting without atomicity or consistent ownership rules"
+  ],
+  "verification_focus": "Can one concrete allocation address reach more than one actual deallocation call without an intervening ownership transfer, reallocation, or NULL guard that prevents the second deallocation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-364",
+        "CWE-415"
+      ],
+      "trigger": "signal handler frees memory also freed by interrupted normal code",
+      "consequence": "heap corruption or crash"
+    },
+    {
+      "chain": [
+        "CWE-415",
+        "CWE-123"
+      ],
+      "trigger": "allocator metadata is corrupted and later malloc returns overlapping or attacker-controlled chunks",
+      "consequence": "write-what-where and possible arbitrary code execution"
+    },
+    {
+      "chain": [
+        "CWE-415",
+        "CWE-416"
+      ],
+      "trigger": "code dereferences the pointer after the first free and before or after the second free",
+      "consequence": "use-after-free with memory corruption or information disclosure"
+    }
+  ],
+  "patch_principle": [
+    "Give each allocation a single owner responsible for exactly one release.",
+    "After free/delete in C-style ownership code, clear the owning pointer and all reachable owner fields to NULL.",
+    "Centralize cleanup in one path and make error paths transfer control there without pre-freeing the same pointer.",
+    "Use RAII, std::unique_ptr, std::shared_ptr, containers, or automatic memory management where possible.",
+    "Make custom destroy/release functions idempotent via pointer-to-pointer APIs or explicit ownership state."
+  ],
+  "minimal_examples": {
+    "vuln": "if (abrt) free(ptr); /* ... */ free(ptr);",
+    "safe": "if (abrt) { free(ptr); ptr = NULL; } /* ... */ free(ptr);"
+  }
+}

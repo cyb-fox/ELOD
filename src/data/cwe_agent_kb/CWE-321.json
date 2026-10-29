@@ -1,0 +1,75 @@
+{
+  "cwe_id": "CWE-321",
+  "name": "Use of Hard-coded Cryptographic Key",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "cryptography",
+    "child_of": [
+      "CWE-798"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product embeds a fixed cryptographic key in code, binary, firmware, or bundled configuration. Anyone who extracts it can decrypt data, forge signatures/tokens, bypass access control, and the key is hard to rotate.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Python",
+    "Go",
+    "JavaScript"
+  ],
+  "detection_signals": [
+    "Java new SecretKeySpec(\"...\".getBytes(), \"AES\"|\"HmacSHA256\"|\"DES\")",
+    "Java Mac.init(new SecretKeySpec(static final byte[]|stringLiteral, ...))",
+    "Java Cipher.init(..., new SecretKeySpec(constantBytes, ...))",
+    "JWT signing call with literal key: Jwts.parser().setSigningKey(\"...\") or signWith(..., \"...\")",
+    "PEM private key literal or resource: \"-----BEGIN PRIVATE KEY-----\" or \"-----BEGIN OPENSSH PRIVATE KEY-----\"",
+    "C/C++ static const unsigned char key[] = { ... } used by AES_set_encrypt_key|HMAC|EVP_EncryptInit_ex",
+    "strcmp|equals comparing input to fixed high-entropy hex/base64 string used as a key or privileged verifier"
+  ],
+  "negative_signals": [
+    "key material fetched from KMS/HSM API: AWS KMS, Azure Key Vault, Google Cloud KMS, PKCS#11",
+    "Java KeyStore.getKey(alias, password) with keystore path/password not hard-coded",
+    "key generated at install/runtime with KeyGenerator|KeyPairGenerator|SecureRandom and persisted securely",
+    "only public certificate/public key is embedded: \"BEGIN CERTIFICATE\" or \"BEGIN PUBLIC KEY\" with no private/secret key",
+    "literal is a test vector under test/ or src/test/ and not used in production code path"
+  ],
+  "false_defense_traps": [
+    "Base64, hex, XOR, or string splitting hides the key but does not protect it from extraction",
+    "Compiling into a binary or firmware image does not prevent reverse engineering of embedded keys",
+    "Putting the same key in a bundled config file is still hard-coded if shipped with the product",
+    "Using one factory/default key for all devices makes one extraction compromise every instance",
+    "Environment variable fallback to a hard-coded default key is still vulnerable when the variable is unset"
+  ],
+  "verification_focus": "Is a secret/private cryptographic key fixed in code, binary, firmware, or shipped config instead of being externally managed, unique, and rotatable?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-656",
+        "CWE-321"
+      ],
+      "trigger": "code relies on hiding a fixed key in the product",
+      "consequence": "attacker extracts the key and bypasses cryptographic protection"
+    },
+    {
+      "chain": [
+        "CWE-321",
+        "CWE-798"
+      ],
+      "trigger": "hard-coded key functions as an authentication credential",
+      "consequence": "attacker assumes identity or gains privileged access"
+    }
+  ],
+  "patch_principle": [
+    "Remove cryptographic keys from source code, binaries, firmware, and shipped configuration.",
+    "Store keys in KMS, HSM, OS credential store, or a protected keystore separate from code.",
+    "Generate unique keys per deployment/device/account; never reuse one vendor default key.",
+    "Support key rotation and revocation without rebuilding or patching the product.",
+    "Fail closed when an external key is missing; do not use a hard-coded fallback key."
+  ],
+  "minimal_examples": {
+    "vuln": "SecretKeySpec k = new SecretKeySpec(\"68af404b513073584c4b6f22b6c63e6b\".getBytes(), \"AES\");",
+    "safe": "SecretKey k = kmsClient.getSecretKey(\"app/aes-key\");"
+  }
+}

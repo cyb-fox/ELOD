@@ -1,0 +1,88 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "set_fflags_platform:89"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-22"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 89,
+      "snippet": "archive_set_error(&a->archive, errno,",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "set_fflags_platform:89",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "set_fflags_platform:89"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "archive_set_error",
+        "archive",
+        "errno"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "Paths.get(base, input) or base.resolve(input) used without normalize()/toRealPath()/getCanonicalPath() and a base-directory check"
+      ]
+    },
+    "sink_id": "set_fflags_platform:89",
+    "state_delta": {
+      "path_validated": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "pathtraversal|file_op"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "set_fflags_platform:89"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "path_validated"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.6
+    },
+    "sink_id": "set_fflags_platform:89",
+    "state_delta": {
+      "attacker_control": {
+        "to": "UNDERDETERMINED"
+      },
+      "path_validated": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "pathtraversal|file_op"
+  }
+]

@@ -1,0 +1,233 @@
+=== 待审推理日志 L-0628 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 10 个；未决 3 个。
+
+【推理轨迹】共 26 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:1
+  引证行: 1
+  引证内容: int unlzw(in, out)
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | int unlzw(in, out)
+      2 |     int in, out;    /* input and output file descriptors */
+      3 | {
+      4 |     REG2   char_type  *stackp;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:21
+  引证行: 21
+  引证内容: tab_prefix[0] = tab_prefix0;
+  初判倾向: VIOLATED
+  上下文源码:
+     18 |     REG16  int        rsize;
+     19 | 
+     20 | #ifdef MAXSEG_64K
+     21 |     tab_prefix[0] = tab_prefix0;
+     22 |     tab_prefix[1] = tab_prefix1;
+     23 | #endif
+     24 |     maxbits = get_byte();
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:22
+  引证行: 22
+  引证内容: tab_prefix[1] = tab_prefix1;
+  初判倾向: VIOLATED
+  上下文源码:
+     19 | 
+     20 | #ifdef MAXSEG_64K
+     21 |     tab_prefix[0] = tab_prefix0;
+     22 |     tab_prefix[1] = tab_prefix1;
+     23 | #endif
+     24 |     maxbits = get_byte();
+     25 |     block_mode = maxbits & BLOCK_MODE;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:24
+  引证行: 24
+  引证内容: maxbits = get_byte();
+  初判倾向: VIOLATED
+  上下文源码:
+     21 |     tab_prefix[0] = tab_prefix0;
+     22 |     tab_prefix[1] = tab_prefix1;
+     23 | #endif
+     24 |     maxbits = get_byte();
+     25 |     block_mode = maxbits & BLOCK_MODE;
+     26 |     if ((maxbits & LZW_RESERVED) != 0) {
+     27 | 	WARN((stderr, "\n%s: %s: warning, unknown flags 0x%x\n",
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:26
+  引证行: 26
+  引证内容: if ((maxbits & LZW_RESERVED) != 0) {
+  初判倾向: VIOLATED
+  上下文源码:
+     23 | #endif
+     24 |     maxbits = get_byte();
+     25 |     block_mode = maxbits & BLOCK_MODE;
+     26 |     if ((maxbits & LZW_RESERVED) != 0) {
+     27 | 	WARN((stderr, "\n%s: %s: warning, unknown flags 0x%x\n",
+     28 | 	      program_name, ifname, maxbits & LZW_RESERVED));
+     29 |     }
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: <file>:64
+  引证行: 64
+  引证内容: inbuf[i] = inbuf[i+o];
+  初判倾向: VIOLATED
+  上下文源码:
+     61 | 	e = insize-(o = (posbits>>3));
+     62 | 
+     63 | 	for (i = 0 ; i < e ; ++i) {
+     64 | 	    inbuf[i] = inbuf[i+o];
+     65 | 	}
+     66 | 	insize = e;
+     67 | 	posbits = 0;
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:1
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:21
+  命中信号: pointer write through *p or p[i] after p-- or p -= n without p >= buf check
+  命中信号: buf[index] = value where index is decremented and no index >= 0 check dominates the write
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:22
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:24
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:26
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:64
+  命中信号: allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:97
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:99
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:156
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: <file>:169
+  筛选: keep
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:1
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:21
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.9
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:22
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:64
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:97
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:99
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:156
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: <file>:169
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-124

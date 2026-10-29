@@ -1,0 +1,73 @@
+{
+  "cwe_id": "CWE-326",
+  "name": "Inadequate Encryption Strength",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "cryptography",
+    "child_of": [
+      "CWE-693"
+    ],
+    "parent_of": [
+      "CWE-328"
+    ]
+  },
+  "principle": "The product encrypts sensitive data with a theoretically sound scheme but uses strength parameters too small for the required protection. Short keys, weak groups, or export-grade configurations make brute-force decryption practical with current resources.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "Java KeyPairGenerator.initialize(512) or initialize(1024) for RSA/DSA keys protecting sensitive data",
+    "Java AlgorithmParameterGenerator.init(512) or init(1024) for Diffie-Hellman parameters",
+    "OpenSSL RSA_generate_key_ex(..., bits <= 1024, ...) or EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, bits <= 1024)",
+    "OpenSSL DH_generate_parameters_ex(dh, bits <= 1024, ...) or DH parameters with p length <= 1024 bits",
+    "TLS configuration string includes EXPORT, EXP, LOW, 40, 56, or cipher suites named TLS_*_EXPORT_*",
+    "SSL_CTX_set_tmp_dh() or SSL_CTX_set0_tmp_dh_pkey() uses DH parameters <= 1024 bits",
+    "Encryption configuration sets effective key length below 128 bits for sensitive data"
+  ],
+  "negative_signals": [
+    "RSA key generation uses >= 2048 bits, e.g. KeyPairGenerator.initialize(2048) or EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048)",
+    "ECDH/ECDSA uses standard >= 256-bit curves such as secp256r1, secp384r1, or X25519",
+    "Diffie-Hellman parameters are >= 2048 bits or use approved named FFDHE groups",
+    "TLS configuration disables EXPORT/LOW/40/56 suites and only enables TLS 1.2 strong suites or TLS 1.3",
+    "OpenSSL security level enforces adequate strength, e.g. SSL_CTX_set_security_level(ctx, 2) or higher"
+  ],
+  "false_defense_traps": [
+    "Using a strong algorithm name while configuring a short key or weak group",
+    "Allowing weak TLS suites as fallback for legacy clients",
+    "Checking only protocol version while leaving export-grade or low-strength cipher suites enabled",
+    "Assuming old key-size recommendations remain adequate without periodic cryptographic review",
+    "Treating base64, XOR, or custom reversible transforms as encryption"
+  ],
+  "verification_focus": "Is sensitive data encrypted with a sound scheme whose key length, group size, or negotiated cipher strength is too small for current brute-force resistance requirements?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-326",
+        "CWE-200"
+      ],
+      "trigger": "attacker brute-forces weak encryption protecting stored or transmitted sensitive data",
+      "consequence": "confidential application data is decrypted and exposed"
+    },
+    {
+      "chain": [
+        "CWE-326",
+        "CWE-287"
+      ],
+      "trigger": "attacker brute-forces encryption protecting credentials, tokens, or authentication secrets",
+      "consequence": "protection mechanism is bypassed and authentication can be defeated"
+    }
+  ],
+  "patch_principle": [
+    "Use encryption schemes and parameter sizes currently considered strong by cryptographic experts and standards bodies.",
+    "Use at least 128-bit symmetric strength; use RSA/DH >= 2048 bits or approved ECC curves of >= 256 bits.",
+    "Disable export-grade, LOW, 40-bit, 56-bit, and other weak TLS cipher suites and weak fallback paths.",
+    "Make cryptographic parameters configurable and periodically upgrade them as recommendations change."
+  ],
+  "minimal_examples": {
+    "vuln": "KeyPairGenerator.getInstance(\"RSA\").initialize(512);",
+    "safe": "KeyPairGenerator.getInstance(\"RSA\").initialize(3072);"
+  }
+}

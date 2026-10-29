@@ -1,0 +1,97 @@
+=== 待审推理日志 L-0502 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 1 个。
+
+【推理轨迹】共 10 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gst_flxdec_chain:22
+  引证行: 22
+  引证内容: memcpy ((gchar *) & flxdec->hdr, data, FlxHeaderSize);
+  初判倾向: VIOLATED
+  上下文源码:
+     19 |       const guint8 *data = gst_adapter_map (flxdec->adapter, FlxHeaderSize);
+     20 |       GstCaps *templ;
+     21 | 
+     22 |       memcpy ((gchar *) & flxdec->hdr, data, FlxHeaderSize);
+     23 |       FLX_HDR_FIX_ENDIANNESS (&(flxdec->hdr));
+     24 |       gst_adapter_unmap (flxdec->adapter);
+     25 |       gst_adapter_flush (flxdec->adapter, FlxHeaderSize);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gst_flxdec_chain:67
+  引证行: 67
+  引证内容: if (flxh->depth <= 8)
+  初判倾向: VIOLATED
+  上下文源码:
+     64 |       gst_pad_set_caps (flxdec->srcpad, caps);
+     65 |       gst_caps_unref (caps);
+     66 | 
+     67 |       if (flxh->depth <= 8)
+     68 |         flxdec->converter =
+     69 |             flx_colorspace_converter_new (flxh->width, flxh->height);
+     70 | 
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gst_flxdec_chain:22
+  命中信号: memcpy/memmove/memset/read/write length argument is a signed or narrow integer arithmetic result cast to size_t
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gst_flxdec_chain:67
+  命中信号: `x = a - b` where `a` or `b` comes from input, packet length, or external state
+  命中信号: `len = total_len - header_len` without a preceding `header_len <= total_len` check
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gst_flxdec_chain:98
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gst_flxdec_chain:136
+  命中信号: malloc/calloc/realloc/strdup/new(std::nothrow) return value used with ->, *, [], memcpy, strcpy, or memset before NULL check
+  筛选: keep
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gst_flxdec_chain:22
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gst_flxdec_chain:67
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gst_flxdec_chain:98
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gst_flxdec_chain:136
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-190, CWE-191

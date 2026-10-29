@@ -1,0 +1,65 @@
+{
+  "cwe_id": "CWE-444",
+  "name": "Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-436"
+    ],
+    "parent_of": []
+  },
+  "principle": "An intermediary HTTP agent parses malformed or ambiguous HTTP messages differently from the final client or server. Duplicate Content-Length, Transfer-Encoding/Content-Length conflicts, or incompatible HTTP versions can desynchronize message boundaries and let hidden requests or responses bypass the intermediary.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "custom HTTP parser using read()/recv()/readLine() and manual header splitting before proxying",
+    "duplicate header handling via map overwrite, e.g. headers.put(name,value), for Content-Length or Transfer-Encoding",
+    "code accepts both Content-Length and Transfer-Encoding on the same HTTP/1.1 message",
+    "code uses first or last Content-Length when multiple Content-Length headers are present",
+    "case-sensitive checks for \"Content-Length\" or \"Transfer-Encoding\" headers",
+    "backend connection reuse or HTTP keep-alive/pipelining while forwarding unnormalized request bytes",
+    "Java code uses request.getContentLength() without checking request.getHeaders(\"Content-Length\") count"
+  ],
+  "negative_signals": [
+    "rejects request when more than one Content-Length header is present",
+    "rejects request when both Transfer-Encoding and Content-Length are present",
+    "normalizes/dechunks request body and forwards one canonical Content-Length only",
+    "uses a strict RFC-compliant HTTP parser in proxy and origin with identical configuration",
+    "closes client/backend connection after each request instead of reusing ambiguous streams",
+    "marks proxy-cacheable responses non-cacheable for affected paths"
+  ],
+  "false_defense_traps": [
+    "TLS/SSL alone does not fix parser disagreement between TLS terminator, proxy, and origin",
+    "a WAF in front is bypassable if it parses HTTP differently from the backend",
+    "choosing first or last duplicate Content-Length is unsafe instead of rejecting",
+    "stripping only exact-case header names misses lowercase or obs-fold variants",
+    "disabling cache reduces cache poisoning but not access-control bypass or request smuggling"
+  ],
+  "verification_focus": "Does every intermediary and backend reject or canonicalize ambiguous HTTP message lengths before forwarding on a persistent connection?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-436",
+        "CWE-444"
+      ],
+      "trigger": "proxy and origin disagree on duplicate Content-Length or Transfer-Encoding plus Content-Length",
+      "consequence": "hidden request/response bypasses protection, poisons cache, or reaches unauthorized backend endpoint"
+    }
+  ],
+  "patch_principle": [
+    "Use one strict HTTP parser or matching parser configurations across proxy, firewall, cache, and origin.",
+    "Reject duplicate Content-Length and Transfer-Encoding/Content-Length conflicts before forwarding.",
+    "Normalize/dechunk messages and forward a single canonical framing header.",
+    "Disable backend connection reuse or close the session after each request when strict normalization is not guaranteed.",
+    "Make sensitive responses non-cacheable to limit cache poisoning impact."
+  ],
+  "minimal_examples": {
+    "vuln": "int len = request.getContentLength(); // no check for duplicate Content-Length before proxying",
+    "safe": "if (Collections.list(request.getHeaders(\"Content-Length\")).size() > 1) { response.sendError(400); return; }"
+  }
+}

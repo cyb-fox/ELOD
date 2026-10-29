@@ -1,0 +1,77 @@
+{
+  "cwe_id": "CWE-123",
+  "name": "Write-what-where Condition",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-787",
+      "CWE-119"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code lets an attacker control both the destination address and the value written there. This is dangerous because the write can corrupt pointers, allocator metadata, security flags, or code pointers to cause code execution, privilege gain, bypass, or crash.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "strcpy(dst, src) or strcat(dst, src) into heap/stack buffer followed by free()/realloc() of adjacent allocation",
+    "memcpy(dst, src, len) or memmove(dst, src, len) where len is attacker-controlled and dst buffer size is not checked",
+    "assignment through attacker-influenced pointer: *ptr = value where ptr derives from input, overflowed memory, or corrupted metadata",
+    "function pointer, vtable pointer, GOT entry, callback pointer, or return address can be overwritten by an out-of-bounds write",
+    "allocator metadata overwrite pattern: overflow into chunk prev/next fields followed by free()",
+    "API accepts both target address/index and value from untrusted input and performs write without bounds/authorization checks"
+  ],
+  "negative_signals": [
+    "write target is a local fixed object or validated array index within bounds",
+    "written value is attacker-controlled but destination address is constant and non-security-critical",
+    "destination pointer is checked against allocation base and allocation size before every write",
+    "copy uses bounded size tied to destination capacity, e.g. snprintf(buf, sizeof buf, ...)",
+    "Java code uses normal arrays/ByteBuffer bounds checks without Unsafe, JNI, or native memory access"
+  ],
+  "false_defense_traps": [
+    "ASLR/PIE/NX/canary/CFG only reduce exploit reliability and do not remove the arbitrary write",
+    "Fixing the crash without removing attacker control of address and value leaves CWE-123",
+    "Checking only the write value but not the destination pointer is insufficient",
+    "Heap hardening may block one unlink technique but not all arbitrary-write paths"
+  ],
+  "verification_focus": "Can untrusted input or corrupted memory control both the address written to and the value written?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-120",
+        "CWE-123"
+      ],
+      "trigger": "unchecked buffer copy overwrites allocator metadata or a pointer",
+      "consequence": "arbitrary memory write leading to code execution or crash"
+    },
+    {
+      "chain": [
+        "CWE-134",
+        "CWE-123"
+      ],
+      "trigger": "externally controlled format string uses %n with attacker-controlled pointer",
+      "consequence": "attacker-selected memory write"
+    },
+    {
+      "chain": [
+        "CWE-416",
+        "CWE-123"
+      ],
+      "trigger": "use-after-free lets attacker replace freed object containing a write pointer",
+      "consequence": "write through corrupted pointer to attacker-selected address"
+    }
+  ],
+  "patch_principle": [
+    "Remove the upstream out-of-bounds write with strict destination-size validation.",
+    "Do not accept raw addresses or writable pointers from untrusted input.",
+    "Use memory-safe abstractions or containers that enforce bounds.",
+    "Validate pointer provenance and allocation bounds before indirect writes.",
+    "Treat ASLR, NX, canaries, and hardened allocators as defense-in-depth only."
+  ],
+  "minimal_examples": {
+    "vuln": "char *a=malloc(256), *b=malloc(256); strcpy(a, argv[1]); free(b);",
+    "safe": "char *a=malloc(256), *b=malloc(256); snprintf(a, 256, \"%s\", argv[1]); free(b);"
+  }
+}

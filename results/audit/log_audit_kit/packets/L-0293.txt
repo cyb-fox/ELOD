@@ -1,0 +1,109 @@
+=== 待审推理日志 L-0293 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 3 个。
+
+【推理轨迹】共 11 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qf_fill_buffer:34
+  引证行: 34
+  引证内容: qfp = qfl->qf_start;
+  初判倾向: VIOLATED
+  上下文源码:
+     31 | 	// Add one line for each error
+     32 | 	if (old_last == NULL)
+     33 | 	{
+     34 | 	    qfp = qfl->qf_start;
+     35 | 	    lnum = 0;
+     36 | 	}
+     37 | 	else
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qf_fill_buffer:39
+  引证行: 39
+  引证内容: if (old_last->qf_next != NULL)
+  初判倾向: VIOLATED
+  上下文源码:
+     36 | 	}
+     37 | 	else
+     38 | 	{
+     39 | 	    if (old_last->qf_next != NULL)
+     40 | 		qfp = old_last->qf_next;
+     41 | 	    else
+     42 | 		qfp = old_last;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qf_fill_buffer:40
+  引证行: 40
+  引证内容: qfp = old_last->qf_next;
+  初判倾向: VIOLATED
+  上下文源码:
+     37 | 	else
+     38 | 	{
+     39 | 	    if (old_last->qf_next != NULL)
+     40 | 		qfp = old_last->qf_next;
+     41 | 	    else
+     42 | 		qfp = old_last;
+     43 | 	    lnum = buf->b_ml.ml_line_count;
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qf_fill_buffer:18
+  命中信号: for/while loop counter is incremented with += tainted_len or ++ near INT_MAX/UINT_MAX without max bound validation
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qf_fill_buffer:34
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qf_fill_buffer:39
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qf_fill_buffer:40
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qf_fill_buffer:18
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qf_fill_buffer:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qf_fill_buffer:39
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qf_fill_buffer:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-190

@@ -1,0 +1,74 @@
+{
+  "cwe_id": "CWE-617",
+  "name": "Reachable Assertion",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [
+      "CWE-705",
+      "CWE-670"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product contains assert() or a similar fatal check that attacker-controlled input can make fail. A failed reachable assertion can abort the process or raise an unchecked fatal error, causing denial of service beyond the attacker's own session.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Rust",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "C/C++ assert(expr) where expr reads argv, getenv(), recv(), read(), fread(), request buffer, or parsed packet fields",
+    "C/C++ abort(), __builtin_trap(), std::terminate(), or assert(0) inside an externally reachable parser/request handler branch",
+    "Java assert request.getParameter(...), assert servlet/header/body value, or assert method argument in public/API entrypoint",
+    "Java throw new AssertionError(...) or Objects.requireNonNull(...) used as the only validation for external request data",
+    "Rust panic!(), assert!(), debug_assert!(), unwrap(), or expect() on Result/Option derived from network/file/CLI/request input",
+    "Protocol/file format parser uses assert on length, count, enum, magic, index, or range fields read from untrusted input",
+    "Single request/connection handler contains fatal assertion failure that exits the shared server process"
+  ],
+  "negative_signals": [
+    "Input-dependent condition is checked first with if (...) return error/throw checked controlled exception before any assert",
+    "assert condition depends only on constants, compile-time invariants, or private internal state not influenced by external input",
+    "assert is present only in test code, fuzz harness, debug-only tooling, or unreachable-by-production-request code",
+    "Fatal check is inside a per-request sandbox/worker whose crash is isolated and supervised without dropping other sessions",
+    "Rust unwrap()/expect() is on a constant literal parse or value just constructed as Some/Ok in the same statement/block"
+  ],
+  "false_defense_traps": [
+    "Using assert for input validation because Java assertions are disabled by default unless -ea is used",
+    "Compiling C/C++ with NDEBUG to remove assert, which also removes the validation and may expose later unsafe behavior",
+    "Catching generic Exception in Java, which does not catch AssertionError because it is an Error",
+    "Relying on debug_assert! in Rust for validation, which is removed in release builds",
+    "Logging before abort()/panic() without returning a recoverable error"
+  ],
+  "verification_focus": "Can an attacker-controlled input path make an assertion or equivalent fatal check fail and terminate more than the attacker's own operation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-617"
+      ],
+      "trigger": "Off-by-one length/count calculation reaches an asserted invariant",
+      "consequence": "Process abort or service crash"
+    },
+    {
+      "chain": [
+        "CWE-253",
+        "CWE-617"
+      ],
+      "trigger": "Unchecked return value leaves invalid state that later violates an assertion",
+      "consequence": "Denial of service by assertion failure"
+    }
+  ],
+  "patch_principle": [
+    "Do not use assertions to validate public API arguments or untrusted input; use normal if checks and controlled error returns.",
+    "Keep assertions only for internal invariants that external input cannot falsify.",
+    "Validate lengths, ranges, indexes, formats, and required fields before parsing or state changes.",
+    "Replace abort/panic/AssertionError paths in request handling with recoverable errors that affect only the current request.",
+    "Ensure production behavior is safe whether assertions are enabled or disabled."
+  ],
+  "minimal_examples": {
+    "vuln": "String email = request.getParameter(\"email_address\"); assert email != null;",
+    "safe": "String email = request.getParameter(\"email_address\"); if (email == null) return badRequest(\"email_address is required\");"
+  }
+}

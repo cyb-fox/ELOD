@@ -1,0 +1,37 @@
+{
+  "cwe_id": "CWE-1325",
+  "name": "Improperly Controlled Sequential Memory Allocation",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": ["CWE-691"],
+    "parent_of": []
+  },
+  "principle": "The product does not correctly control the sequence and completion of operations that allocate or dispatch bounded work, such as queue, callback, or control-flow steps.",
+  "applicable_languages": ["C", "C++", "Java"],
+  "detection_signals": [
+    "Queue or callback work is enqueued, dispatched, or reclaimed in an order that violates the producer or consumer contract",
+    "Sequential allocation or retry work has no enforced completion, reclamation, or ordering condition",
+    "A callback or queue entry can be consumed before initialization or can remain active after its owner is released"
+  ],
+  "negative_signals": [
+    "The producer, consumer, and cleanup order is explicit and checked at each transition",
+    "Queue entries have bounded ownership and are reclaimed exactly once after completion",
+    "Callbacks cannot run before initialization or after the owning resource is released"
+  ],
+  "false_defense_traps": [
+    "Treating a queue API name as proof that enqueue and dequeue order is safe",
+    "Adding a retry or allocation limit without fixing callback ownership or completion order",
+    "Classifying the mechanism as resource exhaustion merely because allocation occurs"
+  ],
+  "verification_focus": "Are initialization, enqueue/dispatch, completion, and reclamation steps ordered and bounded according to their actual producer-consumer contract?",
+  "patch_principle": [
+    "Define and enforce the lifecycle order for each queued or callback operation",
+    "Reject or defer consumption until initialization is complete",
+    "Reclaim completed work exactly once and before owner teardown"
+  ],
+  "minimal_examples": {
+    "vuln": "enqueue(&item); destroy(owner); dispatch_callbacks();",
+    "safe": "enqueue(&item); dispatch_callbacks(); wait_complete(&item); destroy(owner);"
+  }
+}

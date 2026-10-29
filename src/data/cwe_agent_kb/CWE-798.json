@@ -1,0 +1,89 @@
+{
+  "cwe_id": "CWE-798",
+  "name": "Use of Hard-coded Credentials",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-344",
+      "CWE-671",
+      "CWE-1391",
+      "CWE-287"
+    ],
+    "parent_of": [
+      "CWE-259",
+      "CWE-321"
+    ]
+  },
+  "principle": "The product embeds a password, key, token, or fixed credential in code or packaged resources. Anyone who can read or reverse-engineer the product can reuse the credential to bypass authentication or impersonate the product.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "JavaScript",
+    "Python",
+    "Go"
+  ],
+  "detection_signals": [
+    "strcmp(input, \"literalPassword\") or strcmp(password, \"literalKey\") in authentication logic",
+    "String.equals(\"literalPassword\") or password.equals(\"literalPassword\") in login/admin checks",
+    "DriverManager.getConnection(url, \"literalUser\", \"literalPassword\")",
+    "new PasswordAuthentication(\"literalUser\", \"literalPassword\".toCharArray())",
+    "new SecretKeySpec(\"literalKey\".getBytes(), ...) or static final String API_KEY = \"...\"",
+    "Authorization, Basic, Bearer, api_key, token, password, passwd, secret assigned to a string literal",
+    "properties/XML/YAML packaged with webapp.*.password=literal or connectionString password=literal"
+  ],
+  "negative_signals": [
+    "Credential read from System.getenv(...), getenv(...), or a secrets-manager client at runtime",
+    "Password verification compares against a salted hash loaded from a protected database/config, not a literal secret",
+    "First-login setup path requires user/admin to create a unique credential before enabling access",
+    "Test-only hard-coded credential is under src/test, test fixtures, or mock code not shipped in production artifact",
+    "Literal is a placeholder such as \"changeme\" or \"example\" and code rejects startup if unchanged"
+  ],
+  "false_defense_traps": [
+    "Base64-encoded, hex-encoded, XORed, or string-split credentials in code",
+    "Hard-coded credential hidden in comments, resource files, mobile assets, or compiled constants instead of source",
+    "Using private/protected constants or obfuscation to hide the secret",
+    "Relying on file permissions while embedding the same credential in every installation",
+    "Default admin password that administrators are expected to change but the product does not force rotation"
+  ],
+  "verification_focus": "Does any shipped code or packaged resource contain a fixed credential that authenticates users or the product to another system?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-798",
+        "CWE-287"
+      ],
+      "trigger": "Inbound authentication accepts a credential embedded in the product",
+      "consequence": "Attackers reuse the fixed credential to bypass authentication and gain privileges"
+    },
+    {
+      "chain": [
+        "CWE-798",
+        "CWE-259"
+      ],
+      "trigger": "The embedded credential is a password",
+      "consequence": "All installations share a recoverable password that enables mass compromise"
+    },
+    {
+      "chain": [
+        "CWE-798",
+        "CWE-321"
+      ],
+      "trigger": "The embedded credential is a cryptographic key",
+      "consequence": "Attackers extract the key and decrypt, sign, or impersonate protected communications"
+    }
+  ],
+  "patch_principle": [
+    "Remove credentials from source code and shipped resources.",
+    "Store outbound credentials in a protected secrets manager, encrypted configuration, or protected database with restrictive permissions.",
+    "For inbound access, require first-login credential creation or per-installation unique generated credentials.",
+    "Store password verifiers as salted one-way hashes, not plaintext or reversible values.",
+    "Limit privilege and scope of any service credential and rotate it after exposure."
+  ],
+  "minimal_examples": {
+    "vuln": "DriverManager.getConnection(url, \"scott\", \"tiger\");",
+    "safe": "DriverManager.getConnection(url, System.getenv(\"DB_USER\"), secrets.get(\"DB_PASSWORD\"));"
+  }
+}

@@ -1,0 +1,303 @@
+=== 待审推理日志 L-0360 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 11 个；未决 11 个。
+
+【推理轨迹】共 32 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:4
+  引证行: 4
+  引证内容: Tensor* params = v->tensor();
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void DoCompute(OpKernelContext* c) {
+      2 |     core::RefCountPtr<Var> v;
+      3 |     OP_REQUIRES_OK(c, LookupResource(c, HandleFromInput(c, 0), &v));
+      4 |     Tensor* params = v->tensor();
+      5 |     const Tensor& indices = c->input(1);
+      6 |     const Tensor& updates = c->input(2);
+      7 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:5
+  引证行: 5
+  引证内容: const Tensor& indices = c->input(1);
+  初判倾向: VIOLATED
+  上下文源码:
+      2 |     core::RefCountPtr<Var> v;
+      3 |     OP_REQUIRES_OK(c, LookupResource(c, HandleFromInput(c, 0), &v));
+      4 |     Tensor* params = v->tensor();
+      5 |     const Tensor& indices = c->input(1);
+      6 |     const Tensor& updates = c->input(2);
+      7 | 
+      8 |     // Check that rank(updates.shape) = rank(indices.shape + params.shape[1:])
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:6
+  引证行: 6
+  引证内容: const Tensor& updates = c->input(2);
+  初判倾向: VIOLATED
+  上下文源码:
+      3 |     OP_REQUIRES_OK(c, LookupResource(c, HandleFromInput(c, 0), &v));
+      4 |     Tensor* params = v->tensor();
+      5 |     const Tensor& indices = c->input(1);
+      6 |     const Tensor& updates = c->input(2);
+      7 | 
+      8 |     // Check that rank(updates.shape) = rank(indices.shape + params.shape[1:])
+      9 |     OP_REQUIRES(c,
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:11
+  引证行: 11
+  引证内容: updates.dims() == indices.dims() + params->dims() - 1,
+  初判倾向: VIOLATED
+  上下文源码:
+      8 |     // Check that rank(updates.shape) = rank(indices.shape + params.shape[1:])
+      9 |     OP_REQUIRES(c,
+     10 |                 updates.dims() == 0 ||
+     11 |                     updates.dims() == indices.dims() + params->dims() - 1,
+     12 |                 errors::InvalidArgument(
+     13 |                     "Must have updates.shape = indices.shape + "
+     14 |                     "params.shape[1:] or updates.shape = [], got ",
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:17
+  引证行: 17
+  引证内容: ", params.shape ", params->shape().DebugString()));
+  初判倾向: VIOLATED
+  上下文源码:
+     14 |                     "params.shape[1:] or updates.shape = [], got ",
+     15 |                     "updates.shape ", updates.shape().DebugString(),
+     16 |                     ", indices.shape ", indices.shape().DebugString(),
+     17 |                     ", params.shape ", params->shape().DebugString()));
+     18 | 
+     19 |     // Check that we have enough index space
+     20 |     const int64_t N_big = indices.NumElements();
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:29
+  引证行: 29
+  引证内容: c, params->dim_size(0) <= std::numeric_limits<Index>::max(),
+  初判倾向: VIOLATED
+  上下文源码:
+     26 |                                 std::numeric_limits<Index>::max()));
+     27 |     const Index N = static_cast<Index>(N_big);
+     28 |     OP_REQUIRES(
+     29 |         c, params->dim_size(0) <= std::numeric_limits<Index>::max(),
+     30 |         errors::InvalidArgument("params.shape[0] too large for ",
+     31 |                                 DataTypeString(DataTypeToEnum<Index>::v()),
+     32 |                                 " indexing: ", params->dim_size(0), " > ",
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:32
+  引证行: 32
+  引证内容: " indexing: ", params->dim_size(0), " > ",
+  初判倾向: VIOLATED
+  上下文源码:
+     29 |         c, params->dim_size(0) <= std::numeric_limits<Index>::max(),
+     30 |         errors::InvalidArgument("params.shape[0] too large for ",
+     31 |                                 DataTypeString(DataTypeToEnum<Index>::v()),
+     32 |                                 " indexing: ", params->dim_size(0), " > ",
+     33 |                                 std::numeric_limits<Index>::max()));
+     34 | 
+     35 |     // Prevent division by 0
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:43
+  引证行: 43
+  引证内容: auto params_flat = params->flat_outer_dims<T>();
+  初判倾向: VIOLATED
+  上下文源码:
+     40 | 
+     41 |     if (N > 0) {
+     42 |       auto indices_flat = indices.flat<Index>();
+     43 |       auto params_flat = params->flat_outer_dims<T>();
+     44 |       if (TensorShapeUtils::IsScalar(updates.shape())) {
+     45 |         const auto update = updates.scalar<T>();
+     46 | 
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:48
+  引证行: 48
+  引证内容: const Index bad_i = functor(c, c->template eigen_device<Device>(),
+  初判倾向: VIOLATED
+  上下文源码:
+     45 |         const auto update = updates.scalar<T>();
+     46 | 
+     47 |         functor::ScatterScalarFunctor<Device, T, Index, op> functor;
+     48 |         const Index bad_i = functor(c, c->template eigen_device<Device>(),
+     49 |                                     params_flat, update, indices_flat);
+     50 |         OP_REQUIRES(c, bad_i < 0,
+     51 |                     errors::InvalidArgument(
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: DoCompute:66
+  引证行: 66
+  引证内容: const Index bad_i = functor(c, c->template eigen_device<Device>(),
+  初判倾向: VIOLATED
+  上下文源码:
+     63 |         auto updates_flat = updates.shaped<T, 2>({N, num_updates / N});
+     64 | 
+     65 |         functor::ScatterFunctor<Device, T, Index, op> functor;
+     66 |         const Index bad_i = functor(c, c->template eigen_device<Device>(),
+     67 |                                     params_flat, updates_flat, indices_flat);
+     68 |         OP_REQUIRES(c, bad_i < 0,
+     69 |                     errors::InvalidArgument(
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:4
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:5
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:6
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:11
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:17
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:29
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:32
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:43
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:48
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:54
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: DoCompute:66
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:43
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:48
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:54
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: DoCompute:66
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

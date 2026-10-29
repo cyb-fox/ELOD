@@ -1,0 +1,62 @@
+{
+  "cwe_id": "CWE-134",
+  "name": "Use of Externally-Controlled Format String",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-668",
+      "CWE-20"
+    ],
+    "parent_of": []
+  },
+  "principle": "Passing externally supplied text as a printf-style format argument lets the attacker control directive parsing. That can disclose memory, corrupt memory, or crash the process.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Perl"
+  ],
+  "detection_signals": [
+    "printf/fprintf/sprintf/snprintf/syslog/vprintf family call where the format argument is a variable, not a string literal",
+    "format variable is tainted from argv[], getenv(), fgets(), recv(), read(), file input, or locale/message resource data",
+    "direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)",
+    "variadic forwarding where vprintf/vfprintf/vsprintf/vsnprintf/vsyslog receives a user-controlled fmt",
+    "format string assembled by strcat/sprintf/snprintf concatenation with external fragments before the call",
+    "dynamic format source contains or accepts %n, %x, %p, or %s directives"
+  ],
+  "negative_signals": [
+    "format argument is a string literal and user data is passed as a separate argument, e.g. printf(\"%s\", user)",
+    "non-format output API is used, e.g. fputs(), puts(), fwrite(), write(), std::cout << user",
+    "allowed dynamic formatting is mapped from an enum or whitelist to fixed literal templates",
+    "syslog/printer call uses a literal format with explicit arguments, e.g. syslog(pri, \"%s\", msg)",
+    "length-bounded printing still uses a literal format, e.g. snprintf(buf, n, \"%.*s\", len, user)"
+  ],
+  "false_defense_traps": [
+    "using snprintf/vsnprintf does not help if the format argument is attacker-controlled",
+    "stripping only %n still leaves %x/%s/%p for memory disclosure and crashes",
+    "escaping % to %% is insufficient if the resulting string is later re-used as a format",
+    "treating error, log, or localization messages as safe even when they are parsed as format strings"
+  ],
+  "verification_focus": "Is any printf-style format argument non-literal and reachable from external input?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-134",
+        "CWE-123"
+      ],
+      "trigger": "attacker-controlled format can reach %n or another write-capable directive with a writable pointer argument on the stack",
+      "consequence": "write-what-where, memory corruption, control-flow hijack"
+    }
+  ],
+  "patch_principle": [
+    "Use a constant format string and pass external text only as data arguments",
+    "Replace format-string APIs with non-format output APIs when formatting is unnecessary",
+    "If dynamic formatting is required, select from a fixed allowlist of templates only",
+    "Disable or avoid %n-capable formatting where possible",
+    "Enable compiler format warnings such as -Wformat and -Wformat-security"
+  ],
+  "minimal_examples": {
+    "vuln": "printf(user);",
+    "safe": "printf(\"%s\", user);"
+  }
+}

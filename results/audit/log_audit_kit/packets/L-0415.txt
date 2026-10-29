@@ -1,0 +1,341 @@
+=== 待审推理日志 L-0415 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 14 个；未决 14 个。
+
+【推理轨迹】共 38 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:7
+  引证行: 7
+  引证内容: if (unlikely(size > RINGBUF_MAX_RECORD_SZ))
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | 	u32 len, pg_off;
+      5 | 	struct bpf_ringbuf_hdr *hdr;
+      6 | 
+      7 | 	if (unlikely(size > RINGBUF_MAX_RECORD_SZ))
+      8 | 		return NULL;
+      9 | 
+     10 | 	len = round_up(size + BPF_RINGBUF_HDR_SZ, 8);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:11
+  引证行: 11
+  引证内容: if (len > rb->mask + 1)
+  初判倾向: VIOLATED
+  上下文源码:
+      8 | 		return NULL;
+      9 | 
+     10 | 	len = round_up(size + BPF_RINGBUF_HDR_SZ, 8);
+     11 | 	if (len > rb->mask + 1)
+     12 | 		return NULL;
+     13 | 
+     14 | 	cons_pos = smp_load_acquire(&rb->consumer_pos);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:14
+  引证行: 14
+  引证内容: cons_pos = smp_load_acquire(&rb->consumer_pos);
+  初判倾向: VIOLATED
+  上下文源码:
+     11 | 	if (len > rb->mask + 1)
+     12 | 		return NULL;
+     13 | 
+     14 | 	cons_pos = smp_load_acquire(&rb->consumer_pos);
+     15 | 
+     16 | 	if (in_nmi()) {
+     17 | 		if (!spin_trylock_irqsave(&rb->spinlock, flags))
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:23
+  引证行: 23
+  引证内容: prod_pos = rb->producer_pos;
+  初判倾向: VIOLATED
+  上下文源码:
+     20 | 		spin_lock_irqsave(&rb->spinlock, flags);
+     21 | 	}
+     22 | 
+     23 | 	prod_pos = rb->producer_pos;
+     24 | 	new_prod_pos = prod_pos + len;
+     25 | 
+     26 | 	/* check for out of ringbuf space by ensuring producer position
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:30
+  引证行: 30
+  引证内容: spin_unlock_irqrestore(&rb->spinlock, flags);
+  初判倾向: VIOLATED
+  上下文源码:
+     27 | 	 * doesn't advance more than (ringbuf_size - 1) ahead
+     28 | 	 */
+     29 | 	if (new_prod_pos - cons_pos > rb->mask) {
+     30 | 		spin_unlock_irqrestore(&rb->spinlock, flags);
+     31 | 		return NULL;
+     32 | 	}
+     33 | 
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:34
+  引证行: 34
+  引证内容: hdr = (void *)rb->data + (prod_pos & rb->mask);
+  初判倾向: VIOLATED
+  上下文源码:
+     31 | 		return NULL;
+     32 | 	}
+     33 | 
+     34 | 	hdr = (void *)rb->data + (prod_pos & rb->mask);
+     35 | 	pg_off = bpf_ringbuf_rec_pg_off(rb, hdr);
+     36 | 	hdr->len = size | BPF_RINGBUF_BUSY_BIT;
+     37 | 	hdr->pg_off = pg_off;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:36
+  引证行: 36
+  引证内容: hdr->len = size | BPF_RINGBUF_BUSY_BIT;
+  初判倾向: VIOLATED
+  上下文源码:
+     33 | 
+     34 | 	hdr = (void *)rb->data + (prod_pos & rb->mask);
+     35 | 	pg_off = bpf_ringbuf_rec_pg_off(rb, hdr);
+     36 | 	hdr->len = size | BPF_RINGBUF_BUSY_BIT;
+     37 | 	hdr->pg_off = pg_off;
+     38 | 
+     39 | 	/* pairs with consumer's smp_load_acquire() */
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:37
+  引证行: 37
+  引证内容: hdr->pg_off = pg_off;
+  初判倾向: VIOLATED
+  上下文源码:
+     34 | 	hdr = (void *)rb->data + (prod_pos & rb->mask);
+     35 | 	pg_off = bpf_ringbuf_rec_pg_off(rb, hdr);
+     36 | 	hdr->len = size | BPF_RINGBUF_BUSY_BIT;
+     37 | 	hdr->pg_off = pg_off;
+     38 | 
+     39 | 	/* pairs with consumer's smp_load_acquire() */
+     40 | 	smp_store_release(&rb->producer_pos, new_prod_pos);
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:40
+  引证行: 40
+  引证内容: smp_store_release(&rb->producer_pos, new_prod_pos);
+  初判倾向: VIOLATED
+  上下文源码:
+     37 | 	hdr->pg_off = pg_off;
+     38 | 
+     39 | 	/* pairs with consumer's smp_load_acquire() */
+     40 | 	smp_store_release(&rb->producer_pos, new_prod_pos);
+     41 | 
+     42 | 	spin_unlock_irqrestore(&rb->spinlock, flags);
+     43 | 
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: __bpf_ringbuf_reserve:42
+  引证行: 42
+  引证内容: spin_unlock_irqrestore(&rb->spinlock, flags);
+  初判倾向: VIOLATED
+  上下文源码:
+     39 | 	/* pairs with consumer's smp_load_acquire() */
+     40 | 	smp_store_release(&rb->producer_pos, new_prod_pos);
+     41 | 
+     42 | 	spin_unlock_irqrestore(&rb->spinlock, flags);
+     43 | 
+     44 | 	return (void *)hdr + BPF_RINGBUF_HDR_SZ;
+     45 | }
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:1
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:7
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:11
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:14
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:17
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:20
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:23
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:29
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:30
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:34
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:36
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:37
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:40
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: __bpf_ringbuf_reserve:42
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:1
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:36
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: __bpf_ringbuf_reserve:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

@@ -1,0 +1,54 @@
+{
+  "criterion": "pair-grid (bench._pair_metrics, detection)",
+  "source": "predictions/rq1_primevul.jsonl",
+  "source_sha256": "6782fe123bea85bdb5aaae6e69b76f43f2a49fb4e76fb47e396dec4c2207bdfe",
+  "files": 870,
+  "pairs": 435,
+  "labels": [
+    "vuln",
+    "local_guard_observed",
+    "underdetermined"
+  ],
+  "label_rule": "pred_vuln -> vuln; else file_resolution==safe_proved (paper: local_guard_observed) -> local_guard_observed; else underdetermined",
+  "matrix_rows_vulnerable_side_cols_fixed_side": {
+    "vuln": {
+      "vuln": 73,
+      "local_guard_observed": 42,
+      "underdetermined": 109
+    },
+    "local_guard_observed": {
+      "vuln": 2,
+      "local_guard_observed": 9,
+      "underdetermined": 3
+    },
+    "underdetermined": {
+      "vuln": 45,
+      "local_guard_observed": 57,
+      "underdetermined": 95
+    }
+  },
+  "row_totals": {
+    "vuln": 224,
+    "local_guard_observed": 14,
+    "underdetermined": 197
+  },
+  "col_totals": {
+    "vuln": 120,
+    "local_guard_observed": 108,
+    "underdetermined": 207
+  },
+  "derived_four_state": {
+    "P-C": 151,
+    "P-V": 73,
+    "P-B": 164,
+    "P-R": 47
+  },
+  "cross_checks": {
+    "four_state_sum_eq_435": true,
+    "matches_main_table_sys_row": "151/73/164/47 (main.tex tab:main, main_zh.tex tab:main)",
+    "vulnerable_side_positive_224": "P-C+P-V = 151+73 = 224 (matches tab:rq1-tristate Vulnerable row)",
+    "fixed_side_positive_120": "P-V+P-R = 73+47 = 120 (matches tab:rq1-tristate Fixed row, FPR_bin .2759 = 120/435)",
+    "f1_bin_575": "TP=224 FP=120 FN=211 -> P=.6512 R=.5149 F1=.5751 (matches tab:main F1_bin .575)"
+  },
+  "unique_files": "870 records cover 868 unique file coordinates: two files each appear twice, once per side of their pair. A per-sample key must therefore be composite (file + side, or pair_id + side), not the bare file path."
+}

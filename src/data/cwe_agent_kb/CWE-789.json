@@ -1,0 +1,81 @@
+{
+  "cwe_id": "CWE-789",
+  "name": "Memory Allocation with Excessive Size Value",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [
+      "CWE-770"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code uses an untrusted or miscomputed size directly in a memory allocation without enforcing an upper bound. A large or unsigned-wrapped value can exhaust heap or stack memory and cause denial of service.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Perl"
+  ],
+  "detection_signals": [
+    "malloc(size), calloc(count, size), realloc(ptr, size), new char[size], or alloca(size) where size comes from input",
+    "C99 variable length array declaration like char buf[len] where len is input-derived or arithmetic-derived",
+    "std::vector<T> v(n), vector.resize(n), string.reserve(n), or new T[n] using unbounded n",
+    "Java new byte[size], new int[size], Arrays.copyOf(arr, size), ByteBuffer.allocate(size), or new HashMap(size) using untrusted size",
+    "size_t len = signed_expr or subtraction result followed by allocation with len",
+    "allocation size computed as count * sizeof(T) or a - b with no maximum-size check before allocation",
+    "array or collection index assignment that auto-expands storage using an untrusted large index"
+  ],
+  "negative_signals": [
+    "explicit check size <= MAX_ALLOC_SIZE before every allocation influenced by size",
+    "explicit check count <= MAX_COUNT && elem_size <= MAX_ELEM_SIZE before count * elem_size allocation",
+    "checked multiplication helper such as __builtin_mul_overflow or safe_mul before allocation and max bound check after",
+    "input size is clamped with min(requested, MAX_ALLOWED) before allocation",
+    "streaming or chunked processing uses fixed-size buffers instead of allocating requested total size",
+    "Java constructor rejects size > configuredMax before new byte[size] or new HashMap(size)"
+  ],
+  "false_defense_traps": [
+    "checking only size >= 0 while allowing huge positive values",
+    "checking only malloc result for NULL after requesting attacker-controlled memory",
+    "using unsigned size_t does not prevent negative-to-huge conversion",
+    "catching OutOfMemoryError without preventing the excessive allocation request",
+    "system memory limits reduce system impact but can still crash or terminate the process"
+  ],
+  "verification_focus": "Can an attacker control or influence an allocation size that is not bounded to a safe application-defined maximum before allocation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-1284",
+        "CWE-789"
+      ],
+      "trigger": "specified quantity from input is accepted without an upper bound",
+      "consequence": "excessive heap or stack allocation causes memory exhaustion"
+    },
+    {
+      "chain": [
+        "CWE-129",
+        "CWE-789"
+      ],
+      "trigger": "large unvalidated array index forces automatic array or collection growth",
+      "consequence": "process exits or crashes from out-of-memory"
+    },
+    {
+      "chain": [
+        "CWE-789",
+        "CWE-476"
+      ],
+      "trigger": "excessive allocation fails and returned NULL is dereferenced",
+      "consequence": "application crash and denial of service"
+    }
+  ],
+  "patch_principle": [
+    "Validate every allocation-influencing input against a documented maximum before allocation.",
+    "Reject or clamp requests that exceed configured memory limits.",
+    "Use checked arithmetic for allocation size calculations before multiplying or subtracting.",
+    "Prefer fixed-size, pooled, streaming, or chunked processing for attacker-sized data.",
+    "Configure OS/container memory limits as a secondary containment control."
+  ],
+  "minimal_examples": {
+    "vuln": "char *buf = malloc(GetUntrustedInt());",
+    "safe": "size_t n = GetUntrustedInt(); if (n > MAX_ALLOC) return ERROR; char *buf = malloc(n);"
+  }
+}

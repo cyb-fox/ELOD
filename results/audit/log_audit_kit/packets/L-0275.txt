@@ -1,0 +1,82 @@
+=== 待审推理日志 L-0275 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 3 个；未决 2 个。
+
+【推理轨迹】共 8 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: _gnutls_server_select_suite:83
+  引证行: 83
+  引证内容: memset(session->security_parameters.cipher_suite, 0, 2);
+  初判倾向: VIOLATED
+  上下文源码:
+     80 | 		return GNUTLS_E_UNEXPECTED_PACKET_LENGTH;
+     81 | 	}
+     82 | 
+     83 | 	memset(session->security_parameters.cipher_suite, 0, 2);
+     84 | 
+     85 | 	retval = GNUTLS_E_UNKNOWN_CIPHER_SUITE;
+     86 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: _gnutls_server_select_suite:105
+  引证行: 105
+  引证内容: memcpy(session->
+  初判倾向: VIOLATED
+  上下文源码:
+    102 | 					     session,
+    103 | 					     _gnutls_cipher_suite_get_name
+    104 | 					     (&data[j]));
+    105 | 					memcpy(session->
+    106 | 					       security_parameters.
+    107 | 					       cipher_suite,
+    108 | 					       &cipher_suites[i], 2);
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: _gnutls_server_select_suite:83
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: _gnutls_server_select_suite:105
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: _gnutls_server_select_suite:131
+  筛选: keep
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: _gnutls_server_select_suite:83
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: _gnutls_server_select_suite:105
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: _gnutls_server_select_suite:131
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

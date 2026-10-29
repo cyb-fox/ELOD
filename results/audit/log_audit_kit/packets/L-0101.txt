@@ -1,0 +1,832 @@
+=== 待审推理日志 L-0101 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 34 个；未决 32 个。
+
+【推理轨迹】共 94 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:13
+  引证行: 13
+  引证内容: if (qtm->error) return qtm->error;
+  初判倾向: VIOLATED
+  上下文源码:
+     10 | 
+     11 |   /* easy answers */
+     12 |   if (!qtm || (out_bytes < 0)) return CL_ENULLARG;
+     13 |   if (qtm->error) return qtm->error;
+     14 | 
+     15 |   /* flush out any stored-up bytes before we begin */
+     16 |   i = qtm->o_end - qtm->o_ptr;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:16
+  引证行: 16
+  引证内容: i = qtm->o_end - qtm->o_ptr;
+  初判倾向: VIOLATED
+  上下文源码:
+     13 |   if (qtm->error) return qtm->error;
+     14 | 
+     15 |   /* flush out any stored-up bytes before we begin */
+     16 |   i = qtm->o_end - qtm->o_ptr;
+     17 |   if ((off_t) i > out_bytes) i = (int) out_bytes;
+     18 |   if (i) {
+     19 |     if (qtm->wflag && (ret = mspack_write(qtm->ofd, qtm->o_ptr, i, qtm->file)) != CL_SUCCESS) {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:19
+  引证行: 19
+  引证内容: if (qtm->wflag && (ret = mspack_write(qtm->ofd, qtm->o_ptr, i, qtm->file)) != CL_SUCCESS) {
+  初判倾向: VIOLATED
+  上下文源码:
+     16 |   i = qtm->o_end - qtm->o_ptr;
+     17 |   if ((off_t) i > out_bytes) i = (int) out_bytes;
+     18 |   if (i) {
+     19 |     if (qtm->wflag && (ret = mspack_write(qtm->ofd, qtm->o_ptr, i, qtm->file)) != CL_SUCCESS) {
+     20 |       return qtm->error = ret;
+     21 |     }
+     22 |     qtm->o_ptr  += i;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:20
+  引证行: 20
+  引证内容: return qtm->error = ret;
+  初判倾向: VIOLATED
+  上下文源码:
+     17 |   if ((off_t) i > out_bytes) i = (int) out_bytes;
+     18 |   if (i) {
+     19 |     if (qtm->wflag && (ret = mspack_write(qtm->ofd, qtm->o_ptr, i, qtm->file)) != CL_SUCCESS) {
+     20 |       return qtm->error = ret;
+     21 |     }
+     22 |     qtm->o_ptr  += i;
+     23 |     out_bytes   -= i;
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:22
+  引证行: 22
+  引证内容: qtm->o_ptr  += i;
+  初判倾向: VIOLATED
+  上下文源码:
+     19 |     if (qtm->wflag && (ret = mspack_write(qtm->ofd, qtm->o_ptr, i, qtm->file)) != CL_SUCCESS) {
+     20 |       return qtm->error = ret;
+     21 |     }
+     22 |     qtm->o_ptr  += i;
+     23 |     out_bytes   -= i;
+     24 |   }
+     25 |   if (out_bytes == 0) return CL_SUCCESS;
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:29
+  引证行: 29
+  引证内容: window = qtm->window;
+  初判倾向: VIOLATED
+  上下文源码:
+     26 | 
+     27 |   /* restore local state */
+     28 |   QTM_RESTORE_BITS;
+     29 |   window = qtm->window;
+     30 |   window_posn = qtm->window_posn;
+     31 |   frame_start = qtm->frame_start;
+     32 |   H = qtm->H;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:30
+  引证行: 30
+  引证内容: window_posn = qtm->window_posn;
+  初判倾向: VIOLATED
+  上下文源码:
+     27 |   /* restore local state */
+     28 |   QTM_RESTORE_BITS;
+     29 |   window = qtm->window;
+     30 |   window_posn = qtm->window_posn;
+     31 |   frame_start = qtm->frame_start;
+     32 |   H = qtm->H;
+     33 |   L = qtm->L;
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:31
+  引证行: 31
+  引证内容: frame_start = qtm->frame_start;
+  初判倾向: VIOLATED
+  上下文源码:
+     28 |   QTM_RESTORE_BITS;
+     29 |   window = qtm->window;
+     30 |   window_posn = qtm->window_posn;
+     31 |   frame_start = qtm->frame_start;
+     32 |   H = qtm->H;
+     33 |   L = qtm->L;
+     34 |   C = qtm->C;
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:32
+  引证行: 32
+  引证内容: H = qtm->H;
+  初判倾向: VIOLATED
+  上下文源码:
+     29 |   window = qtm->window;
+     30 |   window_posn = qtm->window_posn;
+     31 |   frame_start = qtm->frame_start;
+     32 |   H = qtm->H;
+     33 |   L = qtm->L;
+     34 |   C = qtm->C;
+     35 | 
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:33
+  引证行: 33
+  引证内容: L = qtm->L;
+  初判倾向: VIOLATED
+  上下文源码:
+     30 |   window_posn = qtm->window_posn;
+     31 |   frame_start = qtm->frame_start;
+     32 |   H = qtm->H;
+     33 |   L = qtm->L;
+     34 |   C = qtm->C;
+     35 | 
+     36 |   /* while we do not have enough decoded bytes in reserve: */
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:34
+  引证行: 34
+  引证内容: C = qtm->C;
+  初判倾向: VIOLATED
+  上下文源码:
+     31 |   frame_start = qtm->frame_start;
+     32 |   H = qtm->H;
+     33 |   L = qtm->L;
+     34 |   C = qtm->C;
+     35 | 
+     36 |   /* while we do not have enough decoded bytes in reserve: */
+     37 |   while ((qtm->o_end - qtm->o_ptr) < out_bytes) {
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:37
+  引证行: 37
+  引证内容: while ((qtm->o_end - qtm->o_ptr) < out_bytes) {
+  初判倾向: VIOLATED
+  上下文源码:
+     34 |   C = qtm->C;
+     35 | 
+     36 |   /* while we do not have enough decoded bytes in reserve: */
+     37 |   while ((qtm->o_end - qtm->o_ptr) < out_bytes) {
+     38 | 
+     39 |     /* read header if necessary. Initialises H, L and C */
+     40 |     if (!qtm->header_read) {
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:40
+  引证行: 40
+  引证内容: if (!qtm->header_read) {
+  初判倾向: VIOLATED
+  上下文源码:
+     37 |   while ((qtm->o_end - qtm->o_ptr) < out_bytes) {
+     38 | 
+     39 |     /* read header if necessary. Initialises H, L and C */
+     40 |     if (!qtm->header_read) {
+     41 |       H = 0xFFFF; L = 0; QTM_READ_BITS(C, 16);
+     42 |       qtm->header_read = 1;
+     43 |     }
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:42
+  引证行: 42
+  引证内容: qtm->header_read = 1;
+  初判倾向: VIOLATED
+  上下文源码:
+     39 |     /* read header if necessary. Initialises H, L and C */
+     40 |     if (!qtm->header_read) {
+     41 |       H = 0xFFFF; L = 0; QTM_READ_BITS(C, 16);
+     42 |       qtm->header_read = 1;
+     43 |     }
+     44 | 
+     45 |     /* decode more, at most up to to frame boundary */
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:46
+  引证行: 46
+  引证内容: frame_end = window_posn + (out_bytes - (qtm->o_end - qtm->o_ptr));
+  初判倾向: VIOLATED
+  上下文源码:
+     43 |     }
+     44 | 
+     45 |     /* decode more, at most up to to frame boundary */
+     46 |     frame_end = window_posn + (out_bytes - (qtm->o_end - qtm->o_ptr));
+     47 |     if ((frame_start + QTM_FRAME_SIZE) < frame_end) {
+     48 |       frame_end = frame_start + QTM_FRAME_SIZE;
+     49 |     }
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:52
+  引证行: 52
+  引证内容: QTM_GET_SYMBOL(qtm->model7, selector);
+  初判倾向: VIOLATED
+  上下文源码:
+     49 |     }
+     50 | 
+     51 |     while (window_posn < frame_end) {
+     52 |       QTM_GET_SYMBOL(qtm->model7, selector);
+     53 |       if (selector < 4) {
+     54 | 	struct qtm_model *mdl = (selector == 0) ? &qtm->model0 :
+     55 | 	                        ((selector == 1) ? &qtm->model1 :
+
+--- 步骤 17 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:55
+  引证行: 55
+  引证内容: ((selector == 1) ? &qtm->model1 :
+  初判倾向: VIOLATED
+  上下文源码:
+     52 |       QTM_GET_SYMBOL(qtm->model7, selector);
+     53 |       if (selector < 4) {
+     54 | 	struct qtm_model *mdl = (selector == 0) ? &qtm->model0 :
+     55 | 	                        ((selector == 1) ? &qtm->model1 :
+     56 | 				((selector == 2) ? &qtm->model2 :
+     57 |                                                    &qtm->model3));
+     58 | 	QTM_GET_SYMBOL((*mdl), sym);
+
+--- 步骤 18 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:58
+  引证行: 58
+  引证内容: QTM_GET_SYMBOL((*mdl), sym);
+  初判倾向: VIOLATED
+  上下文源码:
+     55 | 	                        ((selector == 1) ? &qtm->model1 :
+     56 | 				((selector == 2) ? &qtm->model2 :
+     57 |                                                    &qtm->model3));
+     58 | 	QTM_GET_SYMBOL((*mdl), sym);
+     59 | 	window[window_posn++] = sym;
+     60 |       }
+     61 |       else {
+
+--- 步骤 19 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:59
+  引证行: 59
+  引证内容: window[window_posn++] = sym;
+  初判倾向: VIOLATED
+  上下文源码:
+     56 | 				((selector == 2) ? &qtm->model2 :
+     57 |                                                    &qtm->model3));
+     58 | 	QTM_GET_SYMBOL((*mdl), sym);
+     59 | 	window[window_posn++] = sym;
+     60 |       }
+     61 |       else {
+     62 | 	switch (selector) {
+
+--- 步骤 20 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:64
+  引证行: 64
+  引证内容: QTM_GET_SYMBOL(qtm->model4, sym);
+  初判倾向: VIOLATED
+  上下文源码:
+     61 |       else {
+     62 | 	switch (selector) {
+     63 | 	case 4: /* selector 4 = fixed length match (3 bytes) */
+     64 | 	  QTM_GET_SYMBOL(qtm->model4, sym);
+     65 | 	  QTM_READ_BITS(extra, qtm->extra_bits[sym]);
+     66 | 	  match_offset = qtm->position_base[sym] + extra + 1;
+     67 | 	  match_length = 3;
+
+--- 步骤 21 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:66
+  引证行: 66
+  引证内容: match_offset = qtm->position_base[sym] + extra + 1;
+  初判倾向: VIOLATED
+  上下文源码:
+     63 | 	case 4: /* selector 4 = fixed length match (3 bytes) */
+     64 | 	  QTM_GET_SYMBOL(qtm->model4, sym);
+     65 | 	  QTM_READ_BITS(extra, qtm->extra_bits[sym]);
+     66 | 	  match_offset = qtm->position_base[sym] + extra + 1;
+     67 | 	  match_length = 3;
+     68 | 	  break;
+     69 | 
+
+--- 步骤 22 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:71
+  引证行: 71
+  引证内容: QTM_GET_SYMBOL(qtm->model5, sym);
+  初判倾向: VIOLATED
+  上下文源码:
+     68 | 	  break;
+     69 | 
+     70 | 	case 5: /* selector 5 = fixed length match (4 bytes) */
+     71 | 	  QTM_GET_SYMBOL(qtm->model5, sym);
+     72 | 	  QTM_READ_BITS(extra, qtm->extra_bits[sym]);
+     73 | 	  match_offset = qtm->position_base[sym] + extra + 1;
+     74 | 	  match_length = 4;
+
+--- 步骤 23 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:73
+  引证行: 73
+  引证内容: match_offset = qtm->position_base[sym] + extra + 1;
+  初判倾向: VIOLATED
+  上下文源码:
+     70 | 	case 5: /* selector 5 = fixed length match (4 bytes) */
+     71 | 	  QTM_GET_SYMBOL(qtm->model5, sym);
+     72 | 	  QTM_READ_BITS(extra, qtm->extra_bits[sym]);
+     73 | 	  match_offset = qtm->position_base[sym] + extra + 1;
+     74 | 	  match_length = 4;
+     75 | 	  break;
+     76 | 
+
+--- 步骤 24 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:78
+  引证行: 78
+  引证内容: QTM_GET_SYMBOL(qtm->model6len, sym);
+  初判倾向: VIOLATED
+  上下文源码:
+     75 | 	  break;
+     76 | 
+     77 | 	case 6: /* selector 6 = variable length match */
+     78 | 	  QTM_GET_SYMBOL(qtm->model6len, sym);
+     79 | 	  QTM_READ_BITS(extra, qtm->length_extra[sym]);
+     80 | 	  match_length = qtm->length_base[sym] + extra + 5;
+     81 | 
+
+--- 步骤 25 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:79
+  引证行: 79
+  引证内容: QTM_READ_BITS(extra, qtm->length_extra[sym]);
+  初判倾向: VIOLATED
+  上下文源码:
+     76 | 
+     77 | 	case 6: /* selector 6 = variable length match */
+     78 | 	  QTM_GET_SYMBOL(qtm->model6len, sym);
+     79 | 	  QTM_READ_BITS(extra, qtm->length_extra[sym]);
+     80 | 	  match_length = qtm->length_base[sym] + extra + 5;
+     81 | 
+     82 | 	  QTM_GET_SYMBOL(qtm->model6, sym);
+
+--- 步骤 26 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: qtm_decompress:82
+  引证行: 82
+  引证内容: QTM_GET_SYMBOL(qtm->model6, sym);
+  初判倾向: VIOLATED
+  上下文源码:
+     79 | 	  QTM_READ_BITS(extra, qtm->length_extra[sym]);
+     80 | 	  match_length = qtm->length_base[sym] + extra + 5;
+     81 | 
+     82 | 	  QTM_GET_SYMBOL(qtm->model6, sym);
+     83 | 	  QTM_READ_BITS(extra, qtm->extra_bits[sym]);
+     84 | 	  match_offset = qtm->position_base[sym] + extra + 1;
+     85 | 	  break;
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:13
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:16
+  命中信号: allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:19
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:20
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:22
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:29
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:30
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:31
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 35 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:32
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 36 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:33
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 37 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:34
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 38 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:37
+  命中信号: for/while loop counter is incremented with += tainted_len or ++ near INT_MAX/UINT_MAX without max bound validation
+  筛选: keep
+
+--- 步骤 39 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:40
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 40 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:42
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 41 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:46
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 42 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:52
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 43 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:54
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 44 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:55
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 45 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:56
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 46 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:57
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 47 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:58
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 48 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:59
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 49 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:64
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 50 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:65
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 51 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:66
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 52 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:71
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 53 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:72
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 54 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:73
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 55 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:78
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 56 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:79
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 57 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:80
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+
+--- 步骤 58 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:82
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 59 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:83
+  筛选: keep
+
+--- 步骤 60 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: qtm_decompress:84
+  筛选: keep
+
+--- 步骤 61 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 62 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:16
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 63 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:19
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 64 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 65 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:22
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 66 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 67 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 68 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 69 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 70 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:33
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 71 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 72 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 73 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 74 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 75 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:46
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 76 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:52
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 77 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:54
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 78 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:55
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 79 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:56
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 80 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:57
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 81 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:58
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 82 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 83 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:64
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 84 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:65
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 85 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:66
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 86 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:71
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 87 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:72
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 88 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:73
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 89 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:78
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 90 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:79
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 91 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:80
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 92 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:82
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 93 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:83
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 94 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: qtm_decompress:84
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

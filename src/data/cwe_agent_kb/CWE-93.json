@@ -1,0 +1,87 @@
+{
+  "cwe_id": "CWE-93",
+  "name": "Improper Neutralization of CRLF Sequences ('CRLF Injection')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-74"
+    ],
+    "parent_of": [
+      "CWE-113"
+    ]
+  },
+  "principle": "The product writes user-controlled data into a CRLF-delimited output without rejecting, encoding, or quoting CR or LF. Downstream parsers treat injected line breaks as real record boundaries, allowing attacker-created headers, responses, log entries, or variables.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "JavaScript",
+    "PHP",
+    "Python",
+    "Go",
+    "Ruby"
+  ],
+  "detection_signals": [
+    "Java `response.addHeader(name, request.getParameter(...))` or `response.setHeader(name, tainted)` without CR/LF validation",
+    "Java `response.sendRedirect(tainted)` or `setStatus` plus `Location: ` header built from tainted data",
+    "Java `new Cookie(name, request.getParameter(...))` followed by `response.addCookie(cookie)` without CR/LF validation",
+    "`logger.info/debug/error(... + request.getParameter(...))` or `printf`/`fprintf(log, \"%s\", tainted)` without CR/LF escaping",
+    "SMTP/mail header construction like `\"Subject: \" + tainted + \"\\r\\n\"` or `addHeader(\"From\", tainted)` without CR/LF validation",
+    "Raw socket/stream writes of text protocol headers: `write(\"Header: \" + tainted + \"\\r\\n\")`",
+    "CI/env-file writes such as `echo \"NAME=$(cat file)\" >> $GITHUB_ENV` where file content is attacker-controlled"
+  ],
+  "negative_signals": [
+    "Input is rejected by `contains(\"\\r\") || contains(\"\\n\")` or equivalent before reaching the header/log/mail/env sink",
+    "Input is allowlisted with a full-string pattern such as `^[A-Za-z0-9._-]+$` before reaching the CRLF-delimited sink",
+    "CR and LF are encoded or escaped before output, e.g. `.replace(\"\\r\", \"\\\\r\").replace(\"\\n\", \"\\\\n\")` for logs",
+    "Header value is selected from a server-side enum/map and not copied from request data",
+    "Framework API documents and enforces rejection of CR/LF in the specific sink, and exceptions are handled by aborting output"
+  ],
+  "false_defense_traps": [
+    "Filtering only literal `\\r\\n` while accepting lone `\\r`, lone `\\n`, `%0d`, `%0a`, or decoded equivalents",
+    "Validating before URL/HTML/entity decoding while the sink receives decoded data",
+    "Client-side JavaScript validation without identical server-side validation",
+    "Using a standard header/log API but prebuilding a raw multi-line header string before passing it",
+    "Removing CR/LF only for HTTP headers while the same tainted value is also written to logs, SMTP, or `$GITHUB_ENV`"
+  ],
+  "verification_focus": "Can attacker-controlled data containing CR or LF reach any CRLF-delimited sink before canonicalization and neutralization?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-93",
+        "CWE-113"
+      ],
+      "trigger": "CRLF reaches an HTTP request or response header value",
+      "consequence": "HTTP header injection or response splitting"
+    },
+    {
+      "chain": [
+        "CWE-93",
+        "CWE-117"
+      ],
+      "trigger": "CRLF reaches a log message sink",
+      "consequence": "Forged or misleading log entries"
+    },
+    {
+      "chain": [
+        "CWE-93",
+        "CWE-94"
+      ],
+      "trigger": "Newline injection creates a CI environment variable such as `NODE_OPTIONS`",
+      "consequence": "Code execution in the workflow runner"
+    }
+  ],
+  "patch_principle": [
+    "Avoid designs that use attacker-controlled text inside CRLF-delimited control fields.",
+    "Canonicalize/decode input before validation, then reject CR, LF, and other control characters.",
+    "Use strict allowlists for structured fields such as cookie values, header values, IDs, and PR numbers.",
+    "Escape CR and LF when preserving free-form text in logs or records.",
+    "Use framework APIs that enforce CR/LF rejection, and fail closed on validation exceptions."
+  ],
+  "minimal_examples": {
+    "vuln": "response.setHeader(\"X-Name\", request.getParameter(\"name\"));",
+    "safe": "String name = request.getParameter(\"name\"); if (name.matches(\".*[\\\\r\\\\n].*\")) throw new IllegalArgumentException(); response.setHeader(\"X-Name\", name);"
+  }
+}

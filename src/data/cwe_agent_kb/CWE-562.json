@@ -1,0 +1,70 @@
+{
+  "cwe_id": "CWE-562",
+  "name": "Return of Stack Variable Address",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-758"
+    ],
+    "parent_of": []
+  },
+  "principle": "A function returns a pointer or reference to an automatic local object. After the function returns, the stack frame is invalid, so later dereference uses expired storage and can crash, corrupt memory, or expose memory.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "return &local_var; where local_var has automatic storage",
+    "return local_array; where local_array is declared in the returning function",
+    "return local_array + offset; or return &local_array[index];",
+    "return local_struct.member pointer/reference when local_struct is automatic",
+    "C++ function returns T& or T* bound to a local variable",
+    "lambda or callback returns/captures address of a local variable that escapes the function",
+    "putenv(local_buffer) or putenv(env_string.c_str()) where the argument object is automatic"
+  ],
+  "negative_signals": [
+    "returned pointer is from malloc/calloc/realloc/new/new[] and ownership is defined",
+    "returned address refers to static local, global, or string literal storage",
+    "function writes into caller-provided buffer parameter and returns that parameter",
+    "C++ function returns object by value such as std::string or std::vector",
+    "returned pointer/reference is to an object whose lifetime is guaranteed by the caller or owning object"
+  ],
+  "false_defense_traps": [
+    "Declaring the local variable volatile does not extend its lifetime",
+    "Returning a pointer after copying data into a local array still returns expired storage",
+    "Relying on tests that pass before another function call reuses the stack is unsafe",
+    "Casting the local address to void* or integer and back does not preserve lifetime",
+    "Using static local storage avoids stack lifetime but can introduce shared-state or thread-safety bugs"
+  ],
+  "verification_focus": "Does any pointer or reference that leaves the function refer to an automatic local object whose lifetime ends at return?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-562",
+        "CWE-825"
+      ],
+      "trigger": "caller dereferences the returned stack address after the callee returns",
+      "consequence": "expired pointer dereference causing crash, memory corruption, memory disclosure, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-562",
+        "CWE-672"
+      ],
+      "trigger": "caller reads from or writes to the returned address after the stack frame expired",
+      "consequence": "operation on expired storage with unpredictable behavior"
+    }
+  ],
+  "patch_principle": [
+    "Do not return addresses or references to automatic local variables",
+    "Return heap-allocated memory with clear ownership and deallocation rules",
+    "Prefer returning C++ value types such as std::string/std::vector by value",
+    "Use caller-provided output buffers with explicit size parameters",
+    "Use static storage only when shared lifetime and thread-safety are acceptable"
+  ],
+  "minimal_examples": {
+    "vuln": "char *f(void){ char buf[32]; return buf; }",
+    "safe": "char *f(void){ char *buf = malloc(32); return buf; }"
+  }
+}

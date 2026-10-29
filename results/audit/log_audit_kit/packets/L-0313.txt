@@ -1,0 +1,40 @@
+=== 待审推理日志 L-0313 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 1 个；未决 1 个。
+
+【推理轨迹】共 3 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: getInfoForId:6
+  引证行: 6
+  引证内容: return it->second;
+  初判倾向: VIOLATED
+  上下文源码:
+      3 |   if (it == idInfoMap.end()) {
+      4 |     STFATAL << " Tried to read from an id that no longer exists";
+      5 |   }
+      6 |   return it->second;
+      7 | }
+
+--- 步骤 2 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: getInfoForId:6
+  命中信号: pointer dereferenced after delete ptr or delete[] ptr
+  命中信号: same pointer freed twice on multiple control-flow paths
+  筛选: keep
+
+--- 步骤 3 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: getInfoForId:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

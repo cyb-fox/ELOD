@@ -1,0 +1,182 @@
+=== 待审推理日志 L-0619 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 7 个。
+
+【推理轨迹】共 20 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:4
+  引证行: 4
+  引证内容: OP_REQUIRES_OK(context, context->input("stamp_token", &stamp_token_t));
+  初判倾向: VIOLATED
+  上下文源码:
+      1 |   void Compute(OpKernelContext* context) override {
+      2 |     // Get the stamp token.
+      3 |     const Tensor* stamp_token_t;
+      4 |     OP_REQUIRES_OK(context, context->input("stamp_token", &stamp_token_t));
+      5 |     int64_t stamp_token = stamp_token_t->scalar<int64>()();
+      6 | 
+      7 |     // Get the tree ensemble proto.
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:9
+  引证行: 9
+  引证内容: OP_REQUIRES_OK(context, context->input("tree_ensemble_serialized",
+  初判倾向: VIOLATED
+  上下文源码:
+      6 | 
+      7 |     // Get the tree ensemble proto.
+      8 |     const Tensor* tree_ensemble_serialized_t;
+      9 |     OP_REQUIRES_OK(context, context->input("tree_ensemble_serialized",
+     10 |                                            &tree_ensemble_serialized_t));
+     11 |     std::unique_ptr<BoostedTreesEnsembleResource> result(
+     12 |         new BoostedTreesEnsembleResource());
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:13
+  引证行: 13
+  引证内容: if (!result->InitFromSerialized(
+  初判倾向: VIOLATED
+  上下文源码:
+     10 |                                            &tree_ensemble_serialized_t));
+     11 |     std::unique_ptr<BoostedTreesEnsembleResource> result(
+     12 |         new BoostedTreesEnsembleResource());
+     13 |     if (!result->InitFromSerialized(
+     14 |             tree_ensemble_serialized_t->scalar<tstring>()(), stamp_token)) {
+     15 |       result->Unref();
+     16 |       result.release();  // Needed due to the `->Unref` above, to prevent UAF
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:14
+  引证行: 14
+  引证内容: tree_ensemble_serialized_t->scalar<tstring>()(), stamp_token)) {
+  初判倾向: VIOLATED
+  上下文源码:
+     11 |     std::unique_ptr<BoostedTreesEnsembleResource> result(
+     12 |         new BoostedTreesEnsembleResource());
+     13 |     if (!result->InitFromSerialized(
+     14 |             tree_ensemble_serialized_t->scalar<tstring>()(), stamp_token)) {
+     15 |       result->Unref();
+     16 |       result.release();  // Needed due to the `->Unref` above, to prevent UAF
+     17 |       OP_REQUIRES(
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:15
+  引证行: 15
+  引证内容: result->Unref();
+  初判倾向: VIOLATED
+  上下文源码:
+     12 |         new BoostedTreesEnsembleResource());
+     13 |     if (!result->InitFromSerialized(
+     14 |             tree_ensemble_serialized_t->scalar<tstring>()(), stamp_token)) {
+     15 |       result->Unref();
+     16 |       result.release();  // Needed due to the `->Unref` above, to prevent UAF
+     17 |       OP_REQUIRES(
+     18 |           context, false,
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: Compute:16
+  引证行: 16
+  引证内容: result.release();  // Needed due to the `->Unref` above, to prevent UAF
+  初判倾向: VIOLATED
+  上下文源码:
+     13 |     if (!result->InitFromSerialized(
+     14 |             tree_ensemble_serialized_t->scalar<tstring>()(), stamp_token)) {
+     15 |       result->Unref();
+     16 |       result.release();  // Needed due to the `->Unref` above, to prevent UAF
+     17 |       OP_REQUIRES(
+     18 |           context, false,
+     19 |           errors::InvalidArgument("Unable to parse tree ensemble proto."));
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:4
+  命中信号: one alias freed, then another alias to the same allocation is dereferenced or passed to a callee
+  命中信号: free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:5
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:9
+  命中信号: one alias freed, then another alias to the same allocation is dereferenced or passed to a callee
+  命中信号: free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:13
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:14
+  命中信号: one alias freed, then another alias to the same allocation is dereferenced or passed to a callee
+  命中信号: free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:15
+  命中信号: callee may return NULL on error path and caller immediately dereferences result or passes it to another function that dereferences it
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: Compute:16
+  命中信号: one alias freed, then another alias to the same allocation is dereferenced or passed to a callee
+  筛选: keep
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 object_live_at_use: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:9
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 object_live_at_use: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 object_live_at_use: ? -> UNRESOLVED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:15
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: Compute:16
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 object_live_at_use: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

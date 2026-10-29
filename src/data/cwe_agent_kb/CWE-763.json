@@ -1,0 +1,81 @@
+{
+  "cwe_id": "CWE-763",
+  "name": "Release of Invalid Pointer or Reference",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-404"
+    ],
+    "parent_of": [
+      "CWE-761",
+      "CWE-762"
+    ]
+  },
+  "principle": "Code releases memory with the wrong deallocator or passes a pointer/reference that is not valid for that deallocator. This can corrupt allocator state or memory and lead to crash or code execution.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "free(ptr) where ptr was returned by new",
+    "delete ptr where ptr was returned by malloc/calloc/realloc/strdup",
+    "delete[] ptr where ptr was returned by new or malloc-family allocation",
+    "delete ptr where ptr was returned by new[]",
+    "free(ptr) after ptr = ptr + n, ptr++, or ptr += n from an allocated base",
+    "free(tok) or free(ap[i]) where tok/ap[i] comes from strtok, strsep, strchr, strstr, or pointer into another buffer",
+    "free(field) where field aliases a subobject/member address such as &obj.member or buf + offset"
+  ],
+  "negative_signals": [
+    "malloc/calloc/realloc/strdup result is released with free on the original stored base pointer",
+    "new result is released with delete on the same pointer value",
+    "new[] result is released with delete[] on the same pointer value",
+    "pointer traversal uses a separate cursor/index and free(base) releases the original allocation",
+    "token/subslice is copied with malloc/strdup/new before it is individually freed",
+    "std::unique_ptr, std::shared_ptr, std::vector, std::string, or RAII owner manages the allocation without manual free/delete"
+  ],
+  "false_defense_traps": [
+    "Checking ptr != NULL before free(ptr) does not make an interior or mismatched pointer valid",
+    "Casting before free/delete does not change the required matching allocator",
+    "Setting ptr = NULL after an invalid free does not prevent allocator corruption already caused",
+    "Allocator hardening may abort instead of preventing the bug",
+    "Freeing each strtok/strsep token is invalid because tokens point inside the original buffer"
+  ],
+  "verification_focus": "Does every release call use the matching deallocator on the exact original allocation pointer, not an interior pointer or alias?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-763",
+        "CWE-119"
+      ],
+      "trigger": "invalid release corrupts allocator metadata or adjacent memory",
+      "consequence": "memory corruption, crash, or possible arbitrary code execution"
+    },
+    {
+      "chain": [
+        "CWE-763",
+        "CWE-762"
+      ],
+      "trigger": "allocation and release APIs are from incompatible families",
+      "consequence": "undefined behavior and heap corruption"
+    },
+    {
+      "chain": [
+        "CWE-763",
+        "CWE-761"
+      ],
+      "trigger": "released pointer was advanced into the allocation before deallocation",
+      "consequence": "invalid free, crash, or heap corruption"
+    }
+  ],
+  "patch_principle": [
+    "Use matching allocation and release pairs: malloc/calloc/realloc/strdup with free, new with delete, new[] with delete[].",
+    "Preserve the original allocation pointer and use separate cursor/index variables for traversal.",
+    "Do not free tokens, substrings, member addresses, or pointers into another allocation; free only the owning base allocation.",
+    "Prefer RAII containers and smart pointers such as std::unique_ptr, std::shared_ptr, std::vector, and std::string."
+  ],
+  "minimal_examples": {
+    "vuln": "BarObj *p = new BarObj(); free(p);",
+    "safe": "BarObj *p = new BarObj(); delete p;"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "cwe_id": "CWE-665",
+  "name": "Improper Initialization",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-664"
+    ],
+    "parent_of": [
+      "CWE-455",
+      "CWE-770",
+      "CWE-908",
+      "CWE-909",
+      "CWE-1279",
+      "CWE-1419",
+      "CWE-1434",
+      "CWE-1188",
+      "CWE-456",
+      "CWE-457"
+    ]
+  },
+  "principle": "The product fails to initialize a resource or initializes it to the wrong value before use. This leaves variables, memory, objects, locks, configuration, or security state in an unexpected state that can leak data, bypass checks, or crash.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Perl",
+    "PHP",
+    "Go"
+  ],
+  "detection_signals": [
+    "C/C++ local variable declared without initializer and later read: `int x; ... use(x);`",
+    "C/C++ struct allocated by `malloc` and partially assigned before field reads or serialization",
+    "security flag or auth variable assigned only inside `if`/`switch` branch and used after the branch",
+    "`initialized` or `isReady` guard declared as `true` before initialization routine runs",
+    "buffer reused and sent via `send`, `write`, `fwrite`, or response API without `memset`, `calloc`, or full overwrite",
+    "object fields read before constructor/init method assigns all required fields",
+    "initialization failure path logs error but continues to use the resource"
+  ],
+  "negative_signals": [
+    "variable initialized at declaration or immediately before first use",
+    "all `if`/`else` and `switch default` paths assign the variable before later use",
+    "C/C++ allocation uses `calloc`, value-initialization `{}`, or constructor that initializes all fields",
+    "security-sensitive default is deny/false/invalid, e.g. `authenticated=false` or `uid=-1`",
+    "initialization API return value is checked and failure path returns, throws, or aborts before use",
+    "shared initialization is protected by `mutex`, `synchronized`, or `std::call_once`"
+  ],
+  "false_defense_traps": [
+    "assuming `malloc` zeroes memory",
+    "using a boolean `initialized` flag but setting it before initialization completes",
+    "checking only the success path while exception/error paths leave fields unset",
+    "relying on comments or naming conventions instead of constructor/default initialization",
+    "clearing only part of a struct while padding or unused fields are still serialized"
+  ],
+  "verification_focus": "Can any execution path access the resource before it is explicitly and correctly initialized to a safe value?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-665",
+        "CWE-908"
+      ],
+      "trigger": "resource is accessed before initialization completes",
+      "consequence": "unpredictable value, crash, or unintended control flow"
+    },
+    {
+      "chain": [
+        "CWE-665",
+        "CWE-457"
+      ],
+      "trigger": "uninitialized variable controls index, pointer, privilege, or branch",
+      "consequence": "out-of-bounds access, access-control bypass, or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-665",
+        "CWE-1188"
+      ],
+      "trigger": "security-sensitive state defaults to allow, admin, root, or enabled",
+      "consequence": "bypass of authentication or authorization"
+    },
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-665"
+      ],
+      "trigger": "another thread observes a partially initialized resource",
+      "consequence": "use of inconsistent state or protection bypass"
+    }
+  ],
+  "patch_principle": [
+    "Initialize every variable, field, buffer, and resource before first use.",
+    "Use safe defaults for security state: deny, false, invalid, or least privilege.",
+    "Cover all branches, error paths, exceptions, and early returns with initialization or fail-stop behavior.",
+    "Use constructors, `calloc`, value-initialization, `memset`, or reset methods to fully initialize reused storage.",
+    "Synchronize one-time initialization and publish the resource only after initialization succeeds."
+  ],
+  "minimal_examples": {
+    "vuln": "bool authenticated; if (authenticated) grantAccess();",
+    "safe": "bool authenticated = false; if (authenticated) grantAccess();"
+  }
+}

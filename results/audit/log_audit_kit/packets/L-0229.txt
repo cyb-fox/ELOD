@@ -1,0 +1,71 @@
+=== 待审推理日志 L-0229 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 3 个；未决 0 个。
+
+【推理轨迹】共 7 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gif_internal_decode_frame:189
+  引证行: 189
+  引证内容: memset((char*)frame_data,
+  初判倾向: VIOLATED
+  上下文源码:
+    186 |                  * the frame data
+    187 |                  */
+    188 |                 if ((frame == 0) || (gif->decoded_frame == GIF_INVALID_FRAME)) {
+    189 |                         memset((char*)frame_data,
+    190 |                                GIF_TRANSPARENT_COLOUR,
+    191 |                                gif->width * gif->height * sizeof(int));
+    192 |                         gif->decoded_frame = frame;
+
+--- 步骤 2 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gif_internal_decode_frame:189
+  命中信号: memcpy/memmove/memset/read/write length argument is a signed or narrow integer arithmetic result cast to size_t
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gif_internal_decode_frame:224
+  命中信号: candidate fact advanced to VIOLATED by deterministic checker
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gif_internal_decode_frame:301
+  筛选: keep
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gif_internal_decode_frame:189
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gif_internal_decode_frame:224
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gif_internal_decode_frame:301
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-129, CWE-190

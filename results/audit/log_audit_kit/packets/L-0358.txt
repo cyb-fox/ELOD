@@ -1,0 +1,446 @@
+=== 待审推理日志 L-0358 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 19 个；未决 19 个。
+
+【推理轨迹】共 51 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:1
+  引证行: 1
+  引证内容: static GF_Err BM_ParseGlobalQuantizer(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | static GF_Err BM_ParseGlobalQuantizer(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+      2 | {
+      3 | 	GF_Node *node;
+      4 | 	GF_Command *com;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:7
+  引证行: 7
+  引证内容: if (!node) return GF_NON_COMPLIANT_BITSTREAM;
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | 	GF_Command *com;
+      5 | 	GF_CommandField *inf;
+      6 | 	node = gf_bifs_dec_node(codec, bs, NDT_SFWorldNode);
+      7 | 	if (!node) return GF_NON_COMPLIANT_BITSTREAM;
+      8 | 
+      9 | 	/*reset global QP*/
+     10 | 	if (codec->scenegraph->global_qp) {
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:10
+  引证行: 10
+  引证内容: if (codec->scenegraph->global_qp) {
+  初判倾向: VIOLATED
+  上下文源码:
+      7 | 	if (!node) return GF_NON_COMPLIANT_BITSTREAM;
+      8 | 
+      9 | 	/*reset global QP*/
+     10 | 	if (codec->scenegraph->global_qp) {
+     11 | 		gf_node_unregister(codec->scenegraph->global_qp, NULL);
+     12 | 	}
+     13 | 	codec->ActiveQP = NULL;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:14
+  引证行: 14
+  引证内容: codec->scenegraph->global_qp = NULL;
+  初判倾向: VIOLATED
+  上下文源码:
+     11 | 		gf_node_unregister(codec->scenegraph->global_qp, NULL);
+     12 | 	}
+     13 | 	codec->ActiveQP = NULL;
+     14 | 	codec->scenegraph->global_qp = NULL;
+     15 | 
+     16 | 	if (gf_node_get_tag(node) != TAG_MPEG4_QuantizationParameter) {
+     17 | 		//if node was just created (num_instances == 0), unregister
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:19
+  引证行: 19
+  引证内容: if (!node->sgprivate->num_instances) {
+  初判倾向: VIOLATED
+  上下文源码:
+     16 | 	if (gf_node_get_tag(node) != TAG_MPEG4_QuantizationParameter) {
+     17 | 		//if node was just created (num_instances == 0), unregister
+     18 | 		//otherwise (USE node) don't do anything
+     19 | 		if (!node->sgprivate->num_instances) {
+     20 | 			node->sgprivate->num_instances = 1;
+     21 | 			gf_node_unregister(node, NULL);
+     22 | 		}
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:20
+  引证行: 20
+  引证内容: node->sgprivate->num_instances = 1;
+  初判倾向: VIOLATED
+  上下文源码:
+     17 | 		//if node was just created (num_instances == 0), unregister
+     18 | 		//otherwise (USE node) don't do anything
+     19 | 		if (!node->sgprivate->num_instances) {
+     20 | 			node->sgprivate->num_instances = 1;
+     21 | 			gf_node_unregister(node, NULL);
+     22 | 		}
+     23 | 		return GF_NON_COMPLIANT_BITSTREAM;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:21
+  引证行: 21
+  引证内容: gf_node_unregister(node, NULL);
+  初判倾向: VIOLATED
+  上下文源码:
+     18 | 		//otherwise (USE node) don't do anything
+     19 | 		if (!node->sgprivate->num_instances) {
+     20 | 			node->sgprivate->num_instances = 1;
+     21 | 			gf_node_unregister(node, NULL);
+     22 | 		}
+     23 | 		return GF_NON_COMPLIANT_BITSTREAM;
+     24 | 	}
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:28
+  引证行: 28
+  引证内容: codec->ActiveQP->isLocal = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+     25 | 
+     26 | 	/*register global QP*/
+     27 | 	codec->ActiveQP = (M_QuantizationParameter *) node;
+     28 | 	codec->ActiveQP->isLocal = 0;
+     29 | 	codec->scenegraph->global_qp = node;
+     30 | 
+     31 | 	/*register TWICE: once for the command, and for the scenegraph globalQP*/
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:29
+  引证行: 29
+  引证内容: codec->scenegraph->global_qp = node;
+  初判倾向: VIOLATED
+  上下文源码:
+     26 | 	/*register global QP*/
+     27 | 	codec->ActiveQP = (M_QuantizationParameter *) node;
+     28 | 	codec->ActiveQP->isLocal = 0;
+     29 | 	codec->scenegraph->global_qp = node;
+     30 | 
+     31 | 	/*register TWICE: once for the command, and for the scenegraph globalQP*/
+     32 | 	gf_node_unregister(node, NULL);
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:35
+  引证行: 35
+  引证内容: com = gf_sg_command_new(codec->current_graph, GF_SG_GLOBAL_QUANTIZER);
+  初判倾向: VIOLATED
+  上下文源码:
+     32 | 	gf_node_unregister(node, NULL);
+     33 | 	gf_node_unregister(node, NULL);
+     34 | 
+     35 | 	com = gf_sg_command_new(codec->current_graph, GF_SG_GLOBAL_QUANTIZER);
+     36 | 	inf = gf_sg_command_field_new(com);
+     37 | 	inf->new_node = node;
+     38 | 	inf->field_ptr = &inf->new_node;
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:37
+  引证行: 37
+  引证内容: inf->new_node = node;
+  初判倾向: VIOLATED
+  上下文源码:
+     34 | 
+     35 | 	com = gf_sg_command_new(codec->current_graph, GF_SG_GLOBAL_QUANTIZER);
+     36 | 	inf = gf_sg_command_field_new(com);
+     37 | 	inf->new_node = node;
+     38 | 	inf->field_ptr = &inf->new_node;
+     39 | 	inf->fieldType = GF_SG_VRML_SFNODE;
+     40 | 	gf_list_add(com_list, com);
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:38
+  引证行: 38
+  引证内容: inf->field_ptr = &inf->new_node;
+  初判倾向: VIOLATED
+  上下文源码:
+     35 | 	com = gf_sg_command_new(codec->current_graph, GF_SG_GLOBAL_QUANTIZER);
+     36 | 	inf = gf_sg_command_field_new(com);
+     37 | 	inf->new_node = node;
+     38 | 	inf->field_ptr = &inf->new_node;
+     39 | 	inf->fieldType = GF_SG_VRML_SFNODE;
+     40 | 	gf_list_add(com_list, com);
+     41 | 	return GF_OK;
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: BM_ParseGlobalQuantizer:39
+  引证行: 39
+  引证内容: inf->fieldType = GF_SG_VRML_SFNODE;
+  初判倾向: VIOLATED
+  上下文源码:
+     36 | 	inf = gf_sg_command_field_new(com);
+     37 | 	inf->new_node = node;
+     38 | 	inf->field_ptr = &inf->new_node;
+     39 | 	inf->fieldType = GF_SG_VRML_SFNODE;
+     40 | 	gf_list_add(com_list, com);
+     41 | 	return GF_OK;
+     42 | }
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:1
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:6
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:7
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:10
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:11
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:13
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:14
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:16
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:19
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:20
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:21
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:27
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:28
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:29
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:32
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:35
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:37
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:38
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: BM_ParseGlobalQuantizer:39
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 33 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:1
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 34 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 35 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:10
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:16
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:19
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 44 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:27
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 45 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 46 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 47 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 48 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 49 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 50 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:38
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 51 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: BM_ParseGlobalQuantizer:39
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

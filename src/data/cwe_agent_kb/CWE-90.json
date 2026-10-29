@@ -1,0 +1,71 @@
+{
+  "cwe_id": "CWE-90",
+  "name": "Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-943"
+    ],
+    "parent_of": []
+  },
+  "principle": "Untrusted data is inserted into an LDAP query without proper escaping or structural separation. Attackers can change filter logic, bypass authentication, enumerate entries, or read/modify directory data.",
+  "applicable_languages": [
+    "Java",
+    "C",
+    "C++",
+    "C#",
+    "PHP",
+    "Python"
+  ],
+  "detection_signals": [
+    "User-controlled data concatenated or formatted into an LDAP filter string before DirContext.search(), InitialDirContext.search(), LdapTemplate.search(), ldap_search(), or DirectorySearcher.Filter",
+    "Authentication filters built as strings, e.g. \"(&(uid=\" + user + \")(userPassword=\" + pass + \"))\"",
+    "Input from HttpServletRequest.getParameter(), request headers, form fields, cookies, or socket reads reaches an LDAP query sink",
+    "Raw LDAP metacharacters such as (, ), *, &, |, !, or \\ appear in query assembly with no escaping step",
+    "No call to an LDAP-specific escape API such as escapeLDAPSearchFilter(), LdapEncoder.filterEncode(), or equivalent before the sink",
+    "StringBuilder/plus concatenation used to build the query instead of a structured LDAP filter API"
+  ],
+  "negative_signals": [
+    "Query uses only constant filter literals with no external input",
+    "Untrusted value is passed through LDAP filter escaping before interpolation",
+    "Structured filter API is used with separate attribute and value arguments, not raw string assembly",
+    "Input is validated against a strict allowlist of fixed identifiers and mapped to constant filter fragments",
+    "No path from external input to any LDAP search or directory lookup sink"
+  ],
+  "false_defense_traps": [
+    "Stripping only a few characters such as '(' and ')' while leaving '*' , '&' , '|' , or '\\\\' unescaped",
+    "Using URL encoding, HTML escaping, or SQL escaping instead of LDAP escaping",
+    "Validating after the filter string is already concatenated",
+    "Blacklists that remove known payloads but do not enforce a strict allowlist"
+  ],
+  "verification_focus": "Does any external input reach an LDAP search/filter sink without LDAP-specific escaping or a structured query API?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-90",
+        "CWE-639"
+      ],
+      "trigger": "user-controlled filter fragments alter authentication or authorization predicates",
+      "consequence": "authentication bypass or unauthorized directory access"
+    },
+    {
+      "chain": [
+        "CWE-90",
+        "CWE-200"
+      ],
+      "trigger": "search filters can be widened to return unintended directory entries",
+      "consequence": "sensitive directory data exposure"
+    }
+  ],
+  "patch_principle": [
+    "Never concatenate untrusted data into LDAP filter strings",
+    "Use LDAP-specific escaping for filter context, and DN escaping only when building DNs",
+    "Prefer structured or parameterized LDAP APIs over raw query strings",
+    "Apply strict allowlist validation for identifiers and reject unexpected characters"
+  ],
+  "minimal_examples": {
+    "vuln": "String filter = \"(uid=\" + user + \")\"; ctx.search(base, filter, ctls);",
+    "safe": "String filter = \"(uid=\" + LdapEncoder.filterEncode(user) + \")\"; ctx.search(base, filter, ctls);"
+  }
+}

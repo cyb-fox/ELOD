@@ -1,0 +1,87 @@
+{
+  "cwe_id": "CWE-78",
+  "name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-77"
+    ],
+    "parent_of": []
+  },
+  "principle": "The product constructs an OS command using externally influenced input without correctly neutralizing command-control characters or separating data from code. Attackers can change the command executed by the OS and run commands with the product's privileges.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "C/C++ system(cmd) where cmd contains argv, getenv(), request, socket, file, or config input",
+    "C/C++ popen(cmd, mode) where cmd is built by strcat, sprintf, snprintf, std::string +, or ostringstream with external input",
+    "C/C++ execl(\"/bin/sh\", \"sh\", \"-c\", cmd, NULL) or execv shell with -c and external input",
+    "Java Runtime.getRuntime().exec(String) where the string contains concatenated external input",
+    "Java ProcessBuilder(\"sh\", \"-c\", cmd) or ProcessBuilder(\"cmd.exe\", \"/C\", cmd) with external input",
+    "command string concatenates input near shell metacharacters: ;, &, &&, |, ||, `, $(), >, <, newline",
+    "program name or executable path comes from request parameter, environment variable, system property, or attacker-writable config"
+  ],
+  "negative_signals": [
+    "C/C++ execve(fixedAbsolutePath, argvArray, envp) with user input only as one argv element",
+    "Java new ProcessBuilder(fixedProgram, userArg).start() without sh -c or cmd.exe /C",
+    "external input is checked by strict allowlist regex before command use, e.g. ^[A-Za-z0-9._-]{1,64}$",
+    "code uses a library API instead of an OS command, e.g. InetAddress.getByName(host) instead of nslookup",
+    "executable path and command are constants and no external input reaches command construction"
+  ],
+  "false_defense_traps": [
+    "denylist removes only ';' but leaves &, &&, |, ||, `, $(), >, <, or newline",
+    "HTML, XML, URL, or SQL encoding is applied before shell execution",
+    "quoting the whole command string while allowing embedded quotes or command substitution",
+    "Runtime.exec(String) is assumed safe while the string invokes sh -c or cmd.exe /C",
+    "shell metacharacters are blocked but untrusted input can still inject options or arguments, causing CWE-88"
+  ],
+  "verification_focus": "Can attacker-controlled data select or modify an OS command without strict allowlisting or fixed argv-array separation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-77",
+        "CWE-78"
+      ],
+      "trigger": "external input is concatenated into an OS command string",
+      "consequence": "unauthorized OS command execution"
+    },
+    {
+      "chain": [
+        "CWE-184",
+        "CWE-78"
+      ],
+      "trigger": "incomplete denylist misses a shell separator or command substitution syntax",
+      "consequence": "filter bypass and command execution"
+    },
+    {
+      "chain": [
+        "CWE-250",
+        "CWE-78"
+      ],
+      "trigger": "injected command runs in a privileged process",
+      "consequence": "privileged file access or privilege escalation"
+    },
+    {
+      "chain": [
+        "CWE-78",
+        "CWE-88"
+      ],
+      "trigger": "shell is avoided but untrusted input remains an unconstrained argv option",
+      "consequence": "argument or option injection into the invoked program"
+    }
+  ],
+  "patch_principle": [
+    "Replace OS commands with library calls when possible.",
+    "Avoid shell invocation; use fixed executable paths and argv-array APIs.",
+    "Validate each argument with a strict allowlist for length, charset, and business rules.",
+    "If shell use is unavoidable, quote and escape each argument for the exact target shell.",
+    "Run invoked processes with least privilege and sandboxing to limit impact."
+  ],
+  "minimal_examples": {
+    "vuln": "new ProcessBuilder(\"sh\", \"-c\", \"nslookup \" + host).start();",
+    "safe": "new ProcessBuilder(\"/usr/bin/nslookup\", host).start();"
+  }
+}

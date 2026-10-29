@@ -1,0 +1,91 @@
+{
+  "cwe_id": "CWE-23",
+  "name": "Relative Path Traversal",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-22"
+    ],
+    "parent_of": [
+      "CWE-24",
+      "CWE-25",
+      "CWE-26",
+      "CWE-27",
+      "CWE-28",
+      "CWE-29",
+      "CWE-30",
+      "CWE-31"
+    ]
+  },
+  "principle": "The product builds a pathname under a restricted directory from external input without neutralizing relative sequences such as \"..\". The resolved path can escape the intended directory and allow unauthorized read, write, delete, or code execution.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "PHP",
+    "Perl"
+  ],
+  "detection_signals": [
+    "external input concatenated into fopen/open/stat/unlink/rename path with a base directory",
+    "request.getParameter() passed to new File(base, input) or Paths.get(base, input)",
+    "FileInputStream/FileOutputStream/Files.readAllBytes/Files.write called on a path built from an untrusted filename",
+    "ZipEntry.getName() or archive entry name passed to new File(destDir, name) without canonical containment check",
+    "startsWith(base) check performed before realpath()/getCanonicalPath()/Path.toRealPath()",
+    "filter removes only \"../\" or only \"..\\\\\" before file access",
+    "single-pass replace()/replaceFirst() removal of traversal tokens before file access"
+  ],
+  "negative_signals": [
+    "realpath()/getCanonicalPath()/Path.toRealPath() applied before base-directory containment check",
+    "canonical child Path checked with child.startsWith(canonicalBasePath)",
+    "filename chosen from a server-side ID-to-path allowlist map",
+    "regex allowlist permits only basename characters and rejects '/' and '\\\\'",
+    "archive extraction validates canonical output path starts with canonical destination directory"
+  ],
+  "false_defense_traps": [
+    "denylist removal of \"../\" is bypassable by encoded, nested, or alternate separator forms",
+    "checking startsWith(base) before canonicalization misses base/../escape paths",
+    "filtering '/' but not '\\\\' fails on filesystems that accept both separators",
+    "decoding after validation or double decoding can introduce \"../\" after checks",
+    "web application firewall rules do not cover all file path input vectors"
+  ],
+  "verification_focus": "Can attacker-controlled relative path components reach a file operation without canonicalize-then-containment validation against the intended directory?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-23",
+        "CWE-59"
+      ],
+      "trigger": "relative traversal reaches a symlink inside the restricted directory",
+      "consequence": "restricted directory escape through the symlink target"
+    },
+    {
+      "chain": [
+        "CWE-23",
+        "CWE-434"
+      ],
+      "trigger": "attacker controls upload filename and file contents",
+      "consequence": "write executable file outside the upload directory"
+    },
+    {
+      "chain": [
+        "CWE-23",
+        "CWE-209"
+      ],
+      "trigger": "failed traversal path is returned in an error message",
+      "consequence": "filesystem layout disclosure"
+    }
+  ],
+  "patch_principle": [
+    "Accept only known-good filenames; reject directory separators and multiple dot components.",
+    "Decode once, then canonicalize to an absolute path before validation.",
+    "Verify the canonical child path is inside the canonical base directory using path-aware comparison.",
+    "Use server-side identifiers mapped to fixed paths instead of accepting raw path input.",
+    "For archive extraction, validate each entry path before creating or writing the output file."
+  ],
+  "minimal_examples": {
+    "vuln": "new FileInputStream(baseDir + \"/\" + request.getParameter(\"file\"));",
+    "safe": "Path p = base.toRealPath().resolve(file).normalize(); if (!p.startsWith(base.toRealPath())) throw new SecurityException();"
+  }
+}

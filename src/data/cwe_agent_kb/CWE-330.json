@@ -1,0 +1,95 @@
+{
+  "cwe_id": "CWE-330",
+  "name": "Use of Insufficiently Random Values",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "cryptography",
+    "child_of": [
+      "CWE-693"
+    ],
+    "parent_of": [
+      "CWE-331",
+      "CWE-334",
+      "CWE-335",
+      "CWE-338",
+      "CWE-340",
+      "CWE-344",
+      "CWE-1204",
+      "CWE-1241"
+    ]
+  },
+  "principle": "The code uses values that are predictable or low-entropy where security depends on unpredictability. Attackers can guess tokens, keys, IVs, nonces, or identifiers and bypass protection mechanisms.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "C/C++ rand(), random(), drand48(), lrand48(), or std::rand() used to build session, token, csrf, reset, key, iv, nonce, salt, or password values",
+    "Java java.util.Random, java.lang.Math.random(), or ThreadLocalRandom used to build session, token, csrf, reset, key, iv, nonce, salt, or password values",
+    "srand(time(NULL)), srand(getpid()), srand(userId), Random.setSeed(System.currentTimeMillis()), or fixed numeric seed before security value generation",
+    "random output reduced to a small range with % N, nextInt(N), or substring truncation for security codes or tokens",
+    "custom PRNG such as LCG/XorShift/Mersenne Twister used for authentication, authorization, key generation, IV, nonce, or reset code",
+    "security-sensitive random value generated without SecureRandom, getrandom(), /dev/urandom, arc4random_buf(), BCryptGenRandom(), CryptGenRandom(), or RAND_bytes"
+  ],
+  "negative_signals": [
+    "Java SecureRandom used for token, key, IV, nonce, salt, or reset code generation",
+    "C/C++ getrandom(), arc4random_buf(), BCryptGenRandom(), CryptGenRandom(), or RAND_bytes used and return status is checked",
+    "random value is only for simulation, testing, UI effects, load balancing, or games and is not used as a security secret",
+    "seed is obtained from an OS CSPRNG and not from time, PID, username, user ID, or constants",
+    "security token has sufficient byte length, e.g. 128 bits or more from a CSPRNG before encoding"
+  ],
+  "false_defense_traps": [
+    "Using rand(), java.util.Random, or Math.random because results look statistically random",
+    "Seeding with current time, PID, username, user ID, MAC address, or a constant",
+    "Hashing or Base64-encoding weak PRNG output and treating it as unpredictable",
+    "Generating a CSPRNG value and then truncating it to a short numeric code without rate limiting",
+    "Using UUIDs or sequential IDs as secrets without verifying they are CSPRNG-backed and sufficiently long"
+  ],
+  "verification_focus": "Does any security-sensitive value that must be unguessable come from a non-CSPRNG, predictable seed, small value space, or invariant algorithm?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-338"
+      ],
+      "trigger": "security token or key generated with statistical PRNG API",
+      "consequence": "attacker predicts values and bypasses authentication or authorization"
+    },
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-335"
+      ],
+      "trigger": "PRNG seeded with time, PID, user ID, constant, or reused seed",
+      "consequence": "attacker reproduces the PRNG sequence and guesses secrets"
+    },
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-334"
+      ],
+      "trigger": "security code or token drawn from a small range",
+      "consequence": "attacker brute-forces valid values"
+    },
+    {
+      "chain": [
+        "CWE-330",
+        "CWE-804"
+      ],
+      "trigger": "CAPTCHA challenge generated from guessable random values",
+      "consequence": "attacker predicts CAPTCHA answers"
+    }
+  ],
+  "patch_principle": [
+    "Use a CSPRNG for all security-sensitive random values.",
+    "Use well-vetted implementations such as Java SecureRandom, getrandom(), arc4random_buf(), BCryptGenRandom(), CryptGenRandom(), or RAND_bytes.",
+    "Seed only from high-quality entropy sources; do not use time, PID, user ID, constants, or reusable seeds.",
+    "Use sufficient output length, commonly at least 128 bits for tokens and appropriate sizes for keys, IVs, nonces, and salts.",
+    "Check CSPRNG API return values and fail closed if randomness cannot be obtained."
+  ],
+  "minimal_examples": {
+    "vuln": "String token = Long.toString(new java.util.Random(System.currentTimeMillis()).nextLong());",
+    "safe": "byte[] b = new byte[32]; new java.security.SecureRandom().nextBytes(b);"
+  }
+}

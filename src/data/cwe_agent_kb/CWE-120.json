@@ -1,0 +1,83 @@
+{
+  "cwe_id": "CWE-120",
+  "name": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-119",
+      "CWE-787"
+    ],
+    "parent_of": [
+      "CWE-121",
+      "CWE-122"
+    ]
+  },
+  "principle": "The code copies an input buffer into an output buffer without proving the input length is less than the destination capacity. If the source is longer, the copy writes past the destination and can corrupt memory, crash, or redirect control flow.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Assembly",
+    "Java JNI/native"
+  ],
+  "detection_signals": [
+    "strcpy(dst, src) where dst is char[N] or fixed heap buffer and src is externally influenced",
+    "strcat(dst, src) where remaining capacity of dst is not checked before append",
+    "sprintf(dst, ...) writing into fixed-size char buffer instead of snprintf(dst, sizeof dst, ...)",
+    "gets(dst) reading into any fixed-size buffer",
+    "scanf(\"%s\", dst) or fscanf(...,\"%s\", dst) without a field width",
+    "memcpy(dst, src, len) or strncpy(dst, src, len) where len derives from input and is not bounded by sizeof(dst)",
+    "for/while loop copying src[i] to dst[i] without i < dst_capacity guard"
+  ],
+  "negative_signals": [
+    "snprintf(dst, sizeof(dst), \"%s\", src) or equivalent capacity-bounded formatting",
+    "copy is preceded by if (strlen(src) < sizeof(dst)) or equivalent destination-capacity check",
+    "scanf format uses a width matching the buffer, e.g. scanf(\"%19s\", buf) for char buf[20]",
+    "strncpy/memcpy length argument is min(sizeof(dst)-1, source_length) and dst is explicitly NUL-terminated",
+    "destination is dynamically allocated from checked source length, e.g. malloc(strlen(src)+1) with overflow check"
+  ],
+  "false_defense_traps": [
+    "Replacing strcpy with strncpy without forcing dst[sizeof(dst)-1]='\\0'",
+    "Using sizeof(ptr) instead of the real allocation size for a heap buffer",
+    "Relying only on ASLR, DEP/NX, stack canaries, /GS, or FORTIFY_SOURCE",
+    "Client-side length validation without server-side validation",
+    "Denylisting bad characters while allowing overlong input"
+  ],
+  "verification_focus": "Does every buffer copy prove the maximum bytes written, including the terminator, fit within the destination capacity?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-120",
+        "CWE-787"
+      ],
+      "trigger": "source length exceeds destination capacity during copy",
+      "consequence": "out-of-bounds write corrupts adjacent memory"
+    },
+    {
+      "chain": [
+        "CWE-120",
+        "CWE-123"
+      ],
+      "trigger": "overflow overwrites a pointer, length, or destination address used by a later write",
+      "consequence": "write-what-where primitive and possible control-flow hijack"
+    },
+    {
+      "chain": [
+        "CWE-120",
+        "CWE-193"
+      ],
+      "trigger": "length check allows exactly destination size but code also writes a NUL terminator",
+      "consequence": "one-byte overflow or unterminated string"
+    }
+  ],
+  "patch_principle": [
+    "Replace unbounded copy APIs with capacity-bounded APIs and pass the real destination size.",
+    "Validate or truncate input length before copying, including space for the NUL terminator.",
+    "Allocate destination buffers from checked source length instead of fixed guesses.",
+    "Add compiler/runtime hardening as defense in depth, not as the primary fix."
+  ],
+  "minimal_examples": {
+    "vuln": "char buf[16]; strcpy(buf, user);",
+    "safe": "char buf[16]; snprintf(buf, sizeof(buf), \"%s\", user);"
+  }
+}

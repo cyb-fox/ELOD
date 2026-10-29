@@ -1,0 +1,83 @@
+{
+  "cwe_id": "CWE-190",
+  "name": "Integer Overflow or Wraparound",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-682",
+      "CWE-20"
+    ],
+    "parent_of": [
+      "CWE-680"
+    ]
+  },
+  "principle": "The product performs integer arithmetic that can exceed the destination type range and wrap to a small or negative value. Code that trusts the result for allocation, copy length, loop bounds, indexes, quotas, or security decisions can under-allocate, corrupt memory, loop incorrectly, or bypass limits.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check",
+    "calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit",
+    "memcpy/memmove/memset/read/write length argument is a signed or narrow integer arithmetic result cast to size_t",
+    "for/while loop counter is incremented with += tainted_len or ++ near INT_MAX/UINT_MAX without max bound validation",
+    "allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)",
+    "Java int arithmetic computes byte size or array length, e.g. int bytes = count * elemSize, before new byte[bytes] or ByteBuffer.allocate(bytes)",
+    "signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start"
+  ],
+  "negative_signals": [
+    "pre-arithmetic check exists: if (count > SIZE_MAX / unit) fail",
+    "pre-arithmetic check exists: if (a > SIZE_MAX - b) fail",
+    "code uses checked arithmetic API: __builtin_mul_overflow, __builtin_add_overflow, SafeInt, Math.multiplyExact, Math.addExact",
+    "numeric input is range-checked against protocol maximum before arithmetic and before allocation/copy",
+    "calculation is performed in a wider type and then checked against destination max before cast",
+    "calloc(count, sizeof(T)) is used directly and the return value is checked"
+  ],
+  "false_defense_traps": [
+    "checking bytes < LIMIT after bytes = count * unit; the overflow already happened",
+    "using unsigned integers only; unsigned arithmetic still wraps in C/C++",
+    "checking malloc success; wrapped size may allocate a valid small buffer",
+    "casting after arithmetic, e.g. (size_t)(count * unit), while multiplication occurred in int",
+    "client-side numeric validation without the same server-side validation"
+  ],
+  "verification_focus": "Is every tainted integer calculation checked for overflow before its result is used as a size, index, loop bound, quota, or security decision?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-680"
+      ],
+      "trigger": "count * sizeof(T) wraps before allocation",
+      "consequence": "too-small buffer is allocated and later writes overflow it"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-119"
+      ],
+      "trigger": "wrapped length or index controls memory access bounds",
+      "consequence": "operation escapes intended buffer bounds"
+    },
+    {
+      "chain": [
+        "CWE-190",
+        "CWE-681"
+      ],
+      "trigger": "overflow combines with narrowing cast or signed/unsigned conversion",
+      "consequence": "incorrect numeric value drives unsafe logic or memory size"
+    }
+  ],
+  "patch_principle": [
+    "Validate numeric inputs with explicit minimum and maximum bounds before arithmetic.",
+    "Check addition, multiplication, increment, and cast operations with preconditions or checked arithmetic APIs.",
+    "Use safe integer libraries or language constructs such as SafeInt, IntegerLib, __builtin_*_overflow, or Math.*Exact.",
+    "Perform size calculations in size_t or a wider type and verify the result fits the target type before use.",
+    "Duplicate security-critical numeric checks on the server side, not only on the client side."
+  ],
+  "minimal_examples": {
+    "vuln": "uint32_t bytes = count * sizeof(Field); Field *p = malloc(bytes);",
+    "safe": "if (count > SIZE_MAX / sizeof(Field)) return NULL; Field *p = malloc(count * sizeof(Field));"
+  }
+}

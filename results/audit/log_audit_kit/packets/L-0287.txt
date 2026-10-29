@@ -1,0 +1,829 @@
+=== 待审推理日志 L-0287 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 33 个；未决 33 个。
+
+【推理轨迹】共 93 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:1
+  引证行: 1
+  引证内容: GF_Err afra_box_read(GF_Box *s, GF_BitStream *bs)
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | GF_Err afra_box_read(GF_Box *s, GF_BitStream *bs)
+      2 | {
+      3 | 	unsigned int i;
+      4 | 	GF_AdobeFragRandomAccessBox *ptr = (GF_AdobeFragRandomAccessBox *)s;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:4
+  引证行: 4
+  引证内容: GF_AdobeFragRandomAccessBox *ptr = (GF_AdobeFragRandomAccessBox *)s;
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | GF_Err afra_box_read(GF_Box *s, GF_BitStream *bs)
+      2 | {
+      3 | 	unsigned int i;
+      4 | 	GF_AdobeFragRandomAccessBox *ptr = (GF_AdobeFragRandomAccessBox *)s;
+      5 | 
+      6 | 	ISOM_DECREASE_SIZE(ptr, 9)
+      7 | 	ptr->long_ids = gf_bs_read_int(bs, 1);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:6
+  引证行: 6
+  引证内容: ISOM_DECREASE_SIZE(ptr, 9)
+  初判倾向: VIOLATED
+  上下文源码:
+      3 | 	unsigned int i;
+      4 | 	GF_AdobeFragRandomAccessBox *ptr = (GF_AdobeFragRandomAccessBox *)s;
+      5 | 
+      6 | 	ISOM_DECREASE_SIZE(ptr, 9)
+      7 | 	ptr->long_ids = gf_bs_read_int(bs, 1);
+      8 | 	ptr->long_offsets = gf_bs_read_int(bs, 1);
+      9 | 	ptr->global_entries = gf_bs_read_int(bs, 1);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:7
+  引证行: 7
+  引证内容: ptr->long_ids = gf_bs_read_int(bs, 1);
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | 	GF_AdobeFragRandomAccessBox *ptr = (GF_AdobeFragRandomAccessBox *)s;
+      5 | 
+      6 | 	ISOM_DECREASE_SIZE(ptr, 9)
+      7 | 	ptr->long_ids = gf_bs_read_int(bs, 1);
+      8 | 	ptr->long_offsets = gf_bs_read_int(bs, 1);
+      9 | 	ptr->global_entries = gf_bs_read_int(bs, 1);
+     10 | 	ptr->reserved = gf_bs_read_int(bs, 5);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:8
+  引证行: 8
+  引证内容: ptr->long_offsets = gf_bs_read_int(bs, 1);
+  初判倾向: VIOLATED
+  上下文源码:
+      5 | 
+      6 | 	ISOM_DECREASE_SIZE(ptr, 9)
+      7 | 	ptr->long_ids = gf_bs_read_int(bs, 1);
+      8 | 	ptr->long_offsets = gf_bs_read_int(bs, 1);
+      9 | 	ptr->global_entries = gf_bs_read_int(bs, 1);
+     10 | 	ptr->reserved = gf_bs_read_int(bs, 5);
+     11 | 	ptr->time_scale = gf_bs_read_u32(bs);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:9
+  引证行: 9
+  引证内容: ptr->global_entries = gf_bs_read_int(bs, 1);
+  初判倾向: VIOLATED
+  上下文源码:
+      6 | 	ISOM_DECREASE_SIZE(ptr, 9)
+      7 | 	ptr->long_ids = gf_bs_read_int(bs, 1);
+      8 | 	ptr->long_offsets = gf_bs_read_int(bs, 1);
+      9 | 	ptr->global_entries = gf_bs_read_int(bs, 1);
+     10 | 	ptr->reserved = gf_bs_read_int(bs, 5);
+     11 | 	ptr->time_scale = gf_bs_read_u32(bs);
+     12 | 
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:10
+  引证行: 10
+  引证内容: ptr->reserved = gf_bs_read_int(bs, 5);
+  初判倾向: VIOLATED
+  上下文源码:
+      7 | 	ptr->long_ids = gf_bs_read_int(bs, 1);
+      8 | 	ptr->long_offsets = gf_bs_read_int(bs, 1);
+      9 | 	ptr->global_entries = gf_bs_read_int(bs, 1);
+     10 | 	ptr->reserved = gf_bs_read_int(bs, 5);
+     11 | 	ptr->time_scale = gf_bs_read_u32(bs);
+     12 | 
+     13 | 	ptr->entry_count = gf_bs_read_u32(bs);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:11
+  引证行: 11
+  引证内容: ptr->time_scale = gf_bs_read_u32(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+      8 | 	ptr->long_offsets = gf_bs_read_int(bs, 1);
+      9 | 	ptr->global_entries = gf_bs_read_int(bs, 1);
+     10 | 	ptr->reserved = gf_bs_read_int(bs, 5);
+     11 | 	ptr->time_scale = gf_bs_read_u32(bs);
+     12 | 
+     13 | 	ptr->entry_count = gf_bs_read_u32(bs);
+     14 | 	if (ptr->size / ( (ptr->long_offsets ? 16 : 12) ) < ptr->entry_count)
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:13
+  引证行: 13
+  引证内容: ptr->entry_count = gf_bs_read_u32(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     10 | 	ptr->reserved = gf_bs_read_int(bs, 5);
+     11 | 	ptr->time_scale = gf_bs_read_u32(bs);
+     12 | 
+     13 | 	ptr->entry_count = gf_bs_read_u32(bs);
+     14 | 	if (ptr->size / ( (ptr->long_offsets ? 16 : 12) ) < ptr->entry_count)
+     15 | 		return GF_ISOM_INVALID_FILE;
+     16 | 
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:17
+  引证行: 17
+  引证内容: for (i=0; i<ptr->entry_count; i++) {
+  初判倾向: VIOLATED
+  上下文源码:
+     14 | 	if (ptr->size / ( (ptr->long_offsets ? 16 : 12) ) < ptr->entry_count)
+     15 | 		return GF_ISOM_INVALID_FILE;
+     16 | 
+     17 | 	for (i=0; i<ptr->entry_count; i++) {
+     18 | 		GF_AfraEntry *ae = gf_malloc(sizeof(GF_AfraEntry));
+     19 | 		if (!ae) return GF_OUT_OF_MEM;
+     20 | 		gf_list_insert(ptr->local_access_entries, ae, i);
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:18
+  引证行: 18
+  引证内容: GF_AfraEntry *ae = gf_malloc(sizeof(GF_AfraEntry));
+  初判倾向: VIOLATED
+  上下文源码:
+     15 | 		return GF_ISOM_INVALID_FILE;
+     16 | 
+     17 | 	for (i=0; i<ptr->entry_count; i++) {
+     18 | 		GF_AfraEntry *ae = gf_malloc(sizeof(GF_AfraEntry));
+     19 | 		if (!ae) return GF_OUT_OF_MEM;
+     20 | 		gf_list_insert(ptr->local_access_entries, ae, i);
+     21 | 
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:19
+  引证行: 19
+  引证内容: if (!ae) return GF_OUT_OF_MEM;
+  初判倾向: VIOLATED
+  上下文源码:
+     16 | 
+     17 | 	for (i=0; i<ptr->entry_count; i++) {
+     18 | 		GF_AfraEntry *ae = gf_malloc(sizeof(GF_AfraEntry));
+     19 | 		if (!ae) return GF_OUT_OF_MEM;
+     20 | 		gf_list_insert(ptr->local_access_entries, ae, i);
+     21 | 
+     22 | 		ISOM_DECREASE_SIZE(ptr, 8)
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:20
+  引证行: 20
+  引证内容: gf_list_insert(ptr->local_access_entries, ae, i);
+  初判倾向: VIOLATED
+  上下文源码:
+     17 | 	for (i=0; i<ptr->entry_count; i++) {
+     18 | 		GF_AfraEntry *ae = gf_malloc(sizeof(GF_AfraEntry));
+     19 | 		if (!ae) return GF_OUT_OF_MEM;
+     20 | 		gf_list_insert(ptr->local_access_entries, ae, i);
+     21 | 
+     22 | 		ISOM_DECREASE_SIZE(ptr, 8)
+     23 | 		ae->time = gf_bs_read_u64(bs);
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:23
+  引证行: 23
+  引证内容: ae->time = gf_bs_read_u64(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     20 | 		gf_list_insert(ptr->local_access_entries, ae, i);
+     21 | 
+     22 | 		ISOM_DECREASE_SIZE(ptr, 8)
+     23 | 		ae->time = gf_bs_read_u64(bs);
+     24 | 		if (ptr->long_offsets) {
+     25 | 			ISOM_DECREASE_SIZE(ptr, 8)
+     26 | 			ae->offset = gf_bs_read_u64(bs);
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:24
+  引证行: 24
+  引证内容: if (ptr->long_offsets) {
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 
+     22 | 		ISOM_DECREASE_SIZE(ptr, 8)
+     23 | 		ae->time = gf_bs_read_u64(bs);
+     24 | 		if (ptr->long_offsets) {
+     25 | 			ISOM_DECREASE_SIZE(ptr, 8)
+     26 | 			ae->offset = gf_bs_read_u64(bs);
+     27 | 		} else {
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:26
+  引证行: 26
+  引证内容: ae->offset = gf_bs_read_u64(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     23 | 		ae->time = gf_bs_read_u64(bs);
+     24 | 		if (ptr->long_offsets) {
+     25 | 			ISOM_DECREASE_SIZE(ptr, 8)
+     26 | 			ae->offset = gf_bs_read_u64(bs);
+     27 | 		} else {
+     28 | 			ISOM_DECREASE_SIZE(ptr, 4)
+     29 | 			ae->offset = gf_bs_read_u32(bs);
+
+--- 步骤 17 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:33
+  引证行: 33
+  引证内容: if (ptr->global_entries) {
+  初判倾向: VIOLATED
+  上下文源码:
+     30 | 		}
+     31 | 	}
+     32 | 
+     33 | 	if (ptr->global_entries) {
+     34 | 		ISOM_DECREASE_SIZE(ptr, 4)
+     35 | 		ptr->global_entry_count = gf_bs_read_u32(bs);
+     36 | 		for (i=0; i<ptr->global_entry_count; i++) {
+
+--- 步骤 18 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:35
+  引证行: 35
+  引证内容: ptr->global_entry_count = gf_bs_read_u32(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     32 | 
+     33 | 	if (ptr->global_entries) {
+     34 | 		ISOM_DECREASE_SIZE(ptr, 4)
+     35 | 		ptr->global_entry_count = gf_bs_read_u32(bs);
+     36 | 		for (i=0; i<ptr->global_entry_count; i++) {
+     37 | 			GF_GlobalAfraEntry *ae = gf_malloc(sizeof(GF_GlobalAfraEntry));
+     38 | 			if (!ae) return GF_OUT_OF_MEM;
+
+--- 步骤 19 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:36
+  引证行: 36
+  引证内容: for (i=0; i<ptr->global_entry_count; i++) {
+  初判倾向: VIOLATED
+  上下文源码:
+     33 | 	if (ptr->global_entries) {
+     34 | 		ISOM_DECREASE_SIZE(ptr, 4)
+     35 | 		ptr->global_entry_count = gf_bs_read_u32(bs);
+     36 | 		for (i=0; i<ptr->global_entry_count; i++) {
+     37 | 			GF_GlobalAfraEntry *ae = gf_malloc(sizeof(GF_GlobalAfraEntry));
+     38 | 			if (!ae) return GF_OUT_OF_MEM;
+     39 | 			gf_list_insert(ptr->global_access_entries, ae, i);
+
+--- 步骤 20 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:39
+  引证行: 39
+  引证内容: gf_list_insert(ptr->global_access_entries, ae, i);
+  初判倾向: VIOLATED
+  上下文源码:
+     36 | 		for (i=0; i<ptr->global_entry_count; i++) {
+     37 | 			GF_GlobalAfraEntry *ae = gf_malloc(sizeof(GF_GlobalAfraEntry));
+     38 | 			if (!ae) return GF_OUT_OF_MEM;
+     39 | 			gf_list_insert(ptr->global_access_entries, ae, i);
+     40 | 
+     41 | 			ISOM_DECREASE_SIZE(ptr, 8)
+     42 | 			ae->time = gf_bs_read_u64(bs);
+
+--- 步骤 21 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:43
+  引证行: 43
+  引证内容: if (ptr->long_ids) {
+  初判倾向: VIOLATED
+  上下文源码:
+     40 | 
+     41 | 			ISOM_DECREASE_SIZE(ptr, 8)
+     42 | 			ae->time = gf_bs_read_u64(bs);
+     43 | 			if (ptr->long_ids) {
+     44 | 				ISOM_DECREASE_SIZE(ptr, 8)
+     45 | 				ae->segment = gf_bs_read_u32(bs);
+     46 | 				ae->fragment = gf_bs_read_u32(bs);
+
+--- 步骤 22 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:45
+  引证行: 45
+  引证内容: ae->segment = gf_bs_read_u32(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     42 | 			ae->time = gf_bs_read_u64(bs);
+     43 | 			if (ptr->long_ids) {
+     44 | 				ISOM_DECREASE_SIZE(ptr, 8)
+     45 | 				ae->segment = gf_bs_read_u32(bs);
+     46 | 				ae->fragment = gf_bs_read_u32(bs);
+     47 | 			} else {
+     48 | 				ISOM_DECREASE_SIZE(ptr, 4)
+
+--- 步骤 23 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:49
+  引证行: 49
+  引证内容: ae->segment = gf_bs_read_u16(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     46 | 				ae->fragment = gf_bs_read_u32(bs);
+     47 | 			} else {
+     48 | 				ISOM_DECREASE_SIZE(ptr, 4)
+     49 | 				ae->segment = gf_bs_read_u16(bs);
+     50 | 				ae->fragment = gf_bs_read_u16(bs);
+     51 | 			}
+     52 | 			if (ptr->long_offsets) {
+
+--- 步骤 24 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:50
+  引证行: 50
+  引证内容: ae->fragment = gf_bs_read_u16(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     47 | 			} else {
+     48 | 				ISOM_DECREASE_SIZE(ptr, 4)
+     49 | 				ae->segment = gf_bs_read_u16(bs);
+     50 | 				ae->fragment = gf_bs_read_u16(bs);
+     51 | 			}
+     52 | 			if (ptr->long_offsets) {
+     53 | 				ISOM_DECREASE_SIZE(ptr, 16)
+
+--- 步骤 25 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:55
+  引证行: 55
+  引证内容: ae->offset_from_afra = gf_bs_read_u64(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     52 | 			if (ptr->long_offsets) {
+     53 | 				ISOM_DECREASE_SIZE(ptr, 16)
+     54 | 				ae->afra_offset = gf_bs_read_u64(bs);
+     55 | 				ae->offset_from_afra = gf_bs_read_u64(bs);
+     56 | 			} else {
+     57 | 				ISOM_DECREASE_SIZE(ptr, 8)
+     58 | 				ae->afra_offset = gf_bs_read_u32(bs);
+
+--- 步骤 26 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:58
+  引证行: 58
+  引证内容: ae->afra_offset = gf_bs_read_u32(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     55 | 				ae->offset_from_afra = gf_bs_read_u64(bs);
+     56 | 			} else {
+     57 | 				ISOM_DECREASE_SIZE(ptr, 8)
+     58 | 				ae->afra_offset = gf_bs_read_u32(bs);
+     59 | 				ae->offset_from_afra = gf_bs_read_u32(bs);
+     60 | 			}
+     61 | 		}
+
+--- 步骤 27 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: afra_box_read:59
+  引证行: 59
+  引证内容: ae->offset_from_afra = gf_bs_read_u32(bs);
+  初判倾向: VIOLATED
+  上下文源码:
+     56 | 			} else {
+     57 | 				ISOM_DECREASE_SIZE(ptr, 8)
+     58 | 				ae->afra_offset = gf_bs_read_u32(bs);
+     59 | 				ae->offset_from_afra = gf_bs_read_u32(bs);
+     60 | 			}
+     61 | 		}
+     62 | 	}
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:1
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:4
+  命中信号: C/C++ malloc(size), calloc(n,size), realloc(ptr,size), new[] or std::vector::resize(size) where size comes from request/input and has no upper-bound check
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:6
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:7
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:8
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:9
+  命中信号: C/C++ malloc(size), calloc(n,size), realloc(ptr,size), new[] or std::vector::resize(size) where size comes from request/input and has no upper-bound check
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:10
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 35 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:11
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 36 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:13
+  命中信号: C/C++ malloc(size), calloc(n,size), realloc(ptr,size), new[] or std::vector::resize(size) where size comes from request/input and has no upper-bound check
+  筛选: keep
+
+--- 步骤 37 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:14
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 38 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:17
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 39 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:18
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 40 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:19
+  命中信号: retry/poll/request processing loop lacks rate limiting, token bucket, semaphore, backpressure, or per-user/per-IP quota
+  命中信号: while/read loop writes request data to file, buffer, collection, or database until EOF with no byte counter or maximum total size
+  筛选: keep
+
+--- 步骤 41 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:20
+  命中信号: C/C++ malloc(size), calloc(n,size), realloc(ptr,size), new[] or std::vector::resize(size) where size comes from request/input and has no upper-bound check
+  筛选: keep
+
+--- 步骤 42 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:23
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 43 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:24
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 44 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:26
+  命中信号: retry/poll/request processing loop lacks rate limiting, token bucket, semaphore, backpressure, or per-user/per-IP quota
+  命中信号: while/read loop writes request data to file, buffer, collection, or database until EOF with no byte counter or maximum total size
+  筛选: keep
+
+--- 步骤 45 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:29
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 46 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:33
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 47 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:35
+  命中信号: C/C++ malloc(size), calloc(n,size), realloc(ptr,size), new[] or std::vector::resize(size) where size comes from request/input and has no upper-bound check
+  筛选: keep
+
+--- 步骤 48 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:36
+  命中信号: A verification result is overwritten, inverted, or checked for the wrong object before a sensitive state transition or use
+  筛选: keep
+
+--- 步骤 49 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:39
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 50 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:42
+  命中信号: retry/poll/request processing loop lacks rate limiting, token bucket, semaphore, backpressure, or per-user/per-IP quota
+  命中信号: while/read loop writes request data to file, buffer, collection, or database until EOF with no byte counter or maximum total size
+  筛选: keep
+
+--- 步骤 51 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:43
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 52 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:45
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 53 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:46
+  命中信号: retry/poll/request processing loop lacks rate limiting, token bucket, semaphore, backpressure, or per-user/per-IP quota
+  命中信号: while/read loop writes request data to file, buffer, collection, or database until EOF with no byte counter or maximum total size
+  筛选: keep
+
+--- 步骤 54 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:49
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 55 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:50
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 56 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:52
+  命中信号: C/C++ malloc(size), calloc(n,size), realloc(ptr,size), new[] or std::vector::resize(size) where size comes from request/input and has no upper-bound check
+  筛选: keep
+
+--- 步骤 57 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:54
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 58 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:55
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 59 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:58
+  命中信号: retry/poll/request processing loop lacks rate limiting, token bucket, semaphore, backpressure, or per-user/per-IP quota
+  命中信号: while/read loop writes request data to file, buffer, collection, or database until EOF with no byte counter or maximum total size
+  筛选: keep
+
+--- 步骤 60 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: afra_box_read:59
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 61 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:1
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 62 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 63 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 64 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 65 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 66 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:9
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 67 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:10
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 68 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 69 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:13
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 70 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 71 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 72 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 73 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:19
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 74 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 75 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 76 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 77 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 78 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 79 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:33
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 80 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 81 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:36
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 82 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:39
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 83 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 84 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:43
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 85 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 86 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:46
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 87 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:49
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 88 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:50
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 89 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:52
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 90 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:54
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 91 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:55
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 92 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:58
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 93 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: afra_box_read:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

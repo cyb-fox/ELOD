@@ -1,0 +1,181 @@
+=== 待审推理日志 L-0811 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 7 个；未决 4 个。
+
+【推理轨迹】共 19 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ismt_access:18
+  引证行: 18
+  引证内容: memset(priv->buffer, 0, sizeof(priv->buffer));
+  初判倾向: VIOLATED
+  上下文源码:
+     15 | 	desc = &priv->hw[priv->head];
+     16 | 
+     17 | 	/* Initialize the DMA buffer */
+     18 | 	memset(priv->buffer, 0, sizeof(priv->buffer));
+     19 | 
+     20 | 	/* Initialize the descriptor */
+     21 | 	memset(desc, 0, sizeof(struct ismt_desc));
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ismt_access:25
+  引证行: 25
+  引证内容: memset(priv->log, 0, ISMT_LOG_ENTRIES * sizeof(u32));
+  初判倾向: VIOLATED
+  上下文源码:
+     22 | 	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+     23 | 
+     24 | 	/* Always clear the log entries */
+     25 | 	memset(priv->log, 0, ISMT_LOG_ENTRIES * sizeof(u32));
+     26 | 
+     27 | 	/* Initialize common control bits */
+     28 | 	if (likely(pci_dev_msi_enabled(priv->pci_dev)))
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ismt_access:71
+  引证行: 71
+  引证内容: dma_buffer[1] = data->byte;
+  初判倾向: VIOLATED
+  上下文源码:
+     68 | 			dma_size = 2;
+     69 | 			dma_direction = DMA_TO_DEVICE;
+     70 | 			dma_buffer[0] = command;
+     71 | 			dma_buffer[1] = data->byte;
+     72 | 		} else {
+     73 | 			/* Read Byte */
+     74 | 			dev_dbg(dev, "I2C_SMBUS_BYTE_DATA:  READ\n");
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ismt_access:91
+  引证行: 91
+  引证内容: dma_buffer[1] = data->word & 0xff;
+  初判倾向: VIOLATED
+  上下文源码:
+     88 | 			dma_size = 3;
+     89 | 			dma_direction = DMA_TO_DEVICE;
+     90 | 			dma_buffer[0] = command;
+     91 | 			dma_buffer[1] = data->word & 0xff;
+     92 | 			dma_buffer[2] = data->word >> 8;
+     93 | 		} else {
+     94 | 			/* Read Word */
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: ismt_access:124
+  引证行: 124
+  引证内容: memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
+  初判倾向: VIOLATED
+  上下文源码:
+    121 | 			desc->wr_len_cmd = dma_size;
+    122 | 			desc->control |= ISMT_DESC_BLK;
+    123 | 			dma_buffer[0] = command;
+    124 | 			memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
+    125 | 		} else {
+    126 | 			/* Block Read */
+    127 | 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  READ\n");
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ismt_access:18
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ismt_access:25
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ismt_access:71
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ismt_access:91
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ismt_access:124
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ismt_access:148
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: ismt_access:167
+  筛选: keep
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ismt_access:18
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ismt_access:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ismt_access:71
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ismt_access:91
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ismt_access:124
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ismt_access:148
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: ismt_access:167
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-119

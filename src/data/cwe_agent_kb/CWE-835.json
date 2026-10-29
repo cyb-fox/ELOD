@@ -1,0 +1,69 @@
+{
+  "cwe_id": "CWE-835",
+  "name": "Loop with Unreachable Exit Condition ('Infinite Loop')",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [
+      "CWE-834"
+    ],
+    "parent_of": []
+  },
+  "principle": "A loop depends on state that never changes or can never satisfy the exit test, so termination is unreachable. This can pin a thread, burn CPU or memory, and create a denial of service.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Python",
+    "C#",
+    "JavaScript",
+    "Go",
+    "Ruby",
+    "PHP"
+  ],
+  "detection_signals": [
+    "`while`/`do-while`/`for(;;)` where the loop condition references a variable never assigned in the body",
+    "loop exit depends on a function call whose return value is not checked with any timeout, limit, or progress test",
+    "body contains only `continue`/`sleep`/retry logic and no mutation of the terminating variable",
+    "condition variable is initialized before the loop but never updated inside all paths of the loop",
+    "loop repeats on external state like `connect()`, `read()`, `recv()`, or `poll()` with no attempt counter or deadline",
+    "`while (x > 0)` / `while (x < limit)` where `x` is only read, not decremented/incremented toward exit"
+  ],
+  "negative_signals": [
+    "loop counter incremented and compared against a hard limit, e.g. `count++` plus `count < MAX_ATTEMPTS`",
+    "terminating variable is updated each iteration toward the exit condition, e.g. `inventoryCount -= rateSold` with validated positive `rateSold`",
+    "loop guarded by a timeout/deadline check, e.g. `System.nanoTime() < deadline` or `time(NULL) < end_time`",
+    "explicit `break`, `return`, or `throw` on failed progress or repeated failure",
+    "input validation rejects zero/negative step values that would prevent progress",
+    "bounded iteration API used, e.g. `for (i = 0; i < n; i++)` with finite `n`"
+  ],
+  "false_defense_traps": [
+    "`sleep()` or backoff inside the loop without a hard retry cap",
+    "logging the failure condition but still re-entering the same loop",
+    "retrying inside `catch` without changing state or limiting attempts",
+    "checking the exit condition only after the body when the body can never update the state",
+    "using a mutable external flag that is never written on all paths"
+  ],
+  "verification_focus": "Can every loop path actually change the variables used by the exit test or hit a hard bound/deadline?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-835",
+        "CWE-400"
+      ],
+      "trigger": "the endless loop consumes CPU, memory, or retries without bound",
+      "consequence": "service hang or denial of service due to resource exhaustion"
+    }
+  ],
+  "patch_principle": [
+    "Add a hard iteration limit or timeout to every retry loop",
+    "Ensure each loop path mutates the exit-state variable toward termination",
+    "Validate inputs that control loop progress, such as step size, divisor, or decrement",
+    "Fail fast when progress cannot be made instead of retrying forever",
+    "Use blocking/network APIs with explicit deadlines or cancellation"
+  ],
+  "minimal_examples": {
+    "vuln": "do { connected = connect(sock, addr, len); } while (connected < 0);",
+    "safe": "do { connected = connect(sock, addr, len); count++; } while (connected < 0 && count < MAX_ATTEMPTS);"
+  }
+}

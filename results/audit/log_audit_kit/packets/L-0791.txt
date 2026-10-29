@@ -1,0 +1,666 @@
+=== 待审推理日志 L-0791 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 28 个；未决 28 个。
+
+【推理轨迹】共 76 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:18
+  引证行: 18
+  引证内容: if (ctx->msg.size != sizeof(ctx->msg.payload.inflight) || fd < 0) {
+  初判倾向: VIOLATED
+  上下文源码:
+     15 | 		return RTE_VHOST_MSG_RESULT_ERR;
+     16 | 
+     17 | 	fd = ctx->fds[0];
+     18 | 	if (ctx->msg.size != sizeof(ctx->msg.payload.inflight) || fd < 0) {
+     19 | 		VHOST_LOG_CONFIG(ERR, "(%s) invalid set_inflight_fd message size is %d,fd is %d\n",
+     20 | 			dev->ifname, ctx->msg.size, fd);
+     21 | 		return RTE_VHOST_MSG_RESULT_ERR;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:24
+  引证行: 24
+  引证内容: mmap_size = ctx->msg.payload.inflight.mmap_size;
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 		return RTE_VHOST_MSG_RESULT_ERR;
+     22 | 	}
+     23 | 
+     24 | 	mmap_size = ctx->msg.payload.inflight.mmap_size;
+     25 | 	mmap_offset = ctx->msg.payload.inflight.mmap_offset;
+     26 | 	num_queues = ctx->msg.payload.inflight.num_queues;
+     27 | 	queue_size = ctx->msg.payload.inflight.queue_size;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:26
+  引证行: 26
+  引证内容: num_queues = ctx->msg.payload.inflight.num_queues;
+  初判倾向: VIOLATED
+  上下文源码:
+     23 | 
+     24 | 	mmap_size = ctx->msg.payload.inflight.mmap_size;
+     25 | 	mmap_offset = ctx->msg.payload.inflight.mmap_offset;
+     26 | 	num_queues = ctx->msg.payload.inflight.num_queues;
+     27 | 	queue_size = ctx->msg.payload.inflight.queue_size;
+     28 | 
+     29 | 	if (vq_is_packed(dev))
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:35
+  引证行: 35
+  引证内容: dev->ifname, mmap_size);
+  初判倾向: VIOLATED
+  上下文源码:
+     32 | 		pervq_inflight_size = get_pervq_shm_size_split(queue_size);
+     33 | 
+     34 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd mmap_size: %"PRIu64"\n",
+     35 | 			dev->ifname, mmap_size);
+     36 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd mmap_offset: %"PRIu64"\n",
+     37 | 			dev->ifname, mmap_offset);
+     38 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd num_queues: %u\n", dev->ifname, num_queues);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:37
+  引证行: 37
+  引证内容: dev->ifname, mmap_offset);
+  初判倾向: VIOLATED
+  上下文源码:
+     34 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd mmap_size: %"PRIu64"\n",
+     35 | 			dev->ifname, mmap_size);
+     36 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd mmap_offset: %"PRIu64"\n",
+     37 | 			dev->ifname, mmap_offset);
+     38 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd num_queues: %u\n", dev->ifname, num_queues);
+     39 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd queue_size: %u\n", dev->ifname, queue_size);
+     40 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd fd: %d\n", dev->ifname, fd);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:38
+  引证行: 38
+  引证内容: VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd num_queues: %u\n", dev->ifname, num_queues);
+  初判倾向: VIOLATED
+  上下文源码:
+     35 | 			dev->ifname, mmap_size);
+     36 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd mmap_offset: %"PRIu64"\n",
+     37 | 			dev->ifname, mmap_offset);
+     38 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd num_queues: %u\n", dev->ifname, num_queues);
+     39 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd queue_size: %u\n", dev->ifname, queue_size);
+     40 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd fd: %d\n", dev->ifname, fd);
+     41 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd pervq_inflight_size: %d\n",
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:39
+  引证行: 39
+  引证内容: VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd queue_size: %u\n", dev->ifname, queue_size);
+  初判倾向: VIOLATED
+  上下文源码:
+     36 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd mmap_offset: %"PRIu64"\n",
+     37 | 			dev->ifname, mmap_offset);
+     38 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd num_queues: %u\n", dev->ifname, num_queues);
+     39 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd queue_size: %u\n", dev->ifname, queue_size);
+     40 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd fd: %d\n", dev->ifname, fd);
+     41 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd pervq_inflight_size: %d\n",
+     42 | 			dev->ifname, pervq_inflight_size);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:40
+  引证行: 40
+  引证内容: VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd fd: %d\n", dev->ifname, fd);
+  初判倾向: VIOLATED
+  上下文源码:
+     37 | 			dev->ifname, mmap_offset);
+     38 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd num_queues: %u\n", dev->ifname, num_queues);
+     39 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd queue_size: %u\n", dev->ifname, queue_size);
+     40 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd fd: %d\n", dev->ifname, fd);
+     41 | 	VHOST_LOG_CONFIG(INFO, "(%s) set_inflight_fd pervq_inflight_size: %d\n",
+     42 | 			dev->ifname, pervq_inflight_size);
+     43 | 
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:48
+  引证行: 48
+  引证内容: if (dev->nr_vring > 0)
+  初判倾向: VIOLATED
+  上下文源码:
+     45 | 	 * If VQ 0 has already been allocated, try to allocate on the same
+     46 | 	 * NUMA node. It can be reallocated later in numa_realloc().
+     47 | 	 */
+     48 | 	if (dev->nr_vring > 0)
+     49 | 		numa_node = dev->virtqueue[0]->numa_node;
+     50 | 
+     51 | 	if (!dev->inflight_info) {
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:49
+  引证行: 49
+  引证内容: numa_node = dev->virtqueue[0]->numa_node;
+  初判倾向: VIOLATED
+  上下文源码:
+     46 | 	 * NUMA node. It can be reallocated later in numa_realloc().
+     47 | 	 */
+     48 | 	if (dev->nr_vring > 0)
+     49 | 		numa_node = dev->virtqueue[0]->numa_node;
+     50 | 
+     51 | 	if (!dev->inflight_info) {
+     52 | 		dev->inflight_info = rte_zmalloc_socket("inflight_info",
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:51
+  引证行: 51
+  引证内容: if (!dev->inflight_info) {
+  初判倾向: VIOLATED
+  上下文源码:
+     48 | 	if (dev->nr_vring > 0)
+     49 | 		numa_node = dev->virtqueue[0]->numa_node;
+     50 | 
+     51 | 	if (!dev->inflight_info) {
+     52 | 		dev->inflight_info = rte_zmalloc_socket("inflight_info",
+     53 | 				sizeof(struct inflight_mem_info), 0, numa_node);
+     54 | 		if (dev->inflight_info == NULL) {
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:52
+  引证行: 52
+  引证内容: dev->inflight_info = rte_zmalloc_socket("inflight_info",
+  初判倾向: VIOLATED
+  上下文源码:
+     49 | 		numa_node = dev->virtqueue[0]->numa_node;
+     50 | 
+     51 | 	if (!dev->inflight_info) {
+     52 | 		dev->inflight_info = rte_zmalloc_socket("inflight_info",
+     53 | 				sizeof(struct inflight_mem_info), 0, numa_node);
+     54 | 		if (dev->inflight_info == NULL) {
+     55 | 			VHOST_LOG_CONFIG(ERR, "(%s) failed to alloc dev inflight area\n",
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:54
+  引证行: 54
+  引证内容: if (dev->inflight_info == NULL) {
+  初判倾向: VIOLATED
+  上下文源码:
+     51 | 	if (!dev->inflight_info) {
+     52 | 		dev->inflight_info = rte_zmalloc_socket("inflight_info",
+     53 | 				sizeof(struct inflight_mem_info), 0, numa_node);
+     54 | 		if (dev->inflight_info == NULL) {
+     55 | 			VHOST_LOG_CONFIG(ERR, "(%s) failed to alloc dev inflight area\n",
+     56 | 					dev->ifname);
+     57 | 			return RTE_VHOST_MSG_RESULT_ERR;
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:56
+  引证行: 56
+  引证内容: dev->ifname);
+  初判倾向: VIOLATED
+  上下文源码:
+     53 | 				sizeof(struct inflight_mem_info), 0, numa_node);
+     54 | 		if (dev->inflight_info == NULL) {
+     55 | 			VHOST_LOG_CONFIG(ERR, "(%s) failed to alloc dev inflight area\n",
+     56 | 					dev->ifname);
+     57 | 			return RTE_VHOST_MSG_RESULT_ERR;
+     58 | 		}
+     59 | 		dev->inflight_info->fd = -1;
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:59
+  引证行: 59
+  引证内容: dev->inflight_info->fd = -1;
+  初判倾向: VIOLATED
+  上下文源码:
+     56 | 					dev->ifname);
+     57 | 			return RTE_VHOST_MSG_RESULT_ERR;
+     58 | 		}
+     59 | 		dev->inflight_info->fd = -1;
+     60 | 	}
+     61 | 
+     62 | 	if (dev->inflight_info->addr) {
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:62
+  引证行: 62
+  引证内容: if (dev->inflight_info->addr) {
+  初判倾向: VIOLATED
+  上下文源码:
+     59 | 		dev->inflight_info->fd = -1;
+     60 | 	}
+     61 | 
+     62 | 	if (dev->inflight_info->addr) {
+     63 | 		munmap(dev->inflight_info->addr, dev->inflight_info->size);
+     64 | 		dev->inflight_info->addr = NULL;
+     65 | 	}
+
+--- 步骤 17 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:63
+  引证行: 63
+  引证内容: munmap(dev->inflight_info->addr, dev->inflight_info->size);
+  初判倾向: VIOLATED
+  上下文源码:
+     60 | 	}
+     61 | 
+     62 | 	if (dev->inflight_info->addr) {
+     63 | 		munmap(dev->inflight_info->addr, dev->inflight_info->size);
+     64 | 		dev->inflight_info->addr = NULL;
+     65 | 	}
+     66 | 
+
+--- 步骤 18 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:70
+  引证行: 70
+  引证内容: VHOST_LOG_CONFIG(ERR, "(%s) failed to mmap share memory.\n", dev->ifname);
+  初判倾向: VIOLATED
+  上下文源码:
+     67 | 	addr = mmap(0, mmap_size, PROT_READ | PROT_WRITE, MAP_SHARED,
+     68 | 		    fd, mmap_offset);
+     69 | 	if (addr == MAP_FAILED) {
+     70 | 		VHOST_LOG_CONFIG(ERR, "(%s) failed to mmap share memory.\n", dev->ifname);
+     71 | 		return RTE_VHOST_MSG_RESULT_ERR;
+     72 | 	}
+     73 | 
+
+--- 步骤 19 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:75
+  引证行: 75
+  引证内容: close(dev->inflight_info->fd);
+  初判倾向: VIOLATED
+  上下文源码:
+     72 | 	}
+     73 | 
+     74 | 	if (dev->inflight_info->fd >= 0) {
+     75 | 		close(dev->inflight_info->fd);
+     76 | 		dev->inflight_info->fd = -1;
+     77 | 	}
+     78 | 
+
+--- 步骤 20 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: vhost_user_set_inflight_fd:79
+  引证行: 79
+  引证内容: dev->inflight_info->fd = fd;
+  初判倾向: VIOLATED
+  上下文源码:
+     76 | 		dev->inflight_info->fd = -1;
+     77 | 	}
+     78 | 
+     79 | 	dev->inflight_info->fd = fd;
+     80 | 	dev->inflight_info->addr = addr;
+     81 | 	dev->inflight_info->size = mmap_size;
+     82 | 
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:17
+  筛选: exclude
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:18
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:20
+  命中信号: A resource is acquired and an error or early-return path skips its release or close operation
+  命中信号: Cleanup handles only the success path or releases an outer object while owned resources remain active
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:24
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:25
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:26
+  筛选: exclude
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:27
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:35
+  命中信号: A resource is acquired and an error or early-return path skips its release or close operation
+  命中信号: Cleanup handles only the success path or releases an outer object while owned resources remain active
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:37
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:38
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:39
+  筛选: exclude
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:40
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:42
+  命中信号: A resource is acquired and an error or early-return path skips its release or close operation
+  命中信号: Cleanup handles only the success path or releases an outer object while owned resources remain active
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:48
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 35 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:49
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 36 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:51
+  筛选: exclude
+
+--- 步骤 37 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:52
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 38 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:54
+  命中信号: A resource is acquired and an error or early-return path skips its release or close operation
+  命中信号: Cleanup handles only the success path or releases an outer object while owned resources remain active
+  筛选: keep
+
+--- 步骤 39 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:56
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 40 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:59
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 41 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:62
+  筛选: exclude
+
+--- 步骤 42 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:63
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 43 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:64
+  命中信号: A resource is acquired and an error or early-return path skips its release or close operation
+  命中信号: Cleanup handles only the success path or releases an outer object while owned resources remain active
+  筛选: keep
+
+--- 步骤 44 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:70
+  命中信号: gethostbyaddr/getenv/fopen/dlopen/dlsym return value dereferenced or passed to a dereferencing API before NULL check
+  筛选: keep
+
+--- 步骤 45 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:74
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 46 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:75
+  筛选: exclude
+
+--- 步骤 47 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:76
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 48 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: vhost_user_set_inflight_fd:79
+  命中信号: A resource is acquired and an error or early-return path skips its release or close operation
+  命中信号: Cleanup handles only the success path or releases an outer object while owned resources remain active
+  筛选: keep
+
+--- 步骤 49 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 50 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 51 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 52 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 53 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:25
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 54 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 55 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:27
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 56 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 57 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 58 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:38
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 59 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:39
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 60 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 61 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 62 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:48
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 63 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:49
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 64 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:51
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 65 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:52
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 66 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:54
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 67 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:56
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 68 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:59
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 69 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:62
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 70 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:63
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 71 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:64
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 72 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:70
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 73 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:74
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 74 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:75
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 75 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:76
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 76 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: vhost_user_set_inflight_fd:79
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

@@ -1,0 +1,127 @@
+=== 待审推理日志 L-0597 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 4 个；未决 1 个。
+
+【推理轨迹】共 12 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: fix_dl_name:4
+  引证行: 4
+  引证内容: if (dl->length < so_ext_len ||
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | static void fix_dl_name(MEM_ROOT *root, LEX_STRING *dl)
+      2 | {
+      3 |   const size_t so_ext_len= sizeof(SO_EXT) - 1;
+      4 |   if (dl->length < so_ext_len ||
+      5 |       my_strcasecmp(&my_charset_latin1, dl->str + dl->length - so_ext_len,
+      6 |                     SO_EXT))
+      7 |   {
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: fix_dl_name:5
+  引证行: 5
+  引证内容: my_strcasecmp(&my_charset_latin1, dl->str + dl->length - so_ext_len,
+  初判倾向: VIOLATED
+  上下文源码:
+      2 | {
+      3 |   const size_t so_ext_len= sizeof(SO_EXT) - 1;
+      4 |   if (dl->length < so_ext_len ||
+      5 |       my_strcasecmp(&my_charset_latin1, dl->str + dl->length - so_ext_len,
+      6 |                     SO_EXT))
+      7 |   {
+      8 |     char *s= (char*)alloc_root(root, dl->length + so_ext_len + 1);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: fix_dl_name:9
+  引证行: 9
+  引证内容: memcpy(s, dl->str, dl->length);
+  初判倾向: VIOLATED
+  上下文源码:
+      6 |                     SO_EXT))
+      7 |   {
+      8 |     char *s= (char*)alloc_root(root, dl->length + so_ext_len + 1);
+      9 |     memcpy(s, dl->str, dl->length);
+     10 |     strcpy(s + dl->length, SO_EXT);
+     11 |     dl->str= s;
+     12 |     dl->length+= so_ext_len;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: fix_dl_name:10
+  引证行: 10
+  引证内容: strcpy(s + dl->length, SO_EXT);
+  初判倾向: VIOLATED
+  上下文源码:
+      7 |   {
+      8 |     char *s= (char*)alloc_root(root, dl->length + so_ext_len + 1);
+      9 |     memcpy(s, dl->str, dl->length);
+     10 |     strcpy(s + dl->length, SO_EXT);
+     11 |     dl->str= s;
+     12 |     dl->length+= so_ext_len;
+     13 |   }
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: fix_dl_name:4
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+  义务 null_guard: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 6 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: fix_dl_name:5
+  命中信号: memcpy/memmove/memset/read/write length argument is a signed or narrow integer arithmetic result cast to size_t
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: fix_dl_name:9
+  命中信号: strlen(buf), printf("%s", buf), strcpy(dst, buf), or strcmp(buf, x) on a buffer that may lack a NUL within its allocated size
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: fix_dl_name:10
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  筛选: keep
+
+--- 步骤 9 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: fix_dl_name:4
+  违背的义务: null_guard
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 null_guard: ? -> VIOLATED
+
+--- 步骤 10 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: fix_dl_name:5
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 11 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: fix_dl_name:9
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 12 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: fix_dl_name:10
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-190, CWE-476

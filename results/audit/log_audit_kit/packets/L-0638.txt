@@ -1,0 +1,285 @@
+=== 待审推理日志 L-0638 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 12 个；未决 8 个。
+
+【推理轨迹】共 32 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:14
+  引证行: 14
+  引证内容: io.read(dir.pData_, 2);
+  初判倾向: VIOLATED
+  上下文源码:
+     11 |         do {
+     12 |             // Read top of directory
+     13 |             io.seek(start,BasicIo::beg);
+     14 |             io.read(dir.pData_, 2);
+     15 |             uint16_t   dirLength = byteSwap2(dir,0,bSwap);
+     16 | 
+     17 |             bool tooBig = dirLength > 500;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:68
+  引证行: 68
+  引证内容: long long allocate = (long long) (size*count + pad+20);
+  初判倾向: VIOLATED
+  上下文源码:
+     65 |                 // if ( offset > io.size() ) offset = 0; // Denial of service?
+     66 | 
+     67 |                 // #55 memory allocation crash test/data/POC8
+     68 |                 long long allocate = (long long) (size*count + pad+20);
+     69 |                 if ( allocate > (long long) io.size() ) {
+     70 |                     throw Error(57);
+     71 |                 }
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:73
+  引证行: 73
+  引证内容: std::memcpy(buf.pData_,dir.pData_+8,4);  // copy dir[8:11] into buffer (short strings)
+  初判倾向: VIOLATED
+  上下文源码:
+     70 |                     throw Error(57);
+     71 |                 }
+     72 |                 DataBuf  buf(allocate);  // allocate a buffer
+     73 |                 std::memcpy(buf.pData_,dir.pData_+8,4);  // copy dir[8:11] into buffer (short strings)
+     74 |                 const bool bOffsetIsPointer = count*size > 4;
+     75 | 
+     76 |                 if ( bOffsetIsPointer ) {         // read into buffer
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:79
+  引证行: 79
+  引证内容: io.read(buf.pData_,count*size);// read
+  初判倾向: VIOLATED
+  上下文源码:
+     76 |                 if ( bOffsetIsPointer ) {         // read into buffer
+     77 |                     size_t   restore = io.tell();  // save
+     78 |                     io.seek(offset,BasicIo::beg);  // position
+     79 |                     io.read(buf.pData_,count*size);// read
+     80 |                     io.seek(restore,BasicIo::beg); // restore
+     81 |                 }
+     82 | 
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:128
+  引证行: 128
+  引证内容: io.read(bytes,count)        ;  // read
+  初判倾向: VIOLATED
+  上下文源码:
+    125 |                         size_t   restore = io.tell();  // save
+    126 |                         io.seek(offset,BasicIo::beg);  // position
+    127 |                         byte* bytes=new byte[count] ;  // allocate memory
+    128 |                         io.read(bytes,count)        ;  // read
+    129 |                         io.seek(restore,BasicIo::beg); // restore
+    130 |                         IptcData::printStructure(out,bytes,count,depth);
+    131 |                         delete[] bytes;                // free
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:140
+  引证行: 140
+  引证内容: bytes[jump]=0               ;
+  初判倾向: VIOLATED
+  上下文源码:
+    137 |                         const char* chars = (const char*) &bytes[0] ;
+    138 |                         io.seek(offset,BasicIo::beg);  // position
+    139 |                         io.read(bytes,jump    )     ;  // read
+    140 |                         bytes[jump]=0               ;
+    141 |                         if ( ::strcmp("Nikon",chars) == 0 ) {
+    142 |                             // tag is an embedded tiff
+    143 |                             byte* bytes=new byte[count-jump] ;  // allocate memory
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:144
+  引证行: 144
+  引证内容: io.read(bytes,count-jump)        ;  // read
+  初判倾向: VIOLATED
+  上下文源码:
+    141 |                         if ( ::strcmp("Nikon",chars) == 0 ) {
+    142 |                             // tag is an embedded tiff
+    143 |                             byte* bytes=new byte[count-jump] ;  // allocate memory
+    144 |                             io.read(bytes,count-jump)        ;  // read
+    145 |                             MemIo memIo(bytes,count-jump)    ;  // create a file
+    146 |                             printTiffStructure(memIo,out,option,depth);
+    147 |                             delete[] bytes                   ;  // free
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: printIFDStructure:159
+  引证行: 159
+  引证内容: buf.pData_[count]=0;
+  初判倾向: VIOLATED
+  上下文源码:
+    156 |                 }
+    157 | 
+    158 |                 if ( isPrintXMP(tag,option) ) {
+    159 |                     buf.pData_[count]=0;
+    160 |                     out << (char*) buf.pData_;
+    161 |                 }
+    162 |                 if ( isPrintICC(tag,option) ) {
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:14
+  命中信号: candidate fact advanced to VIOLATED by deterministic checker
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:34
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:68
+  命中信号: allocation size computed as count * sizeof(T) or a - b with no maximum-size check before allocation
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:73
+  命中信号: memcpy/memmove/memset/read/write length argument is a signed or narrow integer arithmetic result cast to size_t
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:79
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:105
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:128
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:139
+  命中信号: allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:140
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:144
+  命中信号: allocation uses wrapped bytes variable, then later loop uses original count as bound: for (i=0; i<count; i++)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:159
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: printIFDStructure:167
+  筛选: keep
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:14
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:34
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:68
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.6
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:73
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:79
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:105
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:128
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:139
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:140
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 30 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:144
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 31 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:159
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 32 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: printIFDStructure:167
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-789

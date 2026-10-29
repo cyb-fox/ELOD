@@ -1,0 +1,89 @@
+{
+  "cwe_id": "CWE-754",
+  "name": "Improper Check for Unusual or Exceptional Conditions",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [
+      "CWE-703"
+    ],
+    "parent_of": [
+      "CWE-252",
+      "CWE-253",
+      "CWE-273",
+      "CWE-354",
+      "CWE-391",
+      "CWE-394"
+    ]
+  },
+  "principle": "Code omits or performs the wrong check for rare failure conditions such as allocation failure, permission failure, resource exhaustion, invalid status, or misbehaving components. Attackers can trigger these paths so the program continues with invalid state, crashes, or exposes unsafe behavior.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Go",
+    "Rust"
+  ],
+  "detection_signals": [
+    "malloc/calloc/realloc/new result dereferenced before NULL/nullptr check",
+    "fopen/open/socket/accept/connect result used before checking NULL or negative return",
+    "read/write/recv/send return value ignored or not compared with requested byte count",
+    "setuid/setgid/chroot/setrlimit return value ignored before privileged or security-sensitive operation",
+    "Java method that can throw IOException/SQLException/GeneralSecurityException called without local handling or propagation policy",
+    "catch (Exception e) or catch (...) block that continues using state produced inside the try block",
+    "status/error enum compared only to one success value while other documented unusual statuses fall through as success"
+  ],
+  "negative_signals": [
+    "failure-capable call immediately followed by if (ret < 0), if (ptr == NULL), or equivalent guard before use",
+    "partial I/O loop handles EINTR/EAGAIN and short read/write counts explicitly",
+    "Java try/catch catches specific checked exceptions and returns, retries, rolls back, or propagates a typed error",
+    "RAII wrapper or smart pointer constructor throws and caller catches specific allocation/resource exception",
+    "error path clears or invalidates output variables before returning failure"
+  ],
+  "false_defense_traps": [
+    "assert(ptr != NULL) used as the only runtime check",
+    "catch (Exception) logs the error but continues normal processing",
+    "checking only errno without first checking the failing return value",
+    "checking for NULL after the pointer has already been dereferenced",
+    "system limits configured but low-resource failure paths still unhandled"
+  ],
+  "verification_focus": "Does every operation that can fail have a correct check before its outputs, privileges, resources, or state are trusted?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-754",
+        "CWE-476"
+      ],
+      "trigger": "allocation or lookup returns NULL and code dereferences the result",
+      "consequence": "crash or denial of service"
+    },
+    {
+      "chain": [
+        "CWE-754",
+        "CWE-362"
+      ],
+      "trigger": "return value is checked but resource state changes before use in concurrent code",
+      "consequence": "unexpected state or unsafe operation on stale assumptions"
+    },
+    {
+      "chain": [
+        "CWE-754",
+        "CWE-209"
+      ],
+      "trigger": "exceptional condition is handled by returning detailed internal error text to the user",
+      "consequence": "information exposure that helps refine attacks"
+    }
+  ],
+  "patch_principle": [
+    "Check every failure-capable return value before using outputs or continuing control flow.",
+    "Handle each documented exceptional status explicitly with return, retry, rollback, or fail-closed behavior.",
+    "Catch and throw specific exceptions instead of broad catch-all handlers.",
+    "Keep error details minimal for users and place sensitive diagnostics only in protected logs.",
+    "Design low-resource and permission-denied paths to leave state consistent."
+  ],
+  "minimal_examples": {
+    "vuln": "char *buf = malloc(n); buf[0] = '\\0';",
+    "safe": "char *buf = malloc(n); if (buf == NULL) return -1; buf[0] = '\\0';"
+  }
+}

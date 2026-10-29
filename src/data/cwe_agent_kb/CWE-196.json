@@ -1,0 +1,78 @@
+{
+  "cwe_id": "CWE-196",
+  "name": "Unsigned to Signed Conversion Error",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-681"
+    ],
+    "parent_of": []
+  },
+  "principle": "An unsigned primitive value is cast or implicitly converted to a signed primitive that cannot represent it. The resulting negative or unexpected value can drive buffer underwrite, bad pointer arithmetic, crashes, or memory corruption.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "assignment from unsigned int/size_t/uint32_t to int/long/ssize_t without range check",
+    "explicit cast like (int)u, static_cast<int>(u), or (ssize_t)len where source is unsigned",
+    "converted signed variable used as array index: buf[signed_index]",
+    "converted signed variable used in pointer arithmetic: ptr + signed_offset or ptr += signed_offset",
+    "converted signed length passed to memcpy/memmove/read/write-like size or offset logic",
+    "mixed signed/unsigned comparison before conversion: if (u < signed_limit) then int s = u",
+    "compiler warnings -Wsign-conversion, -Wconversion, C4244, C4365 on unsigned-to-signed flow"
+  ],
+  "negative_signals": [
+    "guard before conversion: if (u > INT_MAX) return/error; int s = (int)u;",
+    "source unsigned type has proven bounded range within target signed max, e.g. uint8_t to int",
+    "converted value is not used for indexing, pointer arithmetic, allocation size, copy length, or loop bounds",
+    "safe checked conversion API/helper returns failure on out-of-range values",
+    "index check after conversion enforces s >= 0 && s < buffer_len before memory access"
+  ],
+  "false_defense_traps": [
+    "checking only u < buffer_len when buffer_len is signed can itself use mixed-sign conversion",
+    "checking only s < buffer_len after conversion misses negative s",
+    "assuming unsigned input is always nonnegative and therefore safe to cast to int",
+    "using a wider signed type without proving it covers the full unsigned source range",
+    "suppressing -Wsign-conversion without adding an explicit range check"
+  ],
+  "verification_focus": "Can an unsigned value greater than the target signed type max reach a signed conversion and then influence an index, pointer offset, size, or bounds check?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-196",
+        "CWE-124"
+      ],
+      "trigger": "large unsigned value converts to negative signed index or offset",
+      "consequence": "buffer underwrite before the start of the object"
+    },
+    {
+      "chain": [
+        "CWE-196",
+        "CWE-120"
+      ],
+      "trigger": "unexpected signed value is reused as a copy length or buffer bound",
+      "consequence": "unchecked buffer copy and memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-196",
+        "CWE-681"
+      ],
+      "trigger": "unsigned value cannot be represented by the signed destination type",
+      "consequence": "incorrect numeric value and invalid control or memory-access decisions"
+    }
+  ],
+  "patch_principle": [
+    "Validate source <= target signed max before every unsigned-to-signed conversion.",
+    "Keep sizes, lengths, and indexes in unsigned size types where possible.",
+    "Use checked conversion helpers or fail/throw on out-of-range values.",
+    "Validate final indexes with both lower and upper bounds before memory access.",
+    "Enable and fix sign-conversion compiler warnings."
+  ],
+  "minimal_examples": {
+    "vuln": "unsigned int u = 0x80000000u; int i = (int)u; buf[i] = x;",
+    "safe": "if (u > INT_MAX || u >= buf_len) return; int i = (int)u; buf[i] = x;"
+  }
+}

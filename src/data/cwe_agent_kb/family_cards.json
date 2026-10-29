@@ -1,0 +1,287 @@
+{
+  "_schema": {
+    "version": 1,
+    "purpose": "Family-level knowledge cards for select_knowledge's classifier backend. One card per family in families.json. Cards are LLM reference material only: they enter prompts, never the deterministic checker. A SATISFIED obligation still has to pass obligation_checker's anchor/witness channels, so safe_pattern is a hint for induction, not a verdict.",
+    "fields": {
+      "family": "family key, must match families.json",
+      "principle": "the invariant whose violation defines this family, one sentence, mechanism-level not API-level",
+      "trigger": "the condition under which the violation becomes reachable",
+      "examples": "1-3 {vuln, safe} pairs, C/C++ where the family occurs in C/C++",
+      "patch": "standard remediations, ordered strongest first",
+      "safe_pattern": "shapes that already discharge the obligation; used to recognise equivalent protection (I7) in the original code"
+    },
+    "note": "Distilled offline from the member CWE records' principle / verification_focus / minimal_examples / patch_principle / negative_signals fields. Deliberately API-name-free where possible: this is family-level mechanism knowledge, not a signature list."
+  },
+  "_provenance": {
+    "generated_from": "data/cwe_agent_kb/CWE-*.json (whitelisted members of each family in families.json)",
+    "regenerate": "python3 scripts/distill_kb.py --family-cards --cards-out data/cwe_agent_kb/family_cards.json",
+    "first_version": "hand-authored from the member CWE records, every claim traceable to a member's principle/patch_principle/negative_signals",
+    "consumed_by": "vuln_agent/knowledge/registry.family_card() -> nodes/select_knowledge.py -> secure_diff / risk_forensics / project_dataflow prompts"
+  },
+  "cards": {
+    "memory-safety": {
+      "family": "memory-safety",
+      "principle": "Every memory access must be proved in range of a live object: the index/offset/length has to lie inside the target's real capacity, and the pointer has to still own its storage at the moment of use.",
+      "trigger": "An externally influenced length, index, or count takes part in address arithmetic or in a copy size, and its upper bound is never compared against the destination's actual capacity; or an object is freed/reallocated/left scope while a pointer to it is still reachable.",
+      "examples": [
+        {
+          "vuln": "char dst[64]; strcpy(dst, user_input);",
+          "safe": "if (strlen(user_input) >= sizeof dst) return -1; memcpy(dst, user_input, strlen(user_input) + 1);"
+        },
+        {
+          "vuln": "memcpy(buf, p, hdr->len);",
+          "safe": "if (hdr->len > sizeof buf) return -EINVAL; memcpy(buf, p, hdr->len);"
+        },
+        {
+          "vuln": "free(node); if (node->next) walk(node->next);",
+          "safe": "struct n *next = node->next; free(node); node = NULL; if (next) walk(next);"
+        }
+      ],
+      "patch": [
+        "Bound-check both ends before the access: offset within the object and length within the remaining space",
+        "Compute the size with the same expression the allocation used, and check that computation for overflow",
+        "Use the capacity-carrying form of the operation and guarantee termination of the result",
+        "Null the pointer at the moment ownership ends, and re-read owner state after any call that can free or resize"
+      ],
+      "safe_pattern": [
+        "n = min(requested, capacity) established before the access",
+        "offset <= size && n <= size - offset (no offset + n that can wrap)",
+        "the allocation size and the copy size come from one and the same expression",
+        "the pointer is reloaded, or set to NULL, after every call that may free or reallocate it",
+        "an early return or goto-out on the failing bound, so the access is unreachable when the bound fails"
+      ]
+    },
+    "numeric-errors": {
+      "family": "numeric-errors",
+      "principle": "An arithmetic or conversion result used as a size, index, count, or loop bound must be mathematically equal to the intended value in the type it ends up in — no wraparound, no truncation, no sign reinterpretation.",
+      "trigger": "An attacker-influenced value is multiplied, added, or shifted to form a size/index, or is converted between widths or signedness, and the guard is written on the already-wrapped result rather than on the operands.",
+      "examples": [
+        {
+          "vuln": "buf = malloc(count * sizeof *buf);",
+          "safe": "if (count > SIZE_MAX / sizeof *buf) return NULL; buf = malloc(count * sizeof *buf);"
+        },
+        {
+          "vuln": "int len = get_len(); char *p = malloc(len); read(fd, p, len);",
+          "safe": "long len = get_len(); if (len < 0 || (size_t)len > MAX) return -1; char *p = malloc((size_t)len);"
+        }
+      ],
+      "patch": [
+        "Check the operands against the type's limit before the operation, not the result afterwards",
+        "Use a checked arithmetic form whose failure is a separate, handled outcome",
+        "Validate signed values as non-negative and in range before any conversion to an unsigned or narrower type",
+        "Keep one type for a size all the way from validation to use, so no implicit conversion re-enters the picture"
+      ],
+      "safe_pattern": [
+        "a > LIMIT / b tested before computing a * b",
+        "x <= MAX - y tested before computing x + y",
+        "signed input rejected as < 0 before any cast to size_t or int32",
+        "the value is validated in the widest type and only then narrowed, with the narrow range checked",
+        "the size arithmetic is done in a type provably wide enough for the operand ranges"
+      ]
+    },
+    "race-condition": {
+      "family": "race-condition",
+      "principle": "A check and the action it authorizes must be indivisible with respect to every other thread, signal handler, or process that can touch the same resource; and shared mutable state must be reached only under a consistently ordered lock.",
+      "trigger": "State is observed, then acted upon in a separate step, with a window in between during which another execution context can change the resource identity or contents — including the signal-handler and the shared-file-path cases.",
+      "examples": [
+        {
+          "vuln": "if (access(path, W_OK) == 0) { fd = open(path, O_WRONLY); write(fd, buf, n); }",
+          "safe": "fd = open(path, O_WRONLY | O_NOFOLLOW | O_CREAT | O_EXCL, 0600); if (fd < 0) return -1;"
+        },
+        {
+          "vuln": "if (!cache) { cache = build(); }",
+          "safe": "pthread_mutex_lock(&m); if (!cache) cache = build(); pthread_mutex_unlock(&m);"
+        }
+      ],
+      "patch": [
+        "Collapse check and use into one atomic operation on a handle, not on a name",
+        "Hold one lock across the whole check-and-act sequence, and take nested locks in one global order everywhere",
+        "In a signal handler, touch only async-signal-safe state, and use a single volatile sig_atomic_t flag for the rest",
+        "Create shared resources exclusively, so an attacker's pre-existing object makes creation fail rather than be reused"
+      ],
+      "safe_pattern": [
+        "the operation is performed on the already-opened handle, never re-resolved by path",
+        "exclusive creation, so a pre-existing object is an error instead of a silent reuse",
+        "check and act are inside the same critical section, with the unlock after the action",
+        "the shared value is read once into a local and only the local is used afterwards",
+        "the handler only sets a flag; all real work happens in the main flow"
+      ]
+    },
+    "availability-and-error-handling": {
+      "family": "availability-and-error-handling",
+      "principle": "Every failure has a handled outcome and every acquired resource has a release on every exit path; loops and allocations driven by input must terminate and stay within a fixed budget.",
+      "trigger": "A call that can fail is used without inspecting its result, an error path skips a release, or a loop bound / allocation amount / recursion depth comes from input with no ceiling.",
+      "examples": [
+        {
+          "vuln": "p = malloc(n); memcpy(p, src, n);",
+          "safe": "p = malloc(n); if (!p) return -ENOMEM; memcpy(p, src, n);"
+        },
+        {
+          "vuln": "f = fopen(path, \"r\"); if (parse(f) < 0) return -1; fclose(f);",
+          "safe": "f = fopen(path, \"r\"); if (!f) return -1; rc = parse(f); fclose(f); if (rc < 0) return -1;"
+        },
+        {
+          "vuln": "while (read_record(fd, &r) >= 0) list_add(&r);",
+          "safe": "for (i = 0; i < MAX_RECORDS && read_record(fd, &r) >= 0; i++) list_add(&r);"
+        }
+      ],
+      "patch": [
+        "Check the result of every call that can fail, and give the failure its own return",
+        "Release on all paths through a single cleanup label, RAII, or a guard object",
+        "Cap input-driven counts, sizes, iteration counts, and recursion depth against a fixed maximum",
+        "Do not use an assertion or an abort as the production guard for attacker-reachable input"
+      ],
+      "safe_pattern": [
+        "the return value is tested immediately and the failure branch returns or goes to a cleanup label",
+        "one exit path owns all releases, and every error jumps to it",
+        "the loop has a counted bound in addition to its data-driven condition",
+        "the allocation size is compared against a fixed maximum before allocating",
+        "the resource is owned by a scope-bound wrapper that releases it unconditionally"
+      ]
+    },
+    "input-validation-and-state-integrity": {
+      "family": "input-validation-and-state-integrity",
+      "principle": "External input must be canonicalized and validated against an allowlist on the trusted side before it is used, and every variable or resource must be fully initialized before its value is read.",
+      "trigger": "A value crosses the trust boundary and reaches a decision, a path, a size, or a structure field with no server-side validation; or a declaration is read on a path where no assignment dominates it.",
+      "examples": [
+        {
+          "vuln": "snprintf(path, sizeof path, \"%s/%s\", root, name); fd = open(path, O_RDONLY);",
+          "safe": "if (strchr(name, '/') || !strcmp(name, \"..\")) return -1; snprintf(path, sizeof path, \"%s/%s\", root, name);"
+        },
+        {
+          "vuln": "struct cfg c; if (opt) c.mode = 1; use(c.mode);",
+          "safe": "struct cfg c = {0}; if (opt) c.mode = 1; use(c.mode);"
+        }
+      ],
+      "patch": [
+        "Canonicalize first, then validate the canonical form against an allowlist of shape and range",
+        "Reject out-of-range input instead of clamping or repairing it, so no attacker-shaped value survives",
+        "Initialize at the point of declaration, or prove one assignment dominates every read",
+        "Re-validate on the trusted side even when a caller or client already validated"
+      ],
+      "safe_pattern": [
+        "the value is matched whole against a restrictive pattern or an enumerated set before use",
+        "the path is resolved to its canonical form and then checked to be a prefix of the intended root",
+        "input outside the accepted range causes an early return, so the use site is unreachable",
+        "the aggregate is zero-initialized at declaration, or every field is assigned before the first read",
+        "the value comes from a fixed table keyed by input, not from the input itself"
+      ]
+    },
+    "data-exposure-and-trust": {
+      "family": "data-exposure-and-trust",
+      "principle": "Sensitive data must not reach a channel or recipient less trusted than the data itself, and a message boundary must be interpreted identically by every party that parses it.",
+      "trigger": "A secret, internal detail, or uninitialized remnant is written to a log, an error message, a wire buffer, or a shared object with weaker protection than its source; or two length/boundary indications for the same message are allowed to disagree.",
+      "examples": [
+        {
+          "vuln": "struct resp r; r.code = code; send(fd, &r, sizeof r, 0);",
+          "safe": "struct resp r; memset(&r, 0, sizeof r); r.code = code; send(fd, &r, sizeof r, 0);"
+        },
+        {
+          "vuln": "log_err(\"auth failed for %s with key %s\", user, key);",
+          "safe": "log_err(\"auth failed for %s\", user);"
+        }
+      ],
+      "patch": [
+        "Keep secrets out of logs, errors, and diagnostics; report the outcome without the credential material",
+        "Zero any structure or buffer before serializing it, so padding and stale bytes cannot leave the process",
+        "Encrypt sensitive data for the whole path, not only for part of the session",
+        "Accept exactly one authoritative length for a message and reject any input that presents two"
+      ],
+      "safe_pattern": [
+        "the buffer or structure is fully zeroed before being populated and sent",
+        "the error message carries a status only, with the sensitive value never interpolated",
+        "the sensitive path is unconditionally over an encrypted channel, with no plaintext fallback",
+        "conflicting or duplicate length/boundary indications are rejected rather than reconciled",
+        "the value is redacted or truncated to a non-reconstructible form before leaving the trust boundary"
+      ]
+    },
+    "access-control": {
+      "family": "access-control",
+      "principle": "Every sensitive action must be preceded by a trusted-side decision that binds the authenticated actor to the exact target object and operation; identity and permission may never be taken from the request itself.",
+      "trigger": "An object is located or an operation is performed using an identifier, role, or authentication flag supplied by the caller, with no check that the current principal owns or may act on that object — or with only a coarse \"is authenticated\" check.",
+      "examples": [
+        {
+          "vuln": "obj = lookup(req->object_id); return read_obj(obj);",
+          "safe": "obj = lookup(req->object_id); if (obj->owner != session->uid) return -EACCES; return read_obj(obj);"
+        },
+        {
+          "vuln": "if (req->is_admin) do_privileged();",
+          "safe": "if (session_has_role(session, ROLE_ADMIN)) do_privileged();"
+        }
+      ],
+      "patch": [
+        "Derive the principal from trusted server-side state and check it against the specific target object, not just against a role",
+        "Scope the lookup itself by the owner/tenant, so an unauthorized object is never returned in the first place",
+        "Enforce the decision in one central place that every path must pass, and deny by default",
+        "Keep credentials out of the code and shipped configuration; load them from an external, rotatable store"
+      ],
+      "safe_pattern": [
+        "the query or lookup constrains the object by the authenticated principal in the same step",
+        "an ownership or ACL comparison against session-derived identity dominates the sensitive operation",
+        "the authorization failure returns a denial, so the privileged call is unreachable",
+        "the identifier is mapped through a server-side table rather than used raw",
+        "the credential is read at runtime from the environment or a secret store, never a literal"
+      ]
+    },
+    "injection": {
+      "family": "injection",
+      "principle": "Attacker-influenced data must reach an interpreter as data only — never as syntax. The structure of the command, query, path, format, or markup has to be fixed by the program, with external values bound into designated slots.",
+      "trigger": "External input is concatenated into a string that some downstream interpreter parses — a shell command line, a query, a format string, a path, a template — instead of being passed as a separate, typed, or escaped argument.",
+      "examples": [
+        {
+          "vuln": "snprintf(cmd, sizeof cmd, \"ping -c1 %s\", host); system(cmd);",
+          "safe": "char *argv[] = {\"/bin/ping\", \"-c1\", host, NULL}; execv(argv[0], argv);"
+        },
+        {
+          "vuln": "printf(user_input);",
+          "safe": "printf(\"%s\", user_input);"
+        },
+        {
+          "vuln": "sprintf(sql, \"SELECT * FROM t WHERE n='%s'\", name); exec_sql(sql);",
+          "safe": "stmt = prepare(\"SELECT * FROM t WHERE n=?\"); bind_text(stmt, 1, name);"
+        }
+      ],
+      "patch": [
+        "Replace string assembly with a structural API: separate argument vector, bound parameters, builder nodes",
+        "Keep the format/template/query text a literal, and pass every external value as an argument",
+        "Where structure genuinely must vary, select it from a fixed table keyed by input, never from input",
+        "If escaping is the only option, escape for the exact interpreter and context at the last sink, and never decode afterwards"
+      ],
+      "safe_pattern": [
+        "the interpreter receives a constant program text plus separately bound values",
+        "the external value occupies one element of an argument vector, with no shell in the path",
+        "the format string is a literal and user data is a variadic argument",
+        "the varying part is a key looked up in an enumerated table of fixed alternatives",
+        "the value is allowlist-validated whole against a restrictive character/shape pattern before it is used in the string"
+      ]
+    },
+    "cryptography": {
+      "family": "cryptography",
+      "principle": "A security decision may rest only on a sound primitive used with sound parameters: standard algorithm, adequate key/group size, unpredictable values from a CSPRNG, and a verification result that is actually required before the data is trusted.",
+      "trigger": "A broken or obsolete primitive is chosen; a key, curve, or group is too small; a token, key, IV, nonce, or salt comes from a predictable source or a small space; or a signature/MAC verification result is computed but not enforced.",
+      "examples": [
+        {
+          "vuln": "srand(time(NULL)); token = rand();",
+          "safe": "unsigned char token[32]; if (RAND_bytes(token, sizeof token) != 1) return -1;"
+        },
+        {
+          "vuln": "verify_sig(data, sig); load(data);",
+          "safe": "if (verify_sig(data, sig) != 1) return -1; load(data);"
+        }
+      ],
+      "patch": [
+        "Choose a current standard primitive from a vetted library instead of a legacy, custom, or private one",
+        "Raise key, curve, and group sizes to current minimums, and derive password material with a salted, cost-parameterized function",
+        "Draw every security-sensitive random value from a CSPRNG, check the draw succeeded, and give it enough width",
+        "Make verification failure a hard stop: the signed or authenticated data must not be parsed, loaded, or executed on failure"
+      ],
+      "safe_pattern": [
+        "the algorithm and parameters come from a current standard set, with no downgrade path",
+        "randomness comes from a CSPRNG whose return status is checked, with at least 128 bits of output",
+        "the verification result is compared and the failure branch returns before any use of the data",
+        "comparison of secrets or tags is constant-time rather than early-exit",
+        "key material is loaded from an external store or generated at runtime, never a literal in the source"
+      ]
+    }
+  }
+}

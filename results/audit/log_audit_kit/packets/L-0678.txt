@@ -1,0 +1,651 @@
+=== 待审推理日志 L-0678 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 29 个；未决 25 个。
+
+【推理轨迹】共 76 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:36
+  引证行: 36
+  引证内容: switch (ehdr->e_type) {
+  初判倾向: VIOLATED
+  上下文源码:
+     33 |         ehdr = (Elf32_Ehdr *)elf_map;
+     34 | 
+     35 |         INFO("ELF Header\n");        
+     36 |         switch (ehdr->e_type) {
+     37 |             case ET_NONE:
+     38 |                 tmp = "An unknown type";
+     39 |                 break;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:63
+  引证行: 63
+  引证内容: switch (ehdr->e_type) {
+  初判倾向: VIOLATED
+  上下文源码:
+     60 |         }
+     61 |         PRINT_HEADER_EXP("e_type:", ehdr->e_type, tmp);
+     62 | 
+     63 |         switch (ehdr->e_type) {
+     64 |             case EM_NONE:
+     65 |                 tmp = "An unknown machine";
+     66 |                 break;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:144
+  引证行: 144
+  引证内容: PRINT_HEADER_EXP("e_machine:", ehdr->e_machine, tmp);
+  初判倾向: VIOLATED
+  上下文源码:
+    141 |                 tmp = "An unknown machine";
+    142 |                 break;
+    143 |         }
+    144 |         PRINT_HEADER_EXP("e_machine:", ehdr->e_machine, tmp);
+    145 | 
+    146 |         switch (ehdr->e_version) {
+    147 |             case EV_NONE:
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:159
+  引证行: 159
+  引证内容: PRINT_HEADER_EXP("e_version:", ehdr->e_version, tmp);
+  初判倾向: VIOLATED
+  上下文源码:
+    156 |                 tmp = "Known version";
+    157 |                 break;
+    158 |         }
+    159 |         PRINT_HEADER_EXP("e_version:", ehdr->e_version, tmp);
+    160 |         PRINT_HEADER("e_entry:", ehdr->e_entry);
+    161 |         PRINT_HEADER("e_phoff:", ehdr->e_phoff);
+    162 |         PRINT_HEADER("e_shoff:", ehdr->e_shoff);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:162
+  引证行: 162
+  引证内容: PRINT_HEADER("e_shoff:", ehdr->e_shoff);
+  初判倾向: VIOLATED
+  上下文源码:
+    159 |         PRINT_HEADER_EXP("e_version:", ehdr->e_version, tmp);
+    160 |         PRINT_HEADER("e_entry:", ehdr->e_entry);
+    161 |         PRINT_HEADER("e_phoff:", ehdr->e_phoff);
+    162 |         PRINT_HEADER("e_shoff:", ehdr->e_shoff);
+    163 |         PRINT_HEADER("e_flags:", ehdr->e_flags);
+    164 |         PRINT_HEADER("e_ehsize:", ehdr->e_ehsize);
+    165 |         PRINT_HEADER("e_phentsize:", ehdr->e_phentsize);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:163
+  引证行: 163
+  引证内容: PRINT_HEADER("e_flags:", ehdr->e_flags);
+  初判倾向: VIOLATED
+  上下文源码:
+    160 |         PRINT_HEADER("e_entry:", ehdr->e_entry);
+    161 |         PRINT_HEADER("e_phoff:", ehdr->e_phoff);
+    162 |         PRINT_HEADER("e_shoff:", ehdr->e_shoff);
+    163 |         PRINT_HEADER("e_flags:", ehdr->e_flags);
+    164 |         PRINT_HEADER("e_ehsize:", ehdr->e_ehsize);
+    165 |         PRINT_HEADER("e_phentsize:", ehdr->e_phentsize);
+    166 |         PRINT_HEADER("e_phnum:", ehdr->e_phnum);
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:164
+  引证行: 164
+  引证内容: PRINT_HEADER("e_ehsize:", ehdr->e_ehsize);
+  初判倾向: VIOLATED
+  上下文源码:
+    161 |         PRINT_HEADER("e_phoff:", ehdr->e_phoff);
+    162 |         PRINT_HEADER("e_shoff:", ehdr->e_shoff);
+    163 |         PRINT_HEADER("e_flags:", ehdr->e_flags);
+    164 |         PRINT_HEADER("e_ehsize:", ehdr->e_ehsize);
+    165 |         PRINT_HEADER("e_phentsize:", ehdr->e_phentsize);
+    166 |         PRINT_HEADER("e_phnum:", ehdr->e_phnum);
+    167 |         PRINT_HEADER("e_shentsize:", ehdr->e_shentsize);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:255
+  引证行: 255
+  引证内容: strcpy(&name[15 - 6], "[...]");
+  初判倾向: VIOLATED
+  上下文源码:
+    252 |             }
+    253 | 
+    254 |             if (strlen(name) > 15) {
+    255 |                 strcpy(&name[15 - 6], "[...]");
+    256 |             }
+    257 |             strcpy(flag, "   ");
+    258 |             flag2str_sh(shdr[i].sh_flags, flag);
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:257
+  引证行: 257
+  引证内容: strcpy(flag, "   ");
+  初判倾向: VIOLATED
+  上下文源码:
+    254 |             if (strlen(name) > 15) {
+    255 |                 strcpy(&name[15 - 6], "[...]");
+    256 |             }
+    257 |             strcpy(flag, "   ");
+    258 |             flag2str_sh(shdr[i].sh_flags, flag);
+    259 |             PRINT_SECTION(i, name, tmp, shdr[i].sh_addr, shdr[i].sh_offset, shdr[i].sh_size, shdr[i].sh_entsize, \
+    260 |                             flag, shdr[i].sh_link, shdr[i].sh_info, shdr[i].sh_addralign);
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:352
+  引证行: 352
+  引证内容: memset(value, 0, 50);
+  初判倾向: VIOLATED
+  上下文源码:
+    349 |         
+    350 |         for(int i = 0; i < count; i++) {
+    351 |             tmp = "";
+    352 |             memset(value, 0, 50);
+    353 |             snprintf(value, 50, "0x%x", dyn[i].d_un.d_val);
+    354 |             switch (dyn[i].d_tag) {
+    355 |                 /* Legal values for d_tag (dynamic entry type).  */
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:353
+  引证行: 353
+  引证内容: snprintf(value, 50, "0x%x", dyn[i].d_un.d_val);
+  初判倾向: VIOLATED
+  上下文源码:
+    350 |         for(int i = 0; i < count; i++) {
+    351 |             tmp = "";
+    352 |             memset(value, 0, 50);
+    353 |             snprintf(value, 50, "0x%x", dyn[i].d_un.d_val);
+    354 |             switch (dyn[i].d_tag) {
+    355 |                 /* Legal values for d_tag (dynamic entry type).  */
+    356 |                 case DT_NULL:
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:363
+  引证行: 363
+  引证内容: snprintf(value, 50, "Shared library: [%s]", name);
+  初判倾向: VIOLATED
+  上下文源码:
+    360 |                 case DT_NEEDED:
+    361 |                     tmp = "DT_NEEDED";
+    362 |                     name = elf_map + shdr[dynstr].sh_offset + dyn[i].d_un.d_val;
+    363 |                     snprintf(value, 50, "Shared library: [%s]", name);
+    364 |                     break;
+    365 |                 
+    366 |                 case DT_PLTRELSZ:
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:480
+  引证行: 480
+  引证内容: snprintf(value, 50, "Flags: %d", dyn[i].d_un.d_val);
+  初判倾向: VIOLATED
+  上下文源码:
+    477 | 
+    478 |                 case DT_FLAGS:
+    479 |                     tmp = "DT_FLAGS";
+    480 |                     snprintf(value, 50, "Flags: %d", dyn[i].d_un.d_val);
+    481 |                     break;
+    482 |                 
+    483 |                 case DT_ENCODING:
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:646
+  引证行: 646
+  引证内容: snprintf(value, 50, "Flags: %d", dyn[i].d_un.d_val);
+  初判倾向: VIOLATED
+  上下文源码:
+    643 |                             break;
+    644 |                         
+    645 |                         default:
+    646 |                             snprintf(value, 50, "Flags: %d", dyn[i].d_un.d_val);
+    647 |                             break;
+    648 |                     }
+    649 |                     
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:901
+  引证行: 901
+  引证内容: strcpy(&name[15 - 6], "[...]");
+  初判倾向: VIOLATED
+  上下文源码:
+    898 |             }
+    899 | 
+    900 |             if (strlen(name) > 15) {
+    901 |                 strcpy(&name[15 - 6], "[...]");
+    902 |             }
+    903 |             strcpy(flag, "   ");
+    904 |             flag2str_sh(shdr[i].sh_flags, flag);
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:999
+  引证行: 999
+  引证内容: snprintf(value, 50, "0x%x", dyn[i].d_un.d_val);
+  初判倾向: VIOLATED
+  上下文源码:
+     996 |         for(int i = 0; i < count; i++) {
+     997 |             tmp = "";
+     998 |             memset(value, 0, 50);
+     999 |             snprintf(value, 50, "0x%x", dyn[i].d_un.d_val);
+    1000 |             switch (dyn[i].d_tag) {
+    1001 |                 /* Legal values for d_tag (dynamic entry type).  */
+    1002 |                 case DT_NULL:
+
+--- 步骤 17 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:1009
+  引证行: 1009
+  引证内容: snprintf(value, 50, "Shared library: [%s]", name);
+  初判倾向: VIOLATED
+  上下文源码:
+    1006 |                 case DT_NEEDED:
+    1007 |                     tmp = "DT_NEEDED";
+    1008 |                     name = elf_map + shdr[dynstr].sh_offset + dyn[i].d_un.d_val;
+    1009 |                     snprintf(value, 50, "Shared library: [%s]", name);
+    1010 |                     break;
+    1011 |                 
+    1012 |                 case DT_PLTRELSZ:
+
+--- 步骤 18 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: parse:1126
+  引证行: 1126
+  引证内容: snprintf(value, 50, "Flags: %d", dyn[i].d_un.d_val);
+  初判倾向: VIOLATED
+  上下文源码:
+    1123 | 
+    1124 |                 case DT_FLAGS:
+    1125 |                     tmp = "DT_FLAGS";
+    1126 |                     snprintf(value, 50, "Flags: %d", dyn[i].d_un.d_val);
+    1127 |                     break;
+    1128 |                 
+    1129 |                 case DT_ENCODING:
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:36
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:61
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:63
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:144
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:146
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:159
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:160
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:161
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:162
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:163
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:164
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:255
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  命中信号: signed/unsigned mix in size calculation, e.g. int len; size_t n = len + header or end - start
+  筛选: keep
+  义务 arithmetic_bound: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:257
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:310
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:352
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:353
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 35 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:363
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 36 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:480
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 37 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:642
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 38 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:646
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 39 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:901
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 40 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:903
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  命中信号: direct pattern like printf(user), fprintf(fp, user), snprintf(buf, n, user), syslog(pri, user)
+  筛选: keep
+
+--- 步骤 41 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:956
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 42 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:998
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 43 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:999
+  命中信号: dynamic format source contains or accepts %n, %x, %p, or %s directives
+  筛选: keep
+
+--- 步骤 44 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:1009
+  命中信号: path.startsWith(base) or string prefix check performed before canonicalization
+  命中信号: URLDecoder.decode(...), servlet decoding, or custom percent-decoding occurs after path validation
+  筛选: keep
+
+--- 步骤 45 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:1126
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 46 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:1288
+  筛选: keep
+
+--- 步骤 47 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: parse:1292
+  筛选: keep
+
+--- 步骤 48 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:36
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 49 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:61
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 50 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:63
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 51 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:144
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 52 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:146
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 53 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:159
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 54 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:160
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 55 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:161
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 56 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:162
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 57 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:163
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 58 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:164
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 59 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:255
+  违背的义务: arithmetic_bound
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 arithmetic_bound: ? -> VIOLATED
+
+--- 步骤 60 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:257
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 61 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:310
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 62 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:352
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 63 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:353
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 64 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:363
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 65 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:480
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 66 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:642
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 67 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:646
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 68 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:901
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 69 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:903
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 70 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:956
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 71 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:998
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 72 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:999
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 format_string_fixed: ? -> UNRESOLVED
+
+--- 步骤 73 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:1009
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 path_validated: ? -> UNRESOLVED
+
+--- 步骤 74 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:1126
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 75 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:1288
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 76 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: parse:1292
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

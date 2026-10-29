@@ -1,0 +1,86 @@
+[
+  {
+    "step": 1,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MqttClient_WaitType:44"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "cwe_id": "CWE-416"
+    },
+    "node": "secure_diff",
+    "observation": {
+      "line": 44,
+      "snippet": "rc = wm_SemLock(&client->lockRecv);",
+      "candidate_direction": "VIOLATED"
+    },
+    "sink_id": "MqttClient_WaitType:44",
+    "state_delta": {},
+    "action": "instantiate_obligation",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 2,
+    "cost": {},
+    "decision": null,
+    "evidence_refs": [
+      "MqttClient_WaitType:44"
+    ],
+    "inputs": {
+      "tainted_tokens": [
+        "rc",
+        "wm_SemLock",
+        "client"
+      ],
+      "change_kind": "guard"
+    },
+    "node": "risk_forensics",
+    "observation": {
+      "screen": "keep",
+      "hit_signals": [
+        "one alias freed, then another alias to the same allocation is dereferenced or passed to a callee",
+        "free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)"
+      ]
+    },
+    "sink_id": "MqttClient_WaitType:44",
+    "state_delta": {
+      "object_live_at_use": {
+        "from": "UNDERDETERMINED",
+        "to": "VIOLATED"
+      }
+    },
+    "action": "inspect_local_guard",
+    "bucket": "lifetime|use"
+  },
+  {
+    "step": 3,
+    "cost": {},
+    "decision": true,
+    "evidence_refs": [
+      "MqttClient_WaitType:44"
+    ],
+    "inputs": {
+      "change_kind": "guard",
+      "screen": "keep"
+    },
+    "node": "arbiter",
+    "observation": {
+      "critical_violated": [
+        "object_live_at_use"
+      ],
+      "mitigation_proved": [],
+      "resolution": "vuln",
+      "confidence": 0.45
+    },
+    "sink_id": "MqttClient_WaitType:44",
+    "state_delta": {
+      "object_live_at_use": {
+        "to": "VIOLATED"
+      }
+    },
+    "action": "aggregate_obligations",
+    "bucket": "lifetime|use"
+  }
+]

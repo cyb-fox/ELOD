@@ -1,0 +1,489 @@
+=== 待审推理日志 L-0484 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 19 个；未决 19 个。
+
+【推理轨迹】共 54 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:19
+  引证行: 19
+  引证内容: deps = R_NEWS0 (int, cache->hdr->imagesCount);
+  初判倾向: VIOLATED
+  上下文源码:
+     16 | 			r_list_free (bins);
+     17 | 			return NULL;
+     18 | 		}
+     19 | 		deps = R_NEWS0 (int, cache->hdr->imagesCount);
+     20 | 		if (!deps) {
+     21 | 			r_list_free (bins);
+     22 | 			r_list_free (target_lib_names);
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:28
+  引证行: 28
+  引证内容: for (i = 0; i < cache->n_hdr; i++) {
+  初判倾向: VIOLATED
+  上下文源码:
+     25 | 	}
+     26 | 
+     27 | 	ut32 i;
+     28 | 	for (i = 0; i < cache->n_hdr; i++) {
+     29 | 		cache_hdr_t *hdr = &cache->hdr[i];
+     30 | 		ut64 hdr_offset = cache->hdr_offset[i];
+     31 | 		ut32 maps_index = cache->maps_index[i];
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:29
+  引证行: 29
+  引证内容: cache_hdr_t *hdr = &cache->hdr[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     26 | 
+     27 | 	ut32 i;
+     28 | 	for (i = 0; i < cache->n_hdr; i++) {
+     29 | 		cache_hdr_t *hdr = &cache->hdr[i];
+     30 | 		ut64 hdr_offset = cache->hdr_offset[i];
+     31 | 		ut32 maps_index = cache->maps_index[i];
+     32 | 		cache_img_t *img = read_cache_images (cache->buf, hdr, hdr_offset);
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:30
+  引证行: 30
+  引证内容: ut64 hdr_offset = cache->hdr_offset[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     27 | 	ut32 i;
+     28 | 	for (i = 0; i < cache->n_hdr; i++) {
+     29 | 		cache_hdr_t *hdr = &cache->hdr[i];
+     30 | 		ut64 hdr_offset = cache->hdr_offset[i];
+     31 | 		ut32 maps_index = cache->maps_index[i];
+     32 | 		cache_img_t *img = read_cache_images (cache->buf, hdr, hdr_offset);
+     33 | 		if (!img) {
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:31
+  引证行: 31
+  引证内容: ut32 maps_index = cache->maps_index[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     28 | 	for (i = 0; i < cache->n_hdr; i++) {
+     29 | 		cache_hdr_t *hdr = &cache->hdr[i];
+     30 | 		ut64 hdr_offset = cache->hdr_offset[i];
+     31 | 		ut32 maps_index = cache->maps_index[i];
+     32 | 		cache_img_t *img = read_cache_images (cache->buf, hdr, hdr_offset);
+     33 | 		if (!img) {
+     34 | 			goto next;
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:32
+  引证行: 32
+  引证内容: cache_img_t *img = read_cache_images (cache->buf, hdr, hdr_offset);
+  初判倾向: VIOLATED
+  上下文源码:
+     29 | 		cache_hdr_t *hdr = &cache->hdr[i];
+     30 | 		ut64 hdr_offset = cache->hdr_offset[i];
+     31 | 		ut32 maps_index = cache->maps_index[i];
+     32 | 		cache_img_t *img = read_cache_images (cache->buf, hdr, hdr_offset);
+     33 | 		if (!img) {
+     34 | 			goto next;
+     35 | 		}
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:40
+  引证行: 40
+  引证内容: if (cache->accel) {
+  初判倾向: VIOLATED
+  上下文源码:
+     37 | 		ut32 j;
+     38 | 		if (target_libs) {
+     39 | 			HtPU *path_to_idx = NULL;
+     40 | 			if (cache->accel) {
+     41 | 				depArray = R_NEWS0 (ut16, cache->accel->depListCount);
+     42 | 				if (!depArray) {
+     43 | 					goto next;
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:41
+  引证行: 41
+  引证内容: depArray = R_NEWS0 (ut16, cache->accel->depListCount);
+  初判倾向: VIOLATED
+  上下文源码:
+     38 | 		if (target_libs) {
+     39 | 			HtPU *path_to_idx = NULL;
+     40 | 			if (cache->accel) {
+     41 | 				depArray = R_NEWS0 (ut16, cache->accel->depListCount);
+     42 | 				if (!depArray) {
+     43 | 					goto next;
+     44 | 				}
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:50
+  引证行: 50
+  引证内容: extras = read_cache_imgextra (cache->buf, hdr, cache->accel);
+  初判倾向: VIOLATED
+  上下文源码:
+     47 | 					goto next;
+     48 | 				}
+     49 | 
+     50 | 				extras = read_cache_imgextra (cache->buf, hdr, cache->accel);
+     51 | 				if (!extras) {
+     52 | 					goto next;
+     53 | 				}
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:58
+  引证行: 58
+  引证内容: for (j = 0; j < hdr->imagesCount; j++) {
+  初判倾向: VIOLATED
+  上下文源码:
+     55 | 				path_to_idx = create_path_to_index (cache->buf, img, hdr);
+     56 | 			}
+     57 | 
+     58 | 			for (j = 0; j < hdr->imagesCount; j++) {
+     59 | 				bool printing = !deps[j];
+     60 | 				char *lib_name = get_lib_name (cache->buf, &img[j]);
+     61 | 				if (!lib_name) {
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:60
+  引证行: 60
+  引证内容: char *lib_name = get_lib_name (cache->buf, &img[j]);
+  初判倾向: VIOLATED
+  上下文源码:
+     57 | 
+     58 | 			for (j = 0; j < hdr->imagesCount; j++) {
+     59 | 				bool printing = !deps[j];
+     60 | 				char *lib_name = get_lib_name (cache->buf, &img[j]);
+     61 | 				if (!lib_name) {
+     62 | 					break;
+     63 | 				}
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:83
+  引证行: 83
+  引证内容: char *dep_name = get_lib_name (cache->buf, &img[dep_index]);
+  初判倾向: VIOLATED
+  上下文源码:
+     80 | 						ut16 dep_index = depArray[k] & 0x7fff;
+     81 | 						deps[dep_index]++;
+     82 | 
+     83 | 						char *dep_name = get_lib_name (cache->buf, &img[dep_index]);
+     84 | 						if (!dep_name) {
+     85 | 							break;
+     86 | 						}
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:107
+  引证行: 107
+  引证内容: ut64 pa = va2pa (img[j].address, cache->n_maps, &cache->maps[maps_index], cache->buf, 0, NULL, NULL);
+  初判倾向: VIOLATED
+  上下文源码:
+    104 | 				continue;
+    105 | 			}
+    106 | 			// ut64 pa = va2pa (img[j].address, hdr->mappingCount, &cache->maps[maps_index], cache->buf, 0, NULL, NULL);
+    107 | 			ut64 pa = va2pa (img[j].address, cache->n_maps, &cache->maps[maps_index], cache->buf, 0, NULL, NULL);
+    108 | 			if (pa == UT64_MAX) {
+    109 | 				continue;
+    110 | 			}
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:112
+  引证行: 112
+  引证内容: r_buf_read_at (cache->buf, pa, magicbytes, 4);
+  初判倾向: VIOLATED
+  上下文源码:
+    109 | 				continue;
+    110 | 			}
+    111 | 			ut8 magicbytes[4];
+    112 | 			r_buf_read_at (cache->buf, pa, magicbytes, 4);
+    113 | 			int magic = r_read_le32 (magicbytes);
+    114 | 			switch (magic) {
+    115 | 			case MH_MAGIC_64:
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:122
+  引证行: 122
+  引证内容: bin->header_at = pa;
+  初判倾向: VIOLATED
+  上下文源码:
+    119 | 				if (!bin) {
+    120 | 					goto next;
+    121 | 				}
+    122 | 				bin->header_at = pa;
+    123 | 				bin->hdr_offset = hdr_offset;
+    124 | 				bin->symbols_off = resolve_symbols_off (cache, pa);
+    125 | 				bin->va = img[j].address;
+
+--- 步骤 16 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: create_cache_bins:127
+  引证行: 127
+  引证内容: file[255] = 0;
+  初判倾向: VIOLATED
+  上下文源码:
+    124 | 				bin->symbols_off = resolve_symbols_off (cache, pa);
+    125 | 				bin->va = img[j].address;
+    126 | 				if (r_buf_read_at (cache->buf, img[j].pathFileOffset, (ut8*) &file, sizeof (file)) == sizeof (file)) {
+    127 | 					file[255] = 0;
+    128 | 					char *last_slash = strrchr (file, '/');
+    129 | 					if (last_slash && *last_slash) {
+    130 | 						if (last_slash > file) {
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:19
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:28
+  命中信号: A verification result is overwritten, inverted, or checked for the wrong object before a sensitive state transition or use
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:29
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:30
+  命中信号: for/while loop reads buf[i] while i < untrusted_len without untrusted_len <= actual_buf_size
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:31
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:32
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:40
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:41
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:46
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:50
+  命中信号: for/while loop reads buf[i] while i < untrusted_len without untrusted_len <= actual_buf_size
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:55
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:58
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:60
+  命中信号: for/while loop reads buf[i] while i < untrusted_len without untrusted_len <= actual_buf_size
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:83
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:102
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:107
+  命中信号: for/while loop reads buf[i] while i < untrusted_len without untrusted_len <= actual_buf_size
+  筛选: keep
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:112
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:122
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 35 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: create_cache_bins:127
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 36 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:19
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:28
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:31
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:41
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 44 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:46
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 45 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:50
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 46 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:55
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 47 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:58
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 48 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:60
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 49 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:83
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 50 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:102
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 51 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:107
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 52 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:112
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 53 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:122
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 54 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: create_cache_bins:127
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

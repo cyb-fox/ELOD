@@ -1,0 +1,93 @@
+{
+  "cwe_id": "CWE-91",
+  "name": "XML Injection (aka Blind XPath Injection)",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-74"
+    ],
+    "parent_of": [
+      "CWE-643",
+      "CWE-652"
+    ]
+  },
+  "principle": "The product inserts untrusted data into XML markup without neutralizing XML special elements such as <, >, \", ', and &. Attacker-controlled data can become XML syntax, nodes, attributes, or XML/XPath commands before downstream processing.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "PHP",
+    "Python",
+    "JavaScript"
+  ],
+  "detection_signals": [
+    "Java string concatenation or String.format builds XML/SOAP with request.getParameter(...) inside tags or attributes",
+    "C sprintf/snprintf/strcat builds '<tag>%s</tag>' or 'attr=\"%s\"' with untrusted input",
+    "C++ std::string operator+ or std::ostringstream builds XML tags/attributes with tainted variables",
+    "XPathFactory.newXPath().compile(...) or evaluate(...) receives an expression concatenated with user input",
+    "XQuery/XPath/SOAP XML payload assembled by template replacement such as xml.replace(\"${name}\", input)",
+    "User input is inserted into XML attribute value without escapeXml/forXml/writeAttribute",
+    "User input is inserted into XML text node without escapeXml/forXml/writeCharacters/setTextContent"
+  ],
+  "negative_signals": [
+    "Java DOM createElement(...) plus setTextContent(...) is used for user text",
+    "StAX XMLStreamWriter.writeCharacters(...) or writeAttribute(...) is used for user data",
+    "dom4j Element.setText(...) or addAttribute(...) is used instead of XML string concatenation",
+    "JAXB/XML marshalling is used from typed objects without raw XML string templates",
+    "Apache Commons Text StringEscapeUtils.escapeXml10(...) or OWASP Encoder Encode.forXml(...) is applied before concatenation",
+    "Server-side allowlist regex rejects XML metacharacters before XML construction"
+  ],
+  "false_defense_traps": [
+    "Denylist filters only '<' but not '&', '>', quotes, or entity forms",
+    "Client-side JavaScript validation is the only XML metacharacter check",
+    "Wrapping input in CDATA without blocking ']]>' allows CDATA breakout",
+    "Escaping text-node data reused later inside XML attributes or XPath expressions",
+    "Fixing XXE parser flags does not neutralize XML markup injection in constructed XML"
+  ],
+  "verification_focus": "Can attacker-controlled data reach XML/XPath/XQuery/SOAP syntax construction without XML-context-safe encoding or builder APIs?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-91"
+      ],
+      "trigger": "Input closes an existing tag and injects a new privileged node or attribute",
+      "consequence": "Modify application data, bypass authorization, or impersonate another user"
+    },
+    {
+      "chain": [
+        "CWE-91",
+        "CWE-643"
+      ],
+      "trigger": "Input is concatenated into an XPath expression evaluated over XML data",
+      "consequence": "Read or modify unauthorized XML data via XPath injection"
+    },
+    {
+      "chain": [
+        "CWE-91",
+        "CWE-652"
+      ],
+      "trigger": "Input is concatenated into an XQuery expression",
+      "consequence": "Execute unintended XML data queries or updates"
+    },
+    {
+      "chain": [
+        "CWE-91"
+      ],
+      "trigger": "Injected markup creates malformed XML consumed by a parser",
+      "consequence": "Availability impact through parser errors or failed processing"
+    }
+  ],
+  "patch_principle": [
+    "Build XML with DOM, StAX, JAXB, or equivalent APIs instead of string concatenation.",
+    "Encode untrusted data for the exact XML context: text node, attribute, XPath, or XQuery.",
+    "Use strict server-side allowlists for fields with constrained business formats.",
+    "Parameterize or safely bind variables for XPath/XQuery when the API supports it.",
+    "Reject malformed XML metacharacter input when free-form XML markup is not allowed."
+  ],
+  "minimal_examples": {
+    "vuln": "String xml = \"<user role=\\\"guest\\\">\" + name + \"</user>\";",
+    "safe": "Element u = doc.createElement(\"user\"); u.setAttribute(\"role\",\"guest\"); u.setTextContent(name);"
+  }
+}

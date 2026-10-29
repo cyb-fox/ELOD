@@ -1,0 +1,104 @@
+{
+  "cwe_id": "CWE-285",
+  "name": "Improper Authorization",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-284"
+    ],
+    "parent_of": [
+      "CWE-552",
+      "CWE-732",
+      "CWE-862",
+      "CWE-863",
+      "CWE-926",
+      "CWE-927",
+      "CWE-1230",
+      "CWE-1256",
+      "CWE-1297",
+      "CWE-1328"
+    ]
+  },
+  "principle": "The product omits or incorrectly performs an authorization check when an actor accesses a resource or invokes an action. Authenticated users can read, modify, or execute functions beyond their permitted role or object ownership.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "JavaScript",
+    "C#",
+    "PHP",
+    "Python",
+    "Go"
+  ],
+  "detection_signals": [
+    "handler/controller calls getById(id), find(id), load(id), DisplayPrivateMessage(id), delete(id), update(id) using request parameter without canAccess(user,id) or owner check",
+    "admin or privileged endpoint lacks role check such as isAdmin(), hasRole(\"ADMIN\"), @PreAuthorize, @RolesAllowed, or JAAS Subject.doAs policy check",
+    "server route relies only on authentication check such as isAuthenticated(), AuthenticateUser(), getUserPrincipal(), or session != null before sensitive action",
+    "authorization enforced only in UI code such as disabled button, hidden link, JavaScript role check, or client-side route guard",
+    "direct file/resource return via sendFile(), FileInputStream, static file mapping, or download(id/path) without ACL or permission check",
+    "database query filters by user-controlled id but not by current user or tenant, e.g. WHERE id = ? instead of WHERE id = ? AND owner_id = ?",
+    "Android component exposes sensitive Activity/Service/Receiver with android:exported=\"true\" and no permission attribute"
+  ],
+  "negative_signals": [
+    "server-side check hasRole/hasAuthority/@PreAuthorize/@RolesAllowed before the privileged method",
+    "object-level predicate checks resource.ownerId == currentUser.id or ACL.canRead/currentUser before read/write",
+    "database query includes tenant/user constraint from trusted session, e.g. WHERE id = ? AND owner_id = currentUser.id",
+    "default-deny middleware/filter/interceptor protects the route and explicit allow rules list required permission",
+    "OS or server ACL is set before exposure, e.g. chmod 600, non-public directory, or web server deny rule for sensitive files",
+    "Android component uses android:exported=\"false\" or requires a signature-level permission"
+  ],
+  "false_defense_traps": [
+    "Authentication check alone; knowing who the user is does not prove permission for this resource",
+    "RBAC role check alone for same-role data; horizontal authorization needs object ownership or ACL checks",
+    "Client-side hiding or disabling controls; direct URL or parameter changes bypass it",
+    "SQL injection protection alone; prepared statements do not enforce authorization",
+    "Database account permissions alone; business records still need per-user or per-tenant authorization"
+  ],
+  "verification_focus": "Does every sensitive server-side resource/action verify that the authenticated actor has permission for that exact operation and object?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-862"
+      ],
+      "trigger": "sensitive endpoint or resource has no authorization check",
+      "consequence": "unauthorized read, write, privilege gain, or command execution"
+    },
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-863"
+      ],
+      "trigger": "authorization check exists but uses wrong role, user, tenant, object, or condition",
+      "consequence": "horizontal or vertical privilege escalation"
+    },
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-552"
+      ],
+      "trigger": "files or directories are exposed without access restriction",
+      "consequence": "external parties read sensitive files or directories"
+    },
+    {
+      "chain": [
+        "CWE-285",
+        "CWE-732"
+      ],
+      "trigger": "critical resource is assigned overly broad permissions",
+      "consequence": "unauthorized actors modify or read protected resources"
+    }
+  ],
+  "patch_principle": [
+    "Enforce server-side authorization on every sensitive route, method, page, file, and object access.",
+    "Use default-deny RBAC for roles and add object-level owner/tenant/ACL checks for business data.",
+    "Use vetted authorization frameworks such as JAAS, @PreAuthorize/@RolesAllowed, or ESAPI Access Control.",
+    "Keep authorization decisions based on trusted session identity, not request-supplied user, role, tenant, or owner fields.",
+    "Configure OS, server, and application ACLs so sensitive files and components are not publicly accessible."
+  ],
+  "minimal_examples": {
+    "vuln": "Message m = dao.findMessage(request.getParameter(\"id\")); return m.body;",
+    "safe": "Message m = dao.findMessage(id); if (!m.ownerId.equals(currentUser.id)) throw new ForbiddenException(); return m.body;"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "cwe_id": "CWE-639",
+  "name": "Authorization Bypass Through User-Controlled Key",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "access-control",
+    "child_of": [
+      "CWE-863",
+      "CWE-284"
+    ],
+    "parent_of": [
+      "CWE-566"
+    ]
+  },
+  "principle": "Code uses a user-controlled key to retrieve or modify a user-specific record without checking that the authenticated actor is entitled to that record. Tampering with IDs, cookies, hidden fields, or route parameters can expose or alter another user's data.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "JavaScript",
+    "PHP",
+    "Python",
+    "Go",
+    "Ruby"
+  ],
+  "detection_signals": [
+    "request.getParameter(\"id\") / req.params.id / req.query.id used in findById(), get(), load(), SELECT, UPDATE, or DELETE",
+    "SQL or ORM lookup has WHERE id = ? but no owner_id/user_id/account_id/tenant_id predicate tied to authenticated principal",
+    "controller route like /users/{userId}, /accounts/{accountId}, /invoices/{id} uses path ID directly for data access",
+    "hidden form field, cookie, or request parameter named userId/accountId/customerId/role/admin used to select records or privileges",
+    "numeric or sequential request ID parsed with atoi(), Integer.parseInt(), Long.parseLong(), Convert.ToInt*() then passed to repository/DAO",
+    "UPDATE or DELETE by request-supplied id without accessControl.canWrite(principal, object) or equivalent ownership check",
+    "session ID or object key accepted from URL parameter or cookie and loaded without binding to the authenticated principal"
+  ],
+  "negative_signals": [
+    "query includes owner_id/user_id/tenant_id = current authenticated principal in the same WHERE clause",
+    "object is loaded then checked with accessControl.canRead/canWrite(principal, object) before use",
+    "record key is derived from server-side session/principal, not from request parameters, cookies, or hidden fields",
+    "repository method is findByIdAndOwner(id, principal.id) / findByIdAndTenant(id, tenant.id) or equivalent",
+    "database row-level security or policy enforces current user/tenant on the target table",
+    "opaque signed key is HMAC/signature verified and bound to subject or tenant before lookup"
+  ],
+  "false_defense_traps": [
+    "Parameterized SQL prevents SQL injection but not access to another user's valid ID",
+    "UI only lists authorized records, but attacker can call the endpoint directly with another ID",
+    "Hidden form fields and cookies are still user-controlled",
+    "UUIDs, encrypted IDs, or non-sequential IDs reduce guessing but do not prove authorization",
+    "Client-side JavaScript authorization checks can be bypassed"
+  ],
+  "verification_focus": "Can a different authenticated user change the key value and access, update, or delete a record they do not own or administer?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-639",
+        "CWE-200"
+      ],
+      "trigger": "attacker supplies another user's record ID to a read endpoint",
+      "consequence": "unauthorized disclosure of another user's data"
+    },
+    {
+      "chain": [
+        "CWE-639",
+        "CWE-862"
+      ],
+      "trigger": "attacker supplies another user's record ID to an update/delete endpoint with no per-object check",
+      "consequence": "unauthorized modification or deletion of another user's data"
+    },
+    {
+      "chain": [
+        "CWE-639",
+        "CWE-269"
+      ],
+      "trigger": "user-controlled key represents role, admin flag, account, or tenant context",
+      "consequence": "privilege escalation or identity assumption"
+    }
+  ],
+  "patch_principle": [
+    "Authorize every data access against the authenticated principal, object owner, tenant, and required action.",
+    "Do not trust request parameters, hidden fields, cookies, or route IDs as proof of ownership.",
+    "Constrain lookups with server-side owner/user/tenant predicates or enforce equivalent row-level security.",
+    "Use signed or server-generated opaque keys only as tamper detection, not as a replacement for authorization.",
+    "Centralize object-level authorization in service/DAO methods used by read, update, and delete paths."
+  ],
+  "minimal_examples": {
+    "vuln": "Invoice inv = invoiceRepo.findById(Long.parseLong(request.getParameter(\"id\"))).get();",
+    "safe": "Invoice inv = invoiceRepo.findByIdAndOwner(Long.parseLong(request.getParameter(\"id\")), currentUser.getId()).orElseThrow();"
+  }
+}

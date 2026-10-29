@@ -1,0 +1,69 @@
+{
+  "schema": "elod_artifact_results/2",
+  "policy": "Every entry names a file present in this package. The upstream prediction log is hashed here so any derived statistic can be traced back to the exact run it came from. Material whose upstream inputs are not part of this package -- the audit un-blinding key among them -- is omitted rather than listed by path.",
+  "sources": [
+    {
+      "path": "predictions/rq1_primevul.jsonl",
+      "role": "per-file predictions over the 435 PrimeVul pairs (870 rows)",
+      "sha256": "6782fe123bea85bdb5aaae6e69b76f43f2a49fb4e76fb47e396dec4c2207bdfe"
+    },
+    {
+      "path": "datasets/RQ3_postcut_proj/",
+      "role": "PostCut-Proj cohort: 24 cases, 48 snapshots, 213 files"
+    },
+    {
+      "path": "audit/log_audit_kit/",
+      "role": "blinded trajectory packets and two independent reviewer tables (870 each)"
+    },
+    {
+      "path": "../src/data/cwe_agent_kb/",
+      "role": "family knowledge as data: 96 CWE cards + families.json (9 top-level families)"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "predictions/rq1_primevul.jsonl",
+      "role": "the RQ1 main run; reproduces P-C=151 P-V=73 P-B=164 P-R=47 via ./run.sh selftest"
+    },
+    {
+      "path": "logs/trace_209801/",
+      "role": "the verbatim trajectory cited in the paper's artifacts paragraph"
+    },
+    {
+      "path": "logs/primevul_traces/src/",
+      "role": "868 per-file structured trajectories, one per unique analysed file"
+    },
+    {
+      "path": "baselines/primevul-det/",
+      "role": "file-level baseline records over the RQ1 inputs"
+    },
+    {
+      "path": "baselines/",
+      "role": "task-level model runs for the cost comparison"
+    },
+    {
+      "path": "statistics/rq1_transition_matrix.json",
+      "role": "state transitions across the adjudication pipeline"
+    },
+    {
+      "path": "statistics/rq2_log_audit_summary.json",
+      "role": "kappa, agreement and the verdict distribution behind the RQ2 table"
+    },
+    {
+      "path": "statistics/rq2_paper_stats.json",
+      "role": "the frozen RQ2 statistics as printed in the manuscript"
+    },
+    {
+      "path": "statistics/rq2_trace_auditability.json",
+      "role": "coverage of the trajectory records behind the audit"
+    },
+    {
+      "path": "statistics/rq4_ablation_stats.json",
+      "role": "component ablation (K/R/E/G arms) with the tests against the full system"
+    },
+    {
+      "path": "statistics/rq4_threshold_gate_sweep.json",
+      "role": "threshold-gate sweep for the file-level admission gate"
+    }
+  ]
+}

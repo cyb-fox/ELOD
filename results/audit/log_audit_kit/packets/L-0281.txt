@@ -1,0 +1,41 @@
+=== 待审推理日志 L-0281 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 1 个；未决 0 个。
+
+【推理轨迹】共 3 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: drop_table:3
+  引证行: 3
+  引证内容: DBUG_ASSERT(file->s->temporary);
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | void ha_maria::drop_table(const char *name)
+      2 | {
+      3 |   DBUG_ASSERT(file->s->temporary);
+      4 |   (void) ha_close();
+      5 |   (void) maria_delete_table_files(name, 1, MY_WME);
+      6 | }
+
+--- 步骤 2 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: drop_table:3
+  命中信号: realpath(...), File.getCanonicalPath(), or Path.toRealPath() called but result is not checked against canonical base directory
+  筛选: keep
+  义务 path_validated: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 3 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: drop_table:3
+  违背的义务: path_validated
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 path_validated: ? -> VIOLATED
+
+【最终结论】
+  分析器判定: underdetermined

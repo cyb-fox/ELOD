@@ -1,0 +1,255 @@
+=== 待审推理日志 L-0102 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 11 个；未决 11 个。
+
+【推理轨迹】共 29 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_text_get_utf8_line:18
+  引证行: 18
+  引证内容: szLineConv[j] = 0xc0 | ( (szLine[i] >> 6) & 0x3 );
+  初判倾向: VIOLATED
+  上下文源码:
+     15 | 			if (!unicode_type && (szLine[i] & 0x80)) {
+     16 | 				/*non UTF8 (likely some win-CP)*/
+     17 | 				if ((szLine[i+1] & 0xc0) != 0x80) {
+     18 | 					szLineConv[j] = 0xc0 | ( (szLine[i] >> 6) & 0x3 );
+     19 | 					j++;
+     20 | 					szLine[i] &= 0xbf;
+     21 | 				}
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_text_get_utf8_line:24
+  引证行: 24
+  引证内容: szLineConv[j] = szLine[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     21 | 				}
+     22 | 				/*UTF8 2 bytes char*/
+     23 | 				else if ( (szLine[i] & 0xe0) == 0xc0) {
+     24 | 					szLineConv[j] = szLine[i];
+     25 | 					i++;
+     26 | 					j++;
+     27 | 				}
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_text_get_utf8_line:30
+  引证行: 30
+  引证内容: szLineConv[j] = szLine[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     27 | 				}
+     28 | 				/*UTF8 3 bytes char*/
+     29 | 				else if ( (szLine[i] & 0xf0) == 0xe0) {
+     30 | 					szLineConv[j] = szLine[i];
+     31 | 					i++;
+     32 | 					j++;
+     33 | 					szLineConv[j] = szLine[i];
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_text_get_utf8_line:33
+  引证行: 33
+  引证内容: szLineConv[j] = szLine[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     30 | 					szLineConv[j] = szLine[i];
+     31 | 					i++;
+     32 | 					j++;
+     33 | 					szLineConv[j] = szLine[i];
+     34 | 					i++;
+     35 | 					j++;
+     36 | 				}
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_text_get_utf8_line:42
+  引证行: 42
+  引证内容: szLineConv[j] = szLine[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     39 | 					szLineConv[j] = szLine[i];
+     40 | 					i++;
+     41 | 					j++;
+     42 | 					szLineConv[j] = szLine[i];
+     43 | 					i++;
+     44 | 					j++;
+     45 | 					szLineConv[j] = szLine[i];
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_text_get_utf8_line:53
+  引证行: 53
+  引证内容: szLineConv[j] = szLine[i];
+  初判倾向: VIOLATED
+  上下文源码:
+     50 | 					continue;
+     51 | 				}
+     52 | 			}
+     53 | 			szLineConv[j] = szLine[i];
+     54 | 			j++;
+     55 | 		}
+     56 | 		szLineConv[j] = 0;
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: gf_text_get_utf8_line:57
+  引证行: 57
+  引证内容: strcpy(szLine, szLineConv);
+  初判倾向: VIOLATED
+  上下文源码:
+     54 | 			j++;
+     55 | 		}
+     56 | 		szLineConv[j] = 0;
+     57 | 		strcpy(szLine, szLineConv);
+     58 | 		return sOK;
+     59 | 	}
+     60 | 
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:8
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:18
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:24
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:30
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:33
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:39
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:42
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:45
+  命中信号: loop writes buf[i] with condition i <= len or i <= sizeof(buf)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:53
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:57
+  命中信号: strcpy, strcat, sprintf, gets, scanf("%s") writing into fixed-size char buffer
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: gf_text_get_utf8_line:80
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:24
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:30
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:33
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:39
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:53
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:57
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: gf_text_get_utf8_line:80
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

@@ -1,0 +1,88 @@
+{
+  "cwe_id": "CWE-116",
+  "name": "Improper Encoding or Escaping of Output",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "injection",
+    "child_of": [
+      "CWE-707"
+    ],
+    "parent_of": [
+      "CWE-117",
+      "CWE-644",
+      "CWE-838"
+    ]
+  },
+  "principle": "Attacker-controlled data is inserted into a structured output message without correct encoding for that output context. Special characters then become control data or metadata, so the receiver interprets the message with altered structure or commands.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "JavaScript",
+    "PHP",
+    "Python",
+    "C#",
+    "Ruby",
+    "Go"
+  ],
+  "detection_signals": [
+    "Untrusted input is concatenated into HTML, XML, HTTP headers, SQL, shell commands, or protocol strings before the sink call.",
+    "Manual escaping uses chained `replace()` calls or a blacklist of special characters instead of a vetted encoder.",
+    "The same tainted value is reused in multiple output contexts but encoded only once with one generic routine.",
+    "A context-mismatched encoder is used, such as `URLEncoder.encode()` for HTML output or HTML escaping before `exec()`/`system()`.",
+    "Custom sanitizer omits known metacharacters like `;`, `|`, `&`, `\\r`, `\\n`, `'`, `\"`, `<`, `>`.",
+    "Header/log/message construction uses raw concatenation into `setHeader()`, `println()`, `write()`, `append()`, or template output without a final encode step."
+  ],
+  "negative_signals": [
+    "A vetted, context-specific encoder is applied immediately before the sink, such as `StringEscapeUtils.escapeHtml4()` or `OWASP Encoder.encodeForHTML()` for HTML output.",
+    "Structured APIs are used instead of string building, such as `PreparedStatement` with `?` parameters or other parameterized interfaces.",
+    "The sink only receives hard-coded constants or values proven not to be attacker-controlled.",
+    "Limited markup is allowed only through an explicit allowlist sanitizer, followed by syntax validation of the resulting output.",
+    "The component explicitly sets and matches character encoding at the interface, such as `setCharacterEncoding(\"UTF-8\")`, and uses the same encoding end-to-end."
+  ],
+  "false_defense_traps": [
+    "Blacklisting only a few characters and assuming all dangerous metacharacters are covered.",
+    "Using URL encoding, HTML encoding, or shell escaping in the wrong output context.",
+    "Encoding first and then later decoding, normalizing, or re-concatenating the value before the final sink.",
+    "Relying on input validation alone when the same data is emitted to multiple downstream parsers.",
+    "Stripping tags or punctuation but leaving delimiter characters that the target parser still treats as control input."
+  ],
+  "verification_focus": "Is every attacker-controlled field encoded exactly for the final output context at the last sink, with no later decode or unsafe concatenation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-116",
+        "CWE-79"
+      ],
+      "trigger": "Untrusted data is written into HTML/JavaScript without context-correct escaping",
+      "consequence": "Cross-site scripting and client-side script execution"
+    },
+    {
+      "chain": [
+        "CWE-116",
+        "CWE-117"
+      ],
+      "trigger": "Untrusted data is written into a log line without CR/LF escaping",
+      "consequence": "Log forging or log injection"
+    },
+    {
+      "chain": [
+        "CWE-116",
+        "CWE-78"
+      ],
+      "trigger": "Untrusted data is inserted into a shell command without shell escaping",
+      "consequence": "Operating system command execution"
+    }
+  ],
+  "patch_principle": [
+    "Use a vetted output-encoding library for the exact sink context.",
+    "Prefer parameterized or structured APIs that separate data from control syntax.",
+    "Apply encoding at the final output boundary, not earlier in the data flow.",
+    "Use strict allowlists only when control syntax must be partially permitted, then verify the final syntax.",
+    "Keep character encodings explicit and consistent across component interfaces."
+  ],
+  "minimal_examples": {
+    "vuln": "writer.write(\"<p>\" + userInput + \"</p>\");",
+    "safe": "writer.write(\"<p>\" + StringEscapeUtils.escapeHtml4(userInput) + \"</p>\");"
+  }
+}

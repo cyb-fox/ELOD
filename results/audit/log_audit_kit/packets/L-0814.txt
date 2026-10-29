@@ -1,0 +1,85 @@
+=== 待审推理日志 L-0814 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 3 个；未决 0 个。
+
+【推理轨迹】共 8 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: SetGrayscaleImage:81
+  引证行: 81
+  引证内容: colormap_index[intensity]=(ssize_t) image->colors;
+  初判倾向: VIOLATED
+  上下文源码:
+     78 | #endif
+     79 |               if (colormap_index[intensity] < 0)
+     80 |                 {
+     81 |                   colormap_index[intensity]=(ssize_t) image->colors;
+     82 |                   image->colormap[image->colors].red=(double)
+     83 |                     GetPixelRed(image,q);
+     84 |                   image->colormap[image->colors].green=(double)
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: SetGrayscaleImage:111
+  引证行: 111
+  引证内容: colormap[j]=image->colormap[0];
+  初判倾向: VIOLATED
+  上下文源码:
+    108 |         image->filename);
+    109 |     }
+    110 |   j=0;
+    111 |   colormap[j]=image->colormap[0];
+    112 |   for (i=0; i < (ssize_t) image->colors; i++)
+    113 |   {
+    114 |     if (IsPixelInfoEquivalent(&colormap[j],&image->colormap[i]) == MagickFalse)
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: SetGrayscaleImage:81
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: SetGrayscaleImage:111
+  命中信号: array[index] read guarded only by index < len with no index >= 0 check
+  命中信号: C++ vector/string operator[] read with external index and no prior range check
+  筛选: keep
+
+--- 步骤 5 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: SetGrayscaleImage:117
+  筛选: keep
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: SetGrayscaleImage:81
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.45
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 7 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: SetGrayscaleImage:111
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 8 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: SetGrayscaleImage:117
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: underdetermined

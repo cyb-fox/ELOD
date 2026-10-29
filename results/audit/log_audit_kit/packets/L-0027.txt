@@ -1,0 +1,246 @@
+=== 待审推理日志 L-0027 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 11 个；未决 10 个。
+
+【推理轨迹】共 29 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:1
+  引证行: 1
+  引证内容: static int xfrm_expand_policies(const struct flowi *fl, u16 family,
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | static int xfrm_expand_policies(const struct flowi *fl, u16 family,
+      2 | 				struct xfrm_policy **pols,
+      3 | 				int *num_pols, int *num_xfrms)
+      4 | {
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:7
+  引证行: 7
+  引证内容: if (*num_pols == 0 || !pols[0]) {
+  初判倾向: VIOLATED
+  上下文源码:
+      4 | {
+      5 | 	int i;
+      6 | 
+      7 | 	if (*num_pols == 0 || !pols[0]) {
+      8 | 		*num_pols = 0;
+      9 | 		*num_xfrms = 0;
+     10 | 		return 0;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:12
+  引证行: 12
+  引证内容: if (IS_ERR(pols[0])) {
+  初判倾向: VIOLATED
+  上下文源码:
+      9 | 		*num_xfrms = 0;
+     10 | 		return 0;
+     11 | 	}
+     12 | 	if (IS_ERR(pols[0])) {
+     13 | 		*num_pols = 0;
+     14 | 		return PTR_ERR(pols[0]);
+     15 | 	}
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:14
+  引证行: 14
+  引证内容: return PTR_ERR(pols[0]);
+  初判倾向: VIOLATED
+  上下文源码:
+     11 | 	}
+     12 | 	if (IS_ERR(pols[0])) {
+     13 | 		*num_pols = 0;
+     14 | 		return PTR_ERR(pols[0]);
+     15 | 	}
+     16 | 
+     17 | 	*num_xfrms = pols[0]->xfrm_nr;
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:20
+  引证行: 20
+  引证内容: if (pols[0]->action == XFRM_POLICY_ALLOW &&
+  初判倾向: VIOLATED
+  上下文源码:
+     17 | 	*num_xfrms = pols[0]->xfrm_nr;
+     18 | 
+     19 | #ifdef CONFIG_XFRM_SUB_POLICY
+     20 | 	if (pols[0]->action == XFRM_POLICY_ALLOW &&
+     21 | 	    pols[0]->type != XFRM_POLICY_TYPE_MAIN) {
+     22 | 		pols[1] = xfrm_policy_lookup_bytype(xp_net(pols[0]),
+     23 | 						    XFRM_POLICY_TYPE_MAIN,
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:21
+  引证行: 21
+  引证内容: pols[0]->type != XFRM_POLICY_TYPE_MAIN) {
+  初判倾向: VIOLATED
+  上下文源码:
+     18 | 
+     19 | #ifdef CONFIG_XFRM_SUB_POLICY
+     20 | 	if (pols[0]->action == XFRM_POLICY_ALLOW &&
+     21 | 	    pols[0]->type != XFRM_POLICY_TYPE_MAIN) {
+     22 | 		pols[1] = xfrm_policy_lookup_bytype(xp_net(pols[0]),
+     23 | 						    XFRM_POLICY_TYPE_MAIN,
+     24 | 						    fl, family,
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: xfrm_expand_policies:33
+  引证行: 33
+  引证内容: (*num_pols)++;
+  初判倾向: VIOLATED
+  上下文源码:
+     30 | 				*num_pols = 0;
+     31 | 				return PTR_ERR(pols[1]);
+     32 | 			}
+     33 | 			(*num_pols)++;
+     34 | 			(*num_xfrms) += pols[1]->xfrm_nr;
+     35 | 		}
+     36 | 	}
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:1
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:7
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:12
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:14
+  命中信号: gethostbyaddr/getenv/fopen/dlopen/dlsym return value dereferenced or passed to a dereferencing API before NULL check
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:20
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 13 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:21
+  命中信号: function parameter of pointer/reference type dereferenced with p->field, *p, p[i], or p.method() with no entry null guard and callers can pass NULL/null
+  筛选: keep
+
+--- 步骤 14 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:22
+  筛选: keep
+
+--- 步骤 15 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:26
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:33
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:34
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: xfrm_expand_policies:39
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 19 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:1
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 20 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:7
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 21 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:12
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 22 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 23 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 24 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:21
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 25 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:22
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+--- 步骤 26 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 27 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:33
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 28 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:34
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 29 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: xfrm_expand_policies:39
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

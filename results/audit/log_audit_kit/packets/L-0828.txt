@@ -1,0 +1,27 @@
+=== 待审推理日志 L-0828 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 1 个；未决 1 个。
+
+【推理轨迹】共 2 步
+
+--- 步骤 1 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: net_bind:22
+  筛选: keep
+
+--- 步骤 2 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: net_bind:22
+  已证明的防护: attacker_control, non_negative_length, readable_extent
+  本步结论: safe_proved
+  置信度: 0.0
+  义务 attacker_control: ? -> SATISFIED
+  义务 non_negative_length: ? -> SATISFIED
+  义务 readable_extent: ? -> SATISFIED
+
+【最终结论】
+  分析器判定: local_guard_observed

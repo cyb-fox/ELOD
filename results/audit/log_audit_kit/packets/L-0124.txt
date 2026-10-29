@@ -1,0 +1,174 @@
+=== 待审推理日志 L-0124 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 6 个；未决 6 个。
+
+【推理轨迹】共 18 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_parse_index_entry:37
+  引证行: 37
+  引证内容: indx->entries[entry_number].label = malloc(label_length + 1);
+  初判倾向: VIOLATED
+  上下文源码:
+     34 |             return MOBI_DATA_CORRUPT;
+     35 |         }
+     36 |     }
+     37 |     indx->entries[entry_number].label = malloc(label_length + 1);
+     38 |     if (indx->entries[entry_number].label == NULL) {
+     39 |         debug_print("Memory allocation failed (%zu bytes)\n", label_length);
+     40 |         return MOBI_MALLOC_FAILED;
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_parse_index_entry:42
+  引证行: 42
+  引证内容: strncpy(indx->entries[entry_number].label, text, label_length + 1);
+  初判倾向: VIOLATED
+  上下文源码:
+     39 |         debug_print("Memory allocation failed (%zu bytes)\n", label_length);
+     40 |         return MOBI_MALLOC_FAILED;
+     41 |     }
+     42 |     strncpy(indx->entries[entry_number].label, text, label_length + 1);
+     43 |     //debug_print("tag label[%zu]: %s\n", entry_number, indx->entries[entry_number].label);
+     44 |     unsigned char *control_bytes;
+     45 |     control_bytes = buf->data + buf->offset;
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_parse_index_entry:56
+  引证行: 56
+  引证内容: MOBIPtagx *ptagx = malloc(tagx->tags_count * sizeof(MOBIPtagx));
+  初判倾向: VIOLATED
+  上下文源码:
+     53 |             uint32_t value_count;
+     54 |             uint32_t value_bytes;
+     55 |         } MOBIPtagx;
+     56 |         MOBIPtagx *ptagx = malloc(tagx->tags_count * sizeof(MOBIPtagx));
+     57 |         if (ptagx == NULL) {
+     58 |             debug_print("Memory allocation failed (%zu bytes)\n", tagx->tags_count * sizeof(MOBIPtagx));
+     59 |             return MOBI_MALLOC_FAILED;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_parse_index_entry:101
+  引证行: 101
+  引证内容: indx->entries[entry_number].tags = malloc(tagx->tags_count * sizeof(MOBIIndexTag));
+  初判倾向: VIOLATED
+  上下文源码:
+     98 |             }
+     99 |             i++;
+    100 |         }
+    101 |         indx->entries[entry_number].tags = malloc(tagx->tags_count * sizeof(MOBIIndexTag));
+    102 |         if (indx->entries[entry_number].tags == NULL) {
+    103 |             debug_print("Memory allocation failed (%zu bytes)\n", tagx->tags_count * sizeof(MOBIIndexTag));
+    104 |             free(ptagx);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_parse_index_entry:131
+  引证行: 131
+  引证内容: indx->entries[entry_number].tags[i].tagvalues = malloc(arr_size);
+  初判倾向: VIOLATED
+  上下文源码:
+    128 |             }
+    129 |             if (tagvalues_count) {
+    130 |                 const size_t arr_size = tagvalues_count * sizeof(*indx->entries[entry_number].tags[i].tagvalues);
+    131 |                 indx->entries[entry_number].tags[i].tagvalues = malloc(arr_size);
+    132 |                 if (indx->entries[entry_number].tags[i].tagvalues == NULL) {
+    133 |                     debug_print("Memory allocation failed (%zu bytes)\n", arr_size);
+    134 |                     free(ptagx);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: mobi_parse_index_entry:137
+  引证行: 137
+  引证内容: memcpy(indx->entries[entry_number].tags[i].tagvalues, tagvalues, arr_size);
+  初判倾向: VIOLATED
+  上下文源码:
+    134 |                     free(ptagx);
+    135 |                     return MOBI_MALLOC_FAILED;
+    136 |                 }
+    137 |                 memcpy(indx->entries[entry_number].tags[i].tagvalues, tagvalues, arr_size);
+    138 |             } else {
+    139 |                 indx->entries[entry_number].tags[i].tagvalues = NULL;
+    140 |             }
+
+--- 步骤 7 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_parse_index_entry:37
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  筛选: keep
+
+--- 步骤 8 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_parse_index_entry:42
+  命中信号: scanf("%s", buf) or fscanf("%s", buf) without a field width
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 9 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_parse_index_entry:56
+  命中信号: malloc/realloc/new[] size is count * sizeof(T), count * unit, or a + b from external input without a pre-check
+  筛选: keep
+
+--- 步骤 10 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_parse_index_entry:101
+  命中信号: strcpy/strcat/gets/sprintf/wsprintf copies into char[] or malloc buffer
+  筛选: keep
+
+--- 步骤 11 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_parse_index_entry:131
+  命中信号: calloc(count, unit) is replaced by malloc(count * unit) with tainted count or unit
+  筛选: keep
+
+--- 步骤 12 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: mobi_parse_index_entry:137
+  命中信号: for/while loop writes buf[i] with condition i <= len or no i < capacity guard
+  筛选: keep
+
+--- 步骤 13 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_parse_index_entry:37
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 14 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_parse_index_entry:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 15 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_parse_index_entry:56
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 16 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_parse_index_entry:101
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 17 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_parse_index_entry:131
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 18 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: mobi_parse_index_entry:137
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

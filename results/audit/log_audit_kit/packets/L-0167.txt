@@ -1,0 +1,504 @@
+=== 待审推理日志 L-0167 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 21 个；未决 21 个。
+
+【推理轨迹】共 57 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:1
+  引证行: 1
+  引证内容: int main(int argc, char **argv, char **envp)
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | int main(int argc, char **argv, char **envp)
+      2 | {
+      3 | 	int opt;
+      4 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:5
+  引证行: 5
+  引证内容: while ((opt = getopt(argc, argv, "b:h:k:p:q:w:z:xv")) != -1) {
+  初判倾向: VIOLATED
+  上下文源码:
+      2 | {
+      3 | 	int opt;
+      4 | 
+      5 | 	while ((opt = getopt(argc, argv, "b:h:k:p:q:w:z:xv")) != -1) {
+      6 | 		switch (opt) {
+      7 | 		case 'b':
+      8 | 			tmate_settings->bind_addr = xstrdup(optarg);
+
+--- 步骤 3 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:6
+  引证行: 6
+  引证内容: switch (opt) {
+  初判倾向: VIOLATED
+  上下文源码:
+      3 | 	int opt;
+      4 | 
+      5 | 	while ((opt = getopt(argc, argv, "b:h:k:p:q:w:z:xv")) != -1) {
+      6 | 		switch (opt) {
+      7 | 		case 'b':
+      8 | 			tmate_settings->bind_addr = xstrdup(optarg);
+      9 | 			break;
+
+--- 步骤 4 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:8
+  引证行: 8
+  引证内容: tmate_settings->bind_addr = xstrdup(optarg);
+  初判倾向: VIOLATED
+  上下文源码:
+      5 | 	while ((opt = getopt(argc, argv, "b:h:k:p:q:w:z:xv")) != -1) {
+      6 | 		switch (opt) {
+      7 | 		case 'b':
+      8 | 			tmate_settings->bind_addr = xstrdup(optarg);
+      9 | 			break;
+     10 | 		case 'h':
+     11 | 			tmate_settings->tmate_host = xstrdup(optarg);
+
+--- 步骤 5 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:11
+  引证行: 11
+  引证内容: tmate_settings->tmate_host = xstrdup(optarg);
+  初判倾向: VIOLATED
+  上下文源码:
+      8 | 			tmate_settings->bind_addr = xstrdup(optarg);
+      9 | 			break;
+     10 | 		case 'h':
+     11 | 			tmate_settings->tmate_host = xstrdup(optarg);
+     12 | 			break;
+     13 | 		case 'k':
+     14 | 			tmate_settings->keys_dir = xstrdup(optarg);
+
+--- 步骤 6 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:17
+  引证行: 17
+  引证内容: tmate_settings->ssh_port = atoi(optarg);
+  初判倾向: VIOLATED
+  上下文源码:
+     14 | 			tmate_settings->keys_dir = xstrdup(optarg);
+     15 | 			break;
+     16 | 		case 'p':
+     17 | 			tmate_settings->ssh_port = atoi(optarg);
+     18 | 			break;
+     19 | 		case 'q':
+     20 | 			tmate_settings->ssh_port_advertized = atoi(optarg);
+
+--- 步骤 7 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:20
+  引证行: 20
+  引证内容: tmate_settings->ssh_port_advertized = atoi(optarg);
+  初判倾向: VIOLATED
+  上下文源码:
+     17 | 			tmate_settings->ssh_port = atoi(optarg);
+     18 | 			break;
+     19 | 		case 'q':
+     20 | 			tmate_settings->ssh_port_advertized = atoi(optarg);
+     21 | 			break;
+     22 | 		case 'w':
+     23 | 			tmate_settings->websocket_hostname = xstrdup(optarg);
+
+--- 步骤 8 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:29
+  引证行: 29
+  引证内容: tmate_settings->use_proxy_protocol = true;
+  初判倾向: VIOLATED
+  上下文源码:
+     26 | 			tmate_settings->websocket_port = atoi(optarg);
+     27 | 			break;
+     28 | 		case 'x':
+     29 | 			tmate_settings->use_proxy_protocol = true;
+     30 | 			break;
+     31 | 		case 'v':
+     32 | 			tmate_settings->log_level++;
+
+--- 步骤 9 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:32
+  引证行: 32
+  引证内容: tmate_settings->log_level++;
+  初判倾向: VIOLATED
+  上下文源码:
+     29 | 			tmate_settings->use_proxy_protocol = true;
+     30 | 			break;
+     31 | 		case 'v':
+     32 | 			tmate_settings->log_level++;
+     33 | 			break;
+     34 | 		default:
+     35 | 			usage();
+
+--- 步骤 10 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:35
+  引证行: 35
+  引证内容: usage();
+  初判倾向: VIOLATED
+  上下文源码:
+     32 | 			tmate_settings->log_level++;
+     33 | 			break;
+     34 | 		default:
+     35 | 			usage();
+     36 | 			return 1;
+     37 | 		}
+     38 | 	}
+
+--- 步骤 11 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:40
+  引证行: 40
+  引证内容: init_logging(tmate_settings->log_level);
+  初判倾向: VIOLATED
+  上下文源码:
+     37 | 		}
+     38 | 	}
+     39 | 
+     40 | 	init_logging(tmate_settings->log_level);
+     41 | 
+     42 | 	setup_locale();
+     43 | 
+
+--- 步骤 12 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:42
+  引证行: 42
+  引证内容: setup_locale();
+  初判倾向: VIOLATED
+  上下文源码:
+     39 | 
+     40 | 	init_logging(tmate_settings->log_level);
+     41 | 
+     42 | 	setup_locale();
+     43 | 
+     44 | 	if (!tmate_settings->tmate_host)
+     45 | 		tmate_settings->tmate_host = get_full_hostname();
+
+--- 步骤 13 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:45
+  引证行: 45
+  引证内容: tmate_settings->tmate_host = get_full_hostname();
+  初判倾向: VIOLATED
+  上下文源码:
+     42 | 	setup_locale();
+     43 | 
+     44 | 	if (!tmate_settings->tmate_host)
+     45 | 		tmate_settings->tmate_host = get_full_hostname();
+     46 | 
+     47 | 	cmdline = *argv;
+     48 | 	cmdline_end = *envp;
+
+--- 步骤 14 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:51
+  引证行: 51
+  引证内容: tmate_catch_sigsegv();
+  初判倾向: VIOLATED
+  上下文源码:
+     48 | 	cmdline_end = *envp;
+     49 | 
+     50 | 	tmate_preload_trace_lib();
+     51 | 	tmate_catch_sigsegv();
+     52 | 	tmate_init_rand();
+     53 | 
+     54 | 	if ((mkdir(TMATE_WORKDIR, 0700)             < 0 && errno != EEXIST) ||
+
+--- 步骤 15 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: main:71
+  引证行: 71
+  引证内容: tmate_settings->keys_dir, tmate_settings->bind_addr, tmate_settings->ssh_port);
+  初判倾向: VIOLATED
+  上下文源码:
+     68 | 			    "Try deleting " TMATE_WORKDIR " and try again");
+     69 | 
+     70 | 	tmate_ssh_server_main(tmate_session,
+     71 | 			      tmate_settings->keys_dir, tmate_settings->bind_addr, tmate_settings->ssh_port);
+     72 | 	return 0;
+     73 | }
+
+--- 步骤 16 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:1
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 17 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:5
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 18 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:6
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 19 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:8
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 20 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:11
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 21 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:14
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 22 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:17
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 23 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:20
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 24 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:23
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 25 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:26
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 26 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:29
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 27 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:32
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 28 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:35
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 29 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:40
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 30 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:42
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 31 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:44
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 32 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:45
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 33 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:50
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 34 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:51
+  命中信号: shared pointer checked for NULL outside a lock and dereferenced later after unlock or without synchronization
+  命中信号: check occurs after first use: p->field or *p appears before if (p == NULL), if (!p), or Objects.requireNonNull(p)
+  筛选: keep
+
+--- 步骤 35 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:52
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 36 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: main:71
+  命中信号: Parsed or received integrity metadata is consumed as trusted state before its authenticity and scope are established
+  命中信号: A signature, MAC, checksum, or verification result is computed but a consumer proceeds without checking its success value
+  筛选: keep
+
+--- 步骤 37 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:1
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 38 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:5
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 39 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:6
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 40 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:8
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 41 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:11
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 42 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:14
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 43 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:17
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 44 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:20
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 45 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:23
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 46 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:26
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 47 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:29
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 48 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:32
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 49 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:35
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 50 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 51 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:42
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 52 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:44
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 53 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:45
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 54 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:50
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 55 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:51
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 null_guard: ? -> UNRESOLVED
+
+--- 步骤 56 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:52
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+--- 步骤 57 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: main:71
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

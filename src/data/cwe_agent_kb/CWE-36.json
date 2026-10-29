@@ -1,0 +1,88 @@
+{
+  "cwe_id": "CWE-36",
+  "name": "Absolute Path Traversal",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "input-validation-and-state-integrity",
+    "child_of": [
+      "CWE-22"
+    ],
+    "parent_of": [
+      "CWE-37",
+      "CWE-38",
+      "CWE-39",
+      "CWE-40"
+    ]
+  },
+  "principle": "The product constructs a pathname from external input but does not reject absolute path forms. Absolute paths can escape the intended restricted directory and access, overwrite, or corrupt unexpected files.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "PHP",
+    "Python",
+    "JavaScript"
+  ],
+  "detection_signals": [
+    "Java FileInputStream(request.getParameter(...)), new File(userInput), Paths.get(userInput), or Files.readAllBytes(Paths.get(userInput))",
+    "C fopen(userInput,...), open(userInput,...), unlink(userInput), remove(userInput), or rename(userInput,...) with argv/env/request input",
+    "C++ std::ifstream(userInput), std::ofstream(userInput), std::filesystem::path(userInput), or std::filesystem::remove(userInput) with external input",
+    "base path joined with user input using new File(base,userInput), base.resolve(userInput), operator/(base,userPath), or string concatenation without rejecting isAbsolute()",
+    "validation blocks only \"../\" or \"..\\\\\" and lacks checks for leading \"/\", leading \"\\\\\", drive prefix \"C:\", or UNC prefix \"\\\\\\\\\"",
+    "normalize(), canonicalize(), realpath(), getCanonicalPath(), or toRealPath() used without checking canonical target starts under canonical base",
+    "download/upload/delete/open endpoint accepts a raw path or filename parameter that may include directory separators"
+  ],
+  "negative_signals": [
+    "raw input is mapped through a server-side allowlist ID to a fixed filename before any file API call",
+    "code rejects Path.isAbsolute(), File.isAbsolute(), std::filesystem::path::is_absolute(), leading '/', leading '\\\\', drive-letter prefixes, and UNC prefixes",
+    "candidate path is canonicalized with realpath(), File.getCanonicalPath(), or Path.toRealPath() and verified as a child of the canonical base directory",
+    "only basename is used via Paths.get(input).getFileName() or equivalent plus strict allowlist for characters, length, and extension",
+    "file path argument is a compile-time constant or trusted internal configuration, not request/argv/env/user controlled"
+  ],
+  "false_defense_traps": [
+    "blocking only \"../\" does not block \"/etc/passwd\", \"C:\\\\Windows\\\\...\", or \"\\\\\\\\server\\\\share\"",
+    "joining base and user path can be bypassed when an absolute user path overrides or escapes the base",
+    "startsWith(base) before canonicalization is bypassable by encoding, symlinks, or normalization",
+    "filtering only '/' misses Windows '\\\\', drive-letter paths, and UNC paths",
+    "single-pass removal of dangerous substrings can create a new dangerous path after transformation"
+  ],
+  "verification_focus": "Can external input reach a file sink as an absolute pathname outside the intended base directory?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-36",
+        "CWE-200"
+      ],
+      "trigger": "absolute path used in a read sink",
+      "consequence": "read arbitrary files and expose sensitive data"
+    },
+    {
+      "chain": [
+        "CWE-36",
+        "CWE-434"
+      ],
+      "trigger": "absolute path used in an upload or write sink with attacker-controlled content",
+      "consequence": "create or overwrite executable files and enable code execution"
+    },
+    {
+      "chain": [
+        "CWE-36",
+        "CWE-59"
+      ],
+      "trigger": "canonical check permits a path through a symbolic link outside the base",
+      "consequence": "escape directory restriction and access unintended files"
+    }
+  ],
+  "patch_principle": [
+    "Use accept-known-good validation for filename characters, length, and extension.",
+    "Reject absolute paths before resolving or opening user-supplied path text.",
+    "Decode and canonicalize once, then verify the canonical target is under the canonical base directory.",
+    "Prefer server-side ID-to-file mapping instead of accepting raw path strings.",
+    "Use safe relative-path APIs anchored to a trusted directory where available."
+  ],
+  "minimal_examples": {
+    "vuln": "File f = new File(request.getParameter(\"path\"));",
+    "safe": "Path p = base.resolve(name).normalize(); if (Paths.get(name).isAbsolute() || !p.startsWith(base)) throw new SecurityException();"
+  }
+}

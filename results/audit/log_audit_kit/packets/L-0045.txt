@@ -1,0 +1,68 @@
+=== 待审推理日志 L-0045 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 2 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: n_start_visual_mode:4
+  引证行: 4
+  引证内容: int cursor_line_was_concealed = curwin->w_p_cole > 0
+  初判倾向: VIOLATED
+  上下文源码:
+      1 | n_start_visual_mode(int c)
+      2 | {
+      3 | #ifdef FEAT_CONCEAL
+      4 |     int cursor_line_was_concealed = curwin->w_p_cole > 0
+      5 | 						&& conceal_cursor_line(curwin);
+      6 | #endif
+      7 | 
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: n_start_visual_mode:18
+  引证行: 18
+  引证内容: coladvance(curwin->w_virtcol);
+  初判倾向: VIOLATED
+  上下文源码:
+     15 |     if (c == Ctrl_V && (get_ve_flags() & VE_BLOCK) && gchar_cursor() == TAB)
+     16 |     {
+     17 | 	validate_virtcol();
+     18 | 	coladvance(curwin->w_virtcol);
+     19 |     }
+     20 |     VIsual = curwin->w_cursor;
+     21 | 
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: n_start_visual_mode:4
+  命中信号: average/rate expression like total / count where count can be 0
+  命中信号: binary % operator with RHS variable or expression not proven nonzero
+  筛选: keep
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: n_start_visual_mode:18
+  命中信号: average/rate expression like total / count where count can be 0
+  命中信号: binary % operator with RHS variable or expression not proven nonzero
+  筛选: keep
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: n_start_visual_mode:4
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: n_start_visual_mode:18
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 arithmetic_bound: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: underdetermined

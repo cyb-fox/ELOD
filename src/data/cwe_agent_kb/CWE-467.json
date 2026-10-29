@@ -1,0 +1,70 @@
+{
+  "cwe_id": "CWE-467",
+  "name": "Use of sizeof() on a Pointer Type",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-131"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code uses sizeof() on a pointer when it needs the size of the pointed-to object or array. This computes pointer width instead of data size, causing undersized buffers or partial comparisons.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "malloc(sizeof(ptr)) where ptr has type T *",
+    "calloc(n, sizeof(ptr)) where ptr has type T *",
+    "realloc(ptr, count * sizeof(ptr)) where ptr has type T *",
+    "memcpy(dst, src, sizeof(ptr)) or memset(dst, 0, sizeof(ptr)) where ptr has type T *",
+    "strncmp(a, b, sizeof(ptr)) or memcmp(a, b, sizeof(ptr)) where ptr has type char * or void *",
+    "sizeof(param) inside a function where param is declared T param[] or T *param",
+    "new char[sizeof(ptr)] or new T[sizeof(ptr)] where ptr is a pointer variable"
+  ],
+  "negative_signals": [
+    "sizeof(*ptr) used for one pointed-to element",
+    "sizeof(ptr[0]) used for one pointed-to element",
+    "sizeof(array) where array is declared as T array[N] in the same scope",
+    "sizeof(void *) or sizeof(char *) used only in static_assert, logging, or platform word-size calculation",
+    "allocation uses count * sizeof(*ptr) with overflow-checked count"
+  ],
+  "false_defense_traps": [
+    "Casting malloc result, e.g. (T *)malloc(sizeof(ptr)), does not fix the size calculation",
+    "Using sizeof(param) on an array parameter still returns pointer size",
+    "Assuming pointer size equals element size on the current platform is non-portable",
+    "Replacing sizeof(ptr) with strlen(ptr) is wrong for binary buffers or missing terminators"
+  ],
+  "verification_focus": "Is sizeof() applied to a pointer in a context that needs the size of the referenced object, array, or full comparison length?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-467",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "trigger": "pointer size is smaller than required object or array size during allocation/copy",
+      "consequence": "undersized buffer followed by out-of-bounds write or memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-467",
+        "CWE-187",
+        "CWE-287"
+      ],
+      "trigger": "sizeof(pointer) limits strncmp/memcmp authentication checks to pointer width",
+      "consequence": "partial credential comparison permits improper authentication"
+    }
+  ],
+  "patch_principle": [
+    "Use sizeof(*ptr) or sizeof ptr[0] for the pointed-to element size",
+    "Track array length separately; do not derive dynamic allocation size from a pointer",
+    "For buffers, compute count * sizeof(*ptr) and check multiplication overflow",
+    "Use explicit expected lengths for strncmp, memcmp, memcpy, and memset"
+  ],
+  "minimal_examples": {
+    "vuln": "double *foo = malloc(sizeof(foo));",
+    "safe": "double *foo = malloc(sizeof(*foo));"
+  }
+}

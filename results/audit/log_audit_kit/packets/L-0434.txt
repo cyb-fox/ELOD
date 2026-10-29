@@ -1,0 +1,71 @@
+=== 待审推理日志 L-0434 ===
+
+【任务】读下面这段自动分析器的完整推理轨迹，判断这段推理是否成立、
+        它给出的最终结论是否可接受。
+【口径】见 RUBRIC_判定口径.md：三个字段。
+【纪律】禁联网、禁检索 CVE/漏洞库。不可跳过。
+【提示】源码片段是分析器自己引用的；它可能引用错行，请自行核对。
+
+【分析器自报的处理量】考察可疑点 2 个；未决 1 个。
+
+【推理轨迹】共 6 步
+
+--- 步骤 1 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: st21nfca_connectivity_event_received:31
+  引证行: 31
+  引证内容: memcpy(transaction->aid, &skb->data[2],
+  初判倾向: VIOLATED
+  上下文源码:
+     28 | 			return -ENOMEM;
+     29 | 
+     30 | 		transaction->aid_len = skb->data[1];
+     31 | 		memcpy(transaction->aid, &skb->data[2],
+     32 | 		       transaction->aid_len);
+     33 | 
+     34 | 		/* Check next byte is PARAMETERS tag (82) */
+
+--- 步骤 2 | 阶段 secure_diff | 动作 instantiate_obligation ---
+  可疑点: st21nfca_connectivity_event_received:40
+  引证行: 40
+  引证内容: memcpy(transaction->params, skb->data +
+  初判倾向: VIOLATED
+  上下文源码:
+     37 | 			return -EPROTO;
+     38 | 
+     39 | 		transaction->params_len = skb->data[transaction->aid_len + 3];
+     40 | 		memcpy(transaction->params, skb->data +
+     41 | 		       transaction->aid_len + 4, transaction->params_len);
+     42 | 
+     43 | 		r = nfc_se_transaction(hdev->ndev, host, transaction);
+
+--- 步骤 3 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: st21nfca_connectivity_event_received:31
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+  义务 readable_extent: UNDERDETERMINED -> VIOLATED
+
+--- 步骤 4 | 阶段 risk_forensics | 动作 inspect_local_guard ---
+  可疑点: st21nfca_connectivity_event_received:40
+  命中信号: memcpy/memmove/read/recv length argument comes from input and is not checked against destination size
+  筛选: keep
+
+--- 步骤 5 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: st21nfca_connectivity_event_received:31
+  违背的义务: readable_extent
+  本步结论: vuln
+  置信度: 0.7
+  义务 attacker_control: ? -> UNDERDETERMINED
+  义务 non_negative_length: ? -> UNDERDETERMINED
+  义务 readable_extent: ? -> VIOLATED
+
+--- 步骤 6 | 阶段 arbiter | 动作 aggregate_obligations ---
+  可疑点: st21nfca_connectivity_event_received:40
+  本步结论: underdetermined
+  置信度: 0.0
+  义务 attacker_control: ? -> UNRESOLVED
+  义务 non_negative_length: ? -> UNRESOLVED
+  义务 readable_extent: ? -> UNRESOLVED
+
+【最终结论】
+  分析器判定: vuln
+  报告的问题类型: CWE-119

@@ -1,0 +1,75 @@
+{
+  "cwe_id": "CWE-367",
+  "name": "Time-of-check Time-of-use (TOCTOU) Race Condition",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "race-condition",
+    "child_of": [
+      "CWE-362"
+    ],
+    "parent_of": [
+      "CWE-363"
+    ]
+  },
+  "principle": "The product checks a resource state or identity, then later uses the resource through a reference that can change. An attacker can alter the resource between check and use, invalidating the check and causing unauthorized or unexpected actions.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "PHP",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "C/C++ access(path, mode) or faccessat(path, mode) followed by fopen(path, ...), open(path, ...), unlink(path), chmod(path), chown(path), or rename(path, ...)",
+    "C/C++ stat(path, &st) or lstat(path, &st) followed by open(path, ...), fopen(path, ...), remove(path), or update using the same pathname",
+    "C/C++ realpath(path, ...) or readlink(path, ...) followed by file operation on the pathname without holding a file descriptor or lock",
+    "C/C++ setuid/setgid privileged code checks user permission on pathname, then performs privileged fopen/open/write on the same pathname",
+    "Java Files.exists(path), Files.isRegularFile(path), Files.isWritable(path), or Files.getOwner(path) followed by Files.newInputStream(path), Files.newOutputStream(path), Files.delete(path), or FileOutputStream(path)",
+    "Java File.exists(), File.canWrite(), File.isFile(), or File.getCanonicalPath() followed by FileInputStream, FileOutputStream, RandomAccessFile, delete(), or renameTo()",
+    "Shared variable or object state checked outside mutex/synchronized/Lock and then used later outside the same critical section"
+  ],
+  "negative_signals": [
+    "Check and use are both inside the same pthread_mutex_lock/pthread_mutex_unlock, synchronized block, ReentrantLock lock/unlock, or FileChannel.lock region",
+    "Code opens the resource first and performs fstat(fd, ...), fchmod(fd, ...), fchown(fd, ...), read/write on the same fd instead of reusing the pathname",
+    "open(path, O_CREAT|O_EXCL, ...) or openat(dirfd, name, O_NOFOLLOW, ...) is used for the security-sensitive operation",
+    "Privileged code drops effective uid/gid before open/fopen and performs the operation with the caller's privileges",
+    "Resource identity is revalidated immediately before use by comparing dev/inode from stat(path) with fstat(fd)"
+  ],
+  "false_defense_traps": [
+    "access(path, W_OK) before fopen(path, \"w+\") still races on the pathname",
+    "stat/lstat check before open does not bind the later open to the checked object",
+    "realpath(), getCanonicalPath(), or readlink() before use can be invalidated by rename or symlink replacement",
+    "Reducing delay between check and use only narrows the race window",
+    "Locking after the check does not protect the checked state"
+  ],
+  "verification_focus": "Can an attacker change the resource identity or state between the observed check API and the later use API?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-367"
+      ],
+      "trigger": "Shared resource is checked and then used without synchronization or atomicity",
+      "consequence": "Unexpected state, unauthorized resource access, or invalid execution logic"
+    },
+    {
+      "chain": [
+        "CWE-367",
+        "CWE-363"
+      ],
+      "trigger": "Attacker replaces checked pathname with a symbolic link before use",
+      "consequence": "Operation follows link to an unintended file, enabling unauthorized read/write/delete"
+    }
+  ],
+  "patch_principle": [
+    "Avoid separate pre-checks; perform the intended operation atomically and handle failure from the use call.",
+    "Use file descriptors or handles: open once, then use fstat/fchmod/fchown/read/write on the same handle.",
+    "Acquire locks before the check and hold them through the use when sharing resources across processes or threads.",
+    "Use safe open flags and APIs such as O_NOFOLLOW, O_EXCL, openat with trusted dirfd, and FileChannel.lock where appropriate.",
+    "Drop effective uid/gid before file operations performed on behalf of an unprivileged user."
+  ],
+  "minimal_examples": {
+    "vuln": "if (!access(file, W_OK)) { f = fopen(file, \"w+\"); }",
+    "safe": "int fd = open(file, O_WRONLY | O_CREAT | O_NOFOLLOW, 0600);"
+  }
+}

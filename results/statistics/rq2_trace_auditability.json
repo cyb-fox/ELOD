@@ -1,0 +1,78 @@
+{
+  "purpose": "RQ2 human audit of LLM reasoning traces — auditability base and coverage",
+  "source_predictions": "predictions/rq1_primevul.jsonl",
+  "source_sha256": "6782fe123bea85bdb5aaae6e69b76f43f2a49fb4e76fb47e396dec4c2207bdfe",
+  "records": 870,
+  "unique_files": 868,
+  "trace_files": 868,
+  "empty_traces": 36,
+  "empty_trace_semantics": "all 36 empty traces are records with sinks_examined==0 and file_resolution==safe_proved (paper label local_guard_observed); an empty trace means no risk point was available to examine, i.e. an intentionally empty audit surface rather than missing data",
+  "coverage_by_three_state": {
+    "vuln": {
+      "auditable": 344,
+      "total": 344,
+      "rate": 1.0
+    },
+    "local_guard_observed": {
+      "auditable": 86,
+      "total": 122,
+      "rate": 0.7049
+    },
+    "underdetermined": {
+      "auditable": 404,
+      "total": 404,
+      "rate": 1.0
+    }
+  },
+  "trace_schema": {
+    "per_record_keys": [
+      "step",
+      "cost",
+      "decision",
+      "evidence_refs",
+      "inputs",
+      "node",
+      "observation",
+      "sink_id",
+      "state_delta",
+      "action",
+      "bucket"
+    ],
+    "node": [
+      "secure_diff",
+      "risk_forensics",
+      "arbiter"
+    ],
+    "action": [
+      "instantiate_obligation",
+      "inspect_local_guard",
+      "aggregate_obligations"
+    ],
+    "state_delta_states": [
+      "VIOLATED",
+      "SATISFIED",
+      "UNDERDETERMINED",
+      "UNRESOLVED"
+    ],
+    "obligations": [
+      "attacker_control",
+      "non_negative_length",
+      "readable_extent"
+    ],
+    "observation_keys": [
+      "line",
+      "snippet",
+      "critical_violated",
+      "mitigation_proved",
+      "resolution",
+      "confidence"
+    ]
+  },
+  "median_steps": {
+    "vuln": 5,
+    "underdetermined": 6,
+    "local_guard_observed": 2
+  },
+  "validation_failures": {},
+  "trace_format": "Per-file trajectories in the detector's trajectory schema, read by the auditor as the reasoning being judged. The reader for this schema is src/vuln_agent/tools/trajectory.py, shipped with the implementation."
+}

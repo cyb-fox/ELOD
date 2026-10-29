@@ -1,0 +1,82 @@
+{
+  "cwe_id": "CWE-319",
+  "name": "Cleartext Transmission of Sensitive Information",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "cryptography",
+    "child_of": [
+      "CWE-311"
+    ],
+    "parent_of": [
+      "CWE-5",
+      "CWE-614",
+      "CWE-1428"
+    ]
+  },
+  "principle": "The product sends sensitive or security-critical data over a communication channel without confidentiality-protecting encryption. Anyone who can sniff the channel or later obtain traffic captures can read or decode the data.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Go",
+    "Python",
+    "JavaScript",
+    "Shell",
+    "Configuration"
+  ],
+  "detection_signals": [
+    "URL/URI/string literal starts with \"http://\" and request body/header contains password/token/key/SSN/PII",
+    "Java new URL(\"http://...\") or HttpURLConnection used for login, PUT, POST, Authorization, Cookie, or credentials",
+    "C/C++ socket/connect/send/write used to transmit sensitive fields without SSL_connect, TLS handshake, mbedtls_ssl_write, or wolfSSL_write",
+    "Use of cleartext protocols: ftp://, telnet://, smtp:// without STARTTLS, ldap:// without StartTLS, ws://, syslog UDP/TCP 514",
+    "Android Network Security Config cleartextTrafficPermitted=\"true\" or usesCleartextTraffic=\"true\" for API/auth endpoints",
+    "Cloud/config flag allows cleartext transport, e.g. Azure enableHttpsTrafficOnly=false or --https-only false",
+    "Cookie/session token sent without Secure attribute or over an http:// origin"
+  ],
+  "negative_signals": [
+    "All sensitive endpoints use https://, wss://, sftp://, ssh://, ldaps://, or smtp with required STARTTLS",
+    "Java uses HttpsURLConnection or SSLSocket for the sensitive request path",
+    "C/C++ sends sensitive bytes only through TLS APIs such as SSL_write, mbedtls_ssl_write, wolfSSL_write, or gnutls_record_send",
+    "Code rejects non-TLS schemes before sending sensitive data, e.g. if (!uri.getScheme().equals(\"https\")) throw",
+    "Server/client config enforces HTTPS-only transport, e.g. HSTS plus HTTP disabled or Azure enableHttpsTrafficOnly=true",
+    "Cookie carrying a session or token is set with Secure and only issued on HTTPS"
+  ],
+  "false_defense_traps": [
+    "Base64, URL encoding, compression, or custom obfuscation treated as encryption",
+    "Encrypting only the login page while later session cookies or data use HTTP",
+    "Using POST over HTTP and assuming the body is hidden from sniffers",
+    "Allowing protocol downgrade or fallback from HTTPS/TLS to HTTP/plaintext",
+    "Assuming internal networks, VPN-adjacent segments, or cloud private links cannot be sniffed"
+  ],
+  "verification_focus": "Does any sensitive value leave the process over a sniffable channel without mandatory end-to-end encryption for the whole session?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-319",
+        "CWE-200"
+      ],
+      "trigger": "attacker captures cleartext traffic containing sensitive application data",
+      "consequence": "confidential information disclosure"
+    },
+    {
+      "chain": [
+        "CWE-319",
+        "CWE-522"
+      ],
+      "trigger": "passwords, API keys, or session tokens are sent over HTTP or another cleartext protocol",
+      "consequence": "credential compromise and account takeover"
+    }
+  ],
+  "patch_principle": [
+    "Use confidentiality-protecting protocols before sending sensitive data: TLS/HTTPS, SSH, SFTP, LDAPS, or required STARTTLS.",
+    "Enforce encrypted transport for the entire authenticated session, not only login.",
+    "Disable cleartext protocols and downgrade/fallback paths in client, server, and cloud configuration.",
+    "Mark sensitive cookies Secure and serve them only over HTTPS.",
+    "Do not transmit keys, credentials, or tokens until the secure channel is established and verified."
+  ],
+  "minimal_examples": {
+    "vuln": "URL u = new URL(\"http://www.secret.example.org/\");",
+    "safe": "URL u = new URL(\"https://www.secret.example.org/\");"
+  }
+}

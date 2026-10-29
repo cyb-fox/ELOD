@@ -1,0 +1,88 @@
+{
+  "cwe_id": "CWE-193",
+  "name": "Off-by-one Error",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-682"
+    ],
+    "parent_of": []
+  },
+  "principle": "The code calculates or uses a maximum or minimum value that is exactly 1 too high or 1 too low. This can make loops, allocations, indexes, or string length arguments cross a boundary by one element or byte.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "for/while loop uses i <= SIZE with access arr[i]",
+    "array access arr[SIZE] after allocation or declaration of SIZE elements",
+    "malloc(n * sizeof(T)) followed by writing sentinel list[n] = NULL",
+    "character buffer size equals maximum text length without +1 for '\\0'",
+    "strncat(dst, src, sizeof(dst)) or strncat(dst, src, remaining) without -1",
+    "sprintf(dst, ...) maximum formatted text length equals sizeof(dst)",
+    "Java loop uses i <= array.length with array[i]"
+  ],
+  "negative_signals": [
+    "loop condition is i < SIZE for zero-based array access",
+    "allocation includes sentinel or terminator space: malloc((n + 1) * sizeof(T))",
+    "strncat length argument is sizeof(dst) - strlen(dst) - 1",
+    "snprintf(dst, sizeof(dst), ...) is used and return value is checked for truncation",
+    "index is checked as index >= 0 && index < array.length before access"
+  ],
+  "false_defense_traps": [
+    "Using strncat with sizeof(dst) as the third argument; it is the max characters to append, not total destination size.",
+    "Using <= because the upper bound looks inclusive; valid zero-based indexes end at SIZE - 1.",
+    "Allocating exactly n elements and then writing a NULL or sentinel at element n.",
+    "Counting visible formatted characters but not the automatic trailing NUL.",
+    "Assuming a one-byte overflow is harmless."
+  ],
+  "verification_focus": "Does any boundary, length, allocation, or index calculation differ from the correct limit by exactly one, especially for terminators or sentinels?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-131",
+        "CWE-787"
+      ],
+      "trigger": "allocation omits one terminator or sentinel slot and code writes it",
+      "consequence": "one-past-end write, memory corruption, crash, or code execution"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-170"
+      ],
+      "trigger": "string length calculation leaves no space for the trailing NUL",
+      "consequence": "improper null termination and later out-of-bounds string processing"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-119"
+      ],
+      "trigger": "loop bound permits index SIZE for an array with valid indexes 0..SIZE-1",
+      "consequence": "operation outside buffer bounds and possible data corruption"
+    },
+    {
+      "chain": [
+        "CWE-193",
+        "CWE-617"
+      ],
+      "trigger": "off-by-one boundary value reaches an assertion-protected impossible state",
+      "consequence": "reachable assertion and denial of service"
+    }
+  ],
+  "patch_principle": [
+    "Use half-open bounds for zero-based arrays: 0 <= i && i < size.",
+    "Include space for NUL terminators and sentinel elements in allocation and validation.",
+    "Pass remaining capacity minus one to C string append/copy APIs that add a terminator.",
+    "Prefer bounded formatting APIs such as snprintf and validate truncation.",
+    "Test boundary inputs at size-1, size, and size+1."
+  ],
+  "minimal_examples": {
+    "vuln": "for (i = 0; i <= PATH_SIZE; i++) filename[i] = c;",
+    "safe": "for (i = 0; i < PATH_SIZE; i++) filename[i] = c;"
+  }
+}

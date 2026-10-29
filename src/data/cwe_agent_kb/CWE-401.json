@@ -1,0 +1,64 @@
+{
+  "cwe_id": "CWE-401",
+  "name": "Missing Release of Memory after Effective Lifetime",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-772",
+      "CWE-404"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code allocates memory and then loses or skips the required release after the memory's effective lifetime. Repeated leaks make memory unavailable for reuse and can cause slowdown, crash, or denial of service.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "malloc/calloc/realloc/strdup/new followed by an error return path without free/delete",
+    "multiple malloc/new calls where a later failure returns without freeing earlier successful allocations",
+    "pointer variable overwritten by malloc/strdup/new result without freeing the previous value",
+    "loop allocates malloc/new memory each iteration and exits via break/return without freeing per-iteration allocations",
+    "C cleanup label frees only top-level struct but omits dynamically allocated member pointers",
+    "C++ raw new stored in raw pointer instead of std::unique_ptr/std::shared_ptr and an exception/return bypasses delete",
+    "Java static Map/List/cache add/put stores request/session objects with no remove/clear/eviction path"
+  ],
+  "negative_signals": [
+    "all return/goto/error paths reach a cleanup block that calls free/delete on each owned allocation",
+    "C allocation pointer is initialized to NULL and cleanup uses free(ptr) for every possibly allocated pointer",
+    "C++ allocation is owned by std::unique_ptr/std::shared_ptr/std::vector/std::string RAII object",
+    "Java object is removed from Map/List/cache via remove/clear or bounded by eviction policy such as LinkedHashMap.removeEldestEntry",
+    "function contract transfers ownership of returned pointer and every caller frees/deletes it on all paths"
+  ],
+  "false_defense_traps": [
+    "checking malloc/new result for NULL but returning on later errors without cleanup",
+    "freeing only the outer struct/array while member pointers remain allocated",
+    "setting a pointer to NULL without first calling free/delete",
+    "assuming process exit will reclaim memory in a long-running server/daemon",
+    "using a GC language while retaining references in static collections or listeners"
+  ],
+  "verification_focus": "For each allocated object, is there exactly one reachable owner that releases or stops retaining it on every normal, error, and exceptional path after last use?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-390",
+        "CWE-401"
+      ],
+      "trigger": "error condition is detected after allocation but code returns without cleanup",
+      "consequence": "memory leak that can accumulate into availability loss or denial of service"
+    }
+  ],
+  "patch_principle": [
+    "Release owned memory on every normal, error, and exceptional exit path.",
+    "Use one cleanup path such as goto cleanup, defer/finally, or RAII instead of duplicated frees.",
+    "Define ownership transfer explicitly for functions that return allocated pointers.",
+    "Prefer automatic memory management helpers such as smart pointers, containers, ARC, or bounded caches.",
+    "Test leak paths with ASan/LeakSanitizer, Valgrind, or fuzzing inputs that trigger errors."
+  ],
+  "minimal_examples": {
+    "vuln": "char *buf = malloc(BLOCK_SIZE); if (read(fd, buf, BLOCK_SIZE) != BLOCK_SIZE) return NULL;",
+    "safe": "char *buf = malloc(BLOCK_SIZE); if (read(fd, buf, BLOCK_SIZE) != BLOCK_SIZE) { free(buf); return NULL; }"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "cwe_id": "CWE-328",
+  "name": "Use of Weak Hash",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "cryptography",
+    "child_of": [
+      "CWE-326",
+      "CWE-327"
+    ],
+    "parent_of": [
+      "CWE-916"
+    ]
+  },
+  "principle": "The product uses a hash algorithm or hash usage that does not provide expected preimage, second-preimage, or collision resistance. This can let attackers recover inputs, find equivalent inputs, create collisions, or bypass access-control checks.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java",
+    "Verilog",
+    "VHDL",
+    "Not Language-Specific"
+  ],
+  "detection_signals": [
+    "Java MessageDigest.getInstance(\"MD5\") or MessageDigest.getInstance(\"SHA\") or MessageDigest.getInstance(\"SHA-1\")",
+    "C/C++ EVP_md5(), EVP_sha1(), MD5(), SHA1(), or simple_digest(\"md5\"/\"sha1\", ...)",
+    "password verification compares stored password digest made with MD5/SHA1/SHA/SHA-256 via strcmp/memcmp/equal",
+    "certificate/signature/integrity code uses md5WithRSAEncryption, sha1WithRSAEncryption, MD5, or SHA1",
+    "hardcoded digest algorithm string \"MD5\", \"SHA\", \"SHA1\", or \"SHA-1\" in authentication, signing, or integrity checks",
+    "RTL/HMAC code truncates or zero-pads secret input before hashing, e.g. { {60{8'h00}}, data_d }"
+  ],
+  "negative_signals": [
+    "password storage uses bcrypt, scrypt, PBKDF2, or Argon2 with per-password salt and configured cost",
+    "integrity/signature code uses SHA-256, SHA-384, SHA-512, or SHA-3 in a non-password context",
+    "legacy MD5/SHA1 use is only non-security checksum, cache key, sharding key, or duplicate detection",
+    "HMAC uses HmacSHA256/HmacSHA384/HmacSHA512 with full key material and no truncation below security requirements",
+    "password hashes include unique random salt and adaptive work factor fields in the stored hash format"
+  ],
+  "false_defense_traps": [
+    "Using SHA-256 directly for passwords is still a fast hash and is insufficient without salt and work factor.",
+    "Adding a salt to MD5 or SHA-1 does not fix collision/preimage weaknesses of the algorithm.",
+    "Calling a strong primitive does not help if the implementation truncates the secret or digest unsafely.",
+    "Relying on SHA-1 because it is deterministic ignores practical collision attacks.",
+    "Using a single global salt or predictable salt does not stop precomputed or targeted cracking effectively."
+  ],
+  "verification_focus": "Does the security decision rely on a weak hash algorithm or a hash usage that breaks preimage, second-preimage, collision, salt, or work-factor assumptions?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-328",
+        "CWE-759"
+      ],
+      "trigger": "passwords are stored as unsalted fast hashes",
+      "consequence": "rainbow-table recovery and account takeover"
+    },
+    {
+      "chain": [
+        "CWE-328",
+        "CWE-916"
+      ],
+      "trigger": "passwords are stored with a fast digest instead of an adaptive password hash",
+      "consequence": "offline brute-force cracking and access-control bypass"
+    },
+    {
+      "chain": [
+        "CWE-328",
+        "CWE-287"
+      ],
+      "trigger": "authentication token, password, or challenge response is validated with a forgeable weak hash",
+      "consequence": "authentication bypass"
+    }
+  ],
+  "patch_principle": [
+    "Replace MD5 and SHA-1 with SHA-2 or SHA-3 for non-password security hashing.",
+    "Store passwords with bcrypt, scrypt, PBKDF2, or Argon2 using unique salts and tuned cost parameters.",
+    "Use standard HMAC APIs with full key material; do not truncate secrets or skip algorithm steps.",
+    "Make hash algorithms configurable so weak algorithms can be retired without redesign.",
+    "Reissue signatures or certificates that use MD5 or SHA-1."
+  ],
+  "minimal_examples": {
+    "vuln": "MessageDigest md = MessageDigest.getInstance(\"SHA-1\"); byte[] h = md.digest(password);",
+    "safe": "String h = BCrypt.hashpw(password, BCrypt.gensalt(12));"
+  }
+}

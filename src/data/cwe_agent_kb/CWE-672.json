@@ -1,0 +1,87 @@
+{
+  "cwe_id": "CWE-672",
+  "name": "Operation on a Resource after Expiration or Release",
+  "abstraction": "Class",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-666"
+    ],
+    "parent_of": [
+      "CWE-298",
+      "CWE-324",
+      "CWE-613",
+      "CWE-825",
+      "CWE-910",
+      "CWE-415",
+      "CWE-416"
+    ]
+  },
+  "principle": "Code uses, accesses, or operates on a resource after it has been expired, released, closed, invalidated, or revoked. The stale handle may now refer to invalid state or a different entity, causing crashes, data corruption, or unauthorized data access.",
+  "applicable_languages": [
+    "C",
+    "C++",
+    "Java"
+  ],
+  "detection_signals": [
+    "C/C++ pointer passed to dereference, memcpy, strcpy, printf(\"%s\"), or function call after free(ptr)",
+    "C++ object pointer/reference used after delete p or delete[] p",
+    "same pointer or handle passed to free, delete, fclose, close, or Release more than once",
+    "file descriptor used in read, write, send, recv, fcntl, dup, or fdopen after close(fd)",
+    "FILE* used in fread, fwrite, fprintf, fflush, or fclose after fclose(fp)",
+    "Java object used after close(), e.g. InputStream.read(), Socket.getInputStream(), Channel.write(), or ResultSet.next() after close()",
+    "session/token/certificate/key accepted after invalidate(), logout, revocation, or expiration timestamp"
+  ],
+  "negative_signals": [
+    "resource variable set to NULL or -1 immediately after release and checked before every later use",
+    "all uses occur before free, delete, close, fclose, invalidate, revoke, or expiration check failure",
+    "ownership transferred with std::unique_ptr, std::shared_ptr, try-with-resources, or RAII and no raw alias is later used",
+    "Java use is inside try-with-resources block and no reference escapes after the block",
+    "code reacquires a fresh handle/session/key and uses the new variable after expiration or release"
+  ],
+  "false_defense_traps": [
+    "checking ptr != NULL after free without assigning ptr = NULL",
+    "checking fd >= 0 after close without assigning fd = -1",
+    "logging or error handling with a buffer after freeing it",
+    "validating expiration only at creation/login while reusing the resource later",
+    "non-atomic reference count checks around release in shared or concurrent code"
+  ],
+  "verification_focus": "Can any execution path operate on the same resource handle, pointer, session, key, certificate, or descriptor after its release, expiration, invalidation, or revocation?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-826",
+        "CWE-672"
+      ],
+      "trigger": "resource is released before its expected lifetime ends",
+      "consequence": "later legitimate code uses an expired resource"
+    },
+    {
+      "chain": [
+        "CWE-672",
+        "CWE-416"
+      ],
+      "trigger": "released heap memory is dereferenced through a stale pointer",
+      "consequence": "memory corruption, crash, or sensitive data access"
+    },
+    {
+      "chain": [
+        "CWE-672",
+        "CWE-910"
+      ],
+      "trigger": "closed file descriptor integer is reused",
+      "consequence": "I/O occurs on the wrong file, socket, or process resource"
+    }
+  ],
+  "patch_principle": [
+    "Move all required operations before release, close, invalidate, revoke, or expiration.",
+    "After release, clear the handle to NULL, -1, or an invalid state and guard every use.",
+    "Use ownership/lifetime constructs such as RAII, smart pointers, try-with-resources, or scoped handles.",
+    "Revalidate expiration or revocation immediately before each security-sensitive use.",
+    "Avoid aliases to releasable resources or update all aliases when ownership is transferred."
+  ],
+  "minimal_examples": {
+    "vuln": "free(buf); logError(\"failed\", buf);",
+    "safe": "logError(\"failed\", buf); free(buf); buf = NULL;"
+  }
+}

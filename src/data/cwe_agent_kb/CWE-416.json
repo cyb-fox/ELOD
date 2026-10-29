@@ -1,0 +1,80 @@
+{
+  "cwe_id": "CWE-416",
+  "name": "Use After Free",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "memory-safety",
+    "child_of": [
+      "CWE-825",
+      "CWE-672"
+    ],
+    "parent_of": []
+  },
+  "principle": "Code reads, writes, dereferences, or passes a pointer after the pointed memory has been released. The freed region may be reallocated for another object, so the dangling pointer can corrupt memory, leak data, crash, or enable code execution.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "free(p) followed by p dereference: *p, p[i], p->field, memcpy(p,...), strcpy(p,...), strncpy(p,...)",
+    "delete p or delete[] p followed by p->method(), p->field, (*p), dynamic_cast/static_cast use, or virtual call",
+    "custom release/destroy/cleanup API such as release_packet(p), destroy_obj(p), cleanup(p) followed by use of p or p->field",
+    "free/delete in an error branch followed by later log/debug/return code passing the same pointer to a function",
+    "free(parent) followed by access to parent->child, parent->buf, parent->fields[i], or container iterator/reference",
+    "one alias freed, then another alias to the same allocation is dereferenced or passed to a callee",
+    "object freed in callback/thread/signal path while another path can still dereference the same pointer without ownership transfer"
+  ],
+  "negative_signals": [
+    "free/delete is the last operation on the pointer and no later dereference, member access, array access, or function argument use exists",
+    "pointer is set to NULL immediately after free/delete and later code only checks p == NULL or if (p) before avoiding use",
+    "all uses occur before free/delete on every control-flow path",
+    "pointer is reassigned from malloc/calloc/realloc/new before the later dereference",
+    "C++ object lifetime is owned by std::unique_ptr/std::shared_ptr/RAII and no raw pointer survives past reset/destruction",
+    "branches are mutually exclusive so no runtime path can execute free/delete before the reported use"
+  ],
+  "false_defense_traps": [
+    "Setting only one pointer to NULL while aliases to the same allocation remain usable",
+    "Checking if (p) after free(p) without assigning p = NULL",
+    "Relying on debug heap poisoning, ASan, or Valgrind as a production fix",
+    "Using reference counts without atomicity or locks across threads",
+    "Freeing a parent object before clearing or invalidating stored child/member pointers"
+  ],
+  "verification_focus": "Can any feasible path release the allocation and then later use the same allocation through the same pointer or an alias?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-362",
+        "CWE-416"
+      ],
+      "trigger": "one thread frees shared memory while another thread still uses it",
+      "consequence": "crash, memory corruption, or stale data read"
+    },
+    {
+      "chain": [
+        "CWE-416",
+        "CWE-123"
+      ],
+      "trigger": "freed chunk is reallocated with attacker-controlled data and stale pointer performs a write",
+      "consequence": "write-what-where primitive and possible arbitrary code execution"
+    },
+    {
+      "chain": [
+        "CWE-416",
+        "CWE-120"
+      ],
+      "trigger": "stale pointer is used as destination for an unchecked buffer copy",
+      "consequence": "corruption of a new heap object and possible control-flow hijack"
+    }
+  ],
+  "patch_principle": [
+    "Make release the final operation in the object's lifetime; move all reads and writes before free/delete.",
+    "Define one clear owner responsible for freeing each allocation; remove stale aliases after ownership transfer.",
+    "Set freed pointers and stored member pointers to NULL after release, but also eliminate aliases.",
+    "Use C++ RAII and smart pointers instead of raw owning pointers where possible.",
+    "Protect shared object lifetime with locks, atomics, reference counting, or safe reclamation before freeing."
+  ],
+  "minimal_examples": {
+    "vuln": "free(p); *p = 1;",
+    "safe": "*p = 1; free(p); p = NULL;"
+  }
+}

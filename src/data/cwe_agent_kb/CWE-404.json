@@ -1,0 +1,37 @@
+{
+  "cwe_id": "CWE-404",
+  "name": "Improper Resource Shutdown or Release",
+  "abstraction": "Base",
+  "family": {
+    "project_family": "availability-and-error-handling",
+    "child_of": [],
+    "parent_of": []
+  },
+  "principle": "The product fails to release, close, unregister, or otherwise complete the lifecycle of a resource on a normal or exceptional path.",
+  "applicable_languages": ["C", "C++", "Java", "Go", "Python"],
+  "detection_signals": [
+    "A resource is acquired and an error or early-return path skips its release or close operation",
+    "A callback, listener, lock, file, socket, or handle remains registered or held after its effective lifetime",
+    "Cleanup handles only the success path or releases an outer object while owned resources remain active"
+  ],
+  "negative_signals": [
+    "Every ownership-ending path reaches matching release, close, unregister, defer, finally, or RAII cleanup",
+    "Ownership transfer is explicit and the receiving owner performs the complete release",
+    "Failure cleanup is centralized and covers each resource that may have been acquired"
+  ],
+  "false_defense_traps": [
+    "Checking acquisition success but skipping cleanup after a later failure",
+    "Dropping a handle or setting it to null without releasing the underlying resource",
+    "Assuming process exit or garbage collection will promptly release a live service resource"
+  ],
+  "verification_focus": "For each acquired resource, is release or an explicit ownership transfer complete on normal, failure, and exceptional paths?",
+  "patch_principle": [
+    "Use one cleanup path for all partially acquired resources",
+    "Make ownership transfer explicit",
+    "Release callbacks, locks, handles, and memory on every applicable exit path"
+  ],
+  "minimal_examples": {
+    "vuln": "fd = open(path, flags); if (parse_error) return -1; close(fd);",
+    "safe": "fd = open(path, flags); if (parse_error) { close(fd); return -1; } close(fd);"
+  }
+}

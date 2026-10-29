@@ -1,0 +1,80 @@
+{
+  "cwe_id": "CWE-194",
+  "name": "Unexpected Sign Extension",
+  "abstraction": "Variant",
+  "family": {
+    "project_family": "numeric-errors",
+    "child_of": [
+      "CWE-681"
+    ],
+    "parent_of": []
+  },
+  "principle": "A signed narrow integer is converted or promoted to a wider type and negative values are sign-extended with leading 1 bits. The resulting large or unexpected value becomes dangerous when used as a size, index, offset, delimiter, or application quantity.",
+  "applicable_languages": [
+    "C",
+    "C++"
+  ],
+  "detection_signals": [
+    "assignment from signed char or short to int, long, size_t, unsigned int, or unsigned long",
+    "implicit integer promotion of signed char, short, or signed bit-field in arithmetic before assignment to wider type",
+    "bounds check on signed char or short followed by use as strncpy, memcpy, memmove, read, recv, malloc, new[], or array index",
+    "function length parameter receives signed char or short without range check after widening",
+    "cast or assignment chain signed short -> unsigned int or size_t where source can be negative",
+    "comparison like if (s > max) on signed narrow variable with no if (s < 0) check before unsigned use",
+    "bit-field value assigned to unsigned long on 64-bit target without explicit zero-extension cast"
+  ],
+  "negative_signals": [
+    "source type is unsigned char, unsigned short, uint8_t, uint16_t, or size_t and remains unsigned through the use",
+    "explicit range check rejects negative values before widening, e.g. if (s < 0 || s > max) error",
+    "value is widened to a signed type and validated after widening before any unsigned conversion",
+    "explicit zero-extension cast through matching unsigned narrow type, e.g. size_t n = (unsigned short)s, after validation",
+    "sink uses a constant bounded length independent of the widened value"
+  ],
+  "false_defense_traps": [
+    "checking only s > max on a signed short lets s == -1 pass and later become a huge unsigned length",
+    "casting to unsigned at the sink does not fix a negative value; it preserves the large converted value",
+    "testing only on 32-bit builds can miss 64-bit sign-extension behavior in long or pointer-sized arithmetic",
+    "assuming unsigned bit-fields always zero-extend can be wrong when integer promotion occurs first",
+    "null-terminating a destination buffer after strncpy does not prevent the oversized copy"
+  ],
+  "verification_focus": "Can a negative signed narrow value be widened or promoted and then used as a length, index, offset, delimiter, or quantity without rejecting the negative value?",
+  "consequence_chains": [
+    {
+      "chain": [
+        "CWE-194",
+        "CWE-195",
+        "CWE-119"
+      ],
+      "trigger": "negative signed length is sign-extended and then interpreted as unsigned by a memory-copy API",
+      "consequence": "out-of-bounds read or write and possible memory corruption"
+    },
+    {
+      "chain": [
+        "CWE-194",
+        "CWE-190",
+        "CWE-125"
+      ],
+      "trigger": "sign-extended value participates in size arithmetic that overflows before buffer access",
+      "consequence": "out-of-bounds read and information disclosure or crash"
+    },
+    {
+      "chain": [
+        "CWE-839",
+        "CWE-194"
+      ],
+      "trigger": "range validation fails to reject negative narrow values before widening",
+      "consequence": "bypass of size or boundary checks"
+    }
+  ],
+  "patch_principle": [
+    "Use unsigned types for sizes, counts, indexes, and offsets that cannot be negative.",
+    "Reject negative values before any conversion to unsigned or pointer-sized types.",
+    "Validate again after widening when negative values are semantically allowed earlier.",
+    "Use explicit casts that document zero-extension only after range validation.",
+    "Compile with -Wconversion and -Wsign-conversion and review all reported narrow-to-wide conversions."
+  ],
+  "minimal_examples": {
+    "vuln": "short s = (short)0xFFFF; if (s <= 256) strncpy(path, input, s);",
+    "safe": "short s = (short)0xFFFF; if (s >= 0 && s <= 255) strncpy(path, input, (size_t)s);"
+  }
+}
